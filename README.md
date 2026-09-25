@@ -1,18 +1,52 @@
-# Falcon Plugin API
+<p align="center">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Falcon-MC/Falcon/main/.github/logo-white.png">
+		<img src="https://raw.githubusercontent.com/Falcon-MC/Falcon/main/.github/logo.png" alt="Falcon" width="200">
+	</picture>
+	<br>
+	<b>Falcon Plugin API</b>
+	<br>
+	Plugin API for the Falcon Minecraft: Bedrock Edition server
+</p>
 
-The API used to write plugins for [Falcon](https://github.com/Falcon-MC/Falcon), a Minecraft: Bedrock Edition
-server written in C++.
+<p align="center">
+	<a href="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml"><img src="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+	<img src="https://img.shields.io/badge/api-v1.0-blue" alt="API">
+	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java-00599C" alt="Languages">
+	<img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
+</p>
 
-Plugins can be written in **C++**, **C#** and **Java**. All three sit on top of the same stable C ABI
-(`native/include/falcon/falcon_api.h`), so a feature added to the API is available in every language.
+## What is this?
 
-| Language | Status | Location |
-|----------|--------|----------|
-| C++      | In development | `native/` |
-| C#       | Planned | `dotnet/` |
-| Java     | Planned | `java/` |
+The API plugins use to extend [Falcon](https://github.com/Falcon-MC/Falcon). Every language sits on top of
+the same stable C ABI, so the server exposes each feature once and all plugins get it.
 
-## Writing a C++ plugin
+- **`native/`** - the C ABI (`falcon_api.h`) and header-only C++ classes built on top of it
+- **`dotnet/`** - C# bindings, planned
+- **`java/`** - Java bindings, planned
+- **`examples/`** - complete plugins, built by CI on every supported platform
+
+The C++ headers only talk to the server through the C ABI, so a plugin built with any compiler runs on
+any Falcon build of the same API major version.
+
+## Usage
+
+The API is a header-only CMake target named `Falcon::PluginAPI`. `falcon_add_plugin` creates the shared
+library with the right settings:
+
+```cmake
+include(FetchContent)
+
+FetchContent_Declare(
+    falcon_plugin_api
+    GIT_REPOSITORY https://github.com/Falcon-MC/PluginAPI.git
+    GIT_TAG main
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(falcon_plugin_api)
+
+falcon_add_plugin(MyPlugin MyPlugin.cpp)
+```
 
 ```cpp
 #include <falcon/Falcon.hpp>
@@ -23,12 +57,6 @@ public:
         events().on<falcon::PlayerJoinEvent>([](falcon::PlayerJoinEvent &event) {
             event.player().sendMessage("Welcome!");
         });
-
-        commands().add("hello", "Says hello", "/hello", [](falcon::CommandContext &context) {
-            context.reply("Hello!");
-            return true;
-        }, falcon::CommandPermission::Any);
-
         return true;
     }
 };
@@ -36,56 +64,37 @@ public:
 FALCON_PLUGIN(MyPlugin)
 ```
 
-Add the API to your CMake project and build a shared library:
-
-```cmake
-include(FetchContent)
-FetchContent_Declare(FalconPluginAPI GIT_REPOSITORY https://github.com/Falcon-MC/PluginAPI.git GIT_TAG main)
-FetchContent_MakeAvailable(FalconPluginAPI)
-
-falcon_add_plugin(MyPlugin MyPlugin.cpp)
-```
-
-The C++ API is header-only and only talks to the server through the C ABI: a plugin built with MSVC runs on a
-server built with GCC.
-
-## Installing a plugin
-
-```
-plugins/
-  MyPlugin/
-    plugin.json
-    MyPlugin.dll        (Windows)
-    libMyPlugin.so      (Linux)
-    libMyPlugin.dylib   (macOS)
-```
-
-`plugin.json`:
+Put the library next to a `plugin.json` in `plugins/<name>/` on the server:
 
 ```json
 {
   "name": "MyPlugin",
   "version": "1.0.0",
   "api-version": "1.0",
-  "main": "MyPlugin",
-  "runtime": "native",
-  "authors": ["you"],
-  "description": "What it does",
-  "depend": [],
-  "softdepend": [],
-  "loadbefore": []
+  "main": "MyPlugin"
 }
 ```
 
-Plugins are loaded when the server starts and unloaded when it stops. There is no hot reloading.
+## Building
 
-See `examples/` for complete plugins.
+Only CMake 3.16+ and a C++17 compiler are required. The example plugins are built when the project is the
+top level project (`FALCON_PLUGIN_API_BUILD_EXAMPLES`).
 
-## Versioning
+```
+cmake -B build -G Ninja
+cmake --build build
+```
 
-The API follows semantic versioning. The server refuses a plugin whose major `api-version` differs from its
-own. Minor versions only add functions at the end of the server function table.
+## Related repositories
 
-## License
+- [Falcon](https://github.com/Falcon-MC/Falcon) - the server
+- [Protocol](https://github.com/Falcon-MC/Protocol) - packets and network types
+- [Network](https://github.com/Falcon-MC/Network) - RakNet and NetherNet transport
 
-[LGPL-3.0](LICENSE)
+## Licensing information
+
+Falcon Plugin API is licensed under the [GNU Lesser General Public License v3.0](LICENSE), which supplements
+the [GNU General Public License v3.0](COPYING). Plugins can use it under any license, as long as changes to
+the API itself stay under the same license.
+
+Falcon is not affiliated with Mojang. All brands and trademarks belong to their respective owners.
