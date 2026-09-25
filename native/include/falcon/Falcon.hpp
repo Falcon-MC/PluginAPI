@@ -4,6 +4,7 @@
 #include "falcon/BlockEvents.hpp"
 #include "falcon/BlockPos.hpp"
 #include "falcon/Commands.hpp"
+#include "falcon/Config.hpp"
 #include "falcon/Content.hpp"
 #include "falcon/CustomBlock.hpp"
 #include "falcon/CustomEntity.hpp"

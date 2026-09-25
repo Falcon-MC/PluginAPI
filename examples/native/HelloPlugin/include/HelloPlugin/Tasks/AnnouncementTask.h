@@ -8,5 +8,5 @@ class AnnouncementTask {
 public:
     static constexpr uint64_t PERIOD_TICKS = 20 * 60 * 5;
 
-    static void start(const falcon::Plugin &plugin);
+    static void start(falcon::Plugin &plugin);
 };

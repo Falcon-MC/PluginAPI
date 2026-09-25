@@ -1,6 +1,7 @@
 #pragma once
 
 #include "falcon/Commands.hpp"
+#include "falcon/Config.hpp"
 #include "falcon/Content.hpp"
 #include "falcon/Events.hpp"
 #include "falcon/Logger.hpp"
@@ -57,7 +58,22 @@ namespace falcon {
             return mContent;
         }
 
+        Config &config() {
+            if (!mConfigLoaded) {
+                mConfig = Config(dataFolder() + "/config.yml");
+                mConfig.load();
+                mConfigLoaded = true;
+            }
+            return mConfig;
+        }
+
+        void saveConfig() {
+            config().save();
+        }
+
     private:
+        Config mConfig;
+        bool mConfigLoaded = false;
         Logger mLogger;
         Events mEvents;
         Commands mCommands;
