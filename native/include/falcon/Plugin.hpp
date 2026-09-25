@@ -7,6 +7,7 @@
 #include "falcon/Logger.hpp"
 #include "falcon/Permissions.hpp"
 #include "falcon/Scheduler.hpp"
+#include "falcon/Services.hpp"
 
 #include <memory>
 #include <string>
@@ -58,6 +59,10 @@ namespace falcon {
             return mContent;
         }
 
+        const Services &services() const {
+            return mServices;
+        }
+
         Config &config() {
             if (!mConfigLoaded) {
                 mConfig = Config(dataFolder() + "/config.yml");
@@ -80,6 +85,7 @@ namespace falcon {
         Scheduler mScheduler;
         Permissions mPermissions;
         Content mContent;
+        Services mServices;
     };
 
     namespace detail {

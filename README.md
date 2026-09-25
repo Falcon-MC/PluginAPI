@@ -11,7 +11,7 @@
 
 <p align="center">
 	<a href="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml"><img src="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-	<img src="https://img.shields.io/badge/api-v1.1-blue" alt="API">
+	<img src="https://img.shields.io/badge/api-v1.2-blue" alt="API">
 	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java-00599C" alt="Languages">
 	<img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
 </p>
@@ -93,6 +93,29 @@ Put the library next to a `plugin.json` in `plugins/<name>/` on the server:
   "main": "MyPlugin"
 }
 ```
+
+### Services and custom events
+
+Plugins talk to each other through the server, whatever language they are written in. A plugin provides a
+named service and any other plugin calls it with a text request, usually JSON. Custom events work like the
+server's events, with priorities and cancellation:
+
+```cpp
+services().provide("economy:balance", [](const std::string &request) {
+    return std::string("{\"balance\":250}");
+});
+
+std::optional<std::string> balance = services().call("economy:balance", "{\"player\":\"Steve\"}");
+
+services().on("quests:completed", [](falcon::CustomEvent &event) {
+    event.setData(event.data() + " rewarded");
+});
+
+falcon::CustomEventResult result = services().fire("quests:completed", "{\"quest\":\"miner\"}", true);
+```
+
+A service belongs to the plugin that provided it and disappears when that plugin is disabled. Call services and
+fire custom events from the main thread.
 
 ### Internal plugins
 

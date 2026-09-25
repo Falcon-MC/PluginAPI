@@ -25,5 +25,6 @@
 #include "falcon/Scheduler.hpp"
 #include "falcon/Server.hpp"
 #include "falcon/ServerEvents.hpp"
+#include "falcon/Services.hpp"
 #include "falcon/Vec3.hpp"
 #include "falcon/WorldEvents.hpp"

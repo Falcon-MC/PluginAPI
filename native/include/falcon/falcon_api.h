@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #define FALCON_API_VERSION_MAJOR 1
-#define FALCON_API_VERSION_MINOR 1
+#define FALCON_API_VERSION_MINOR 2
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -67,6 +67,7 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_EXPLOSION 27u
 #define FALCON_EVENT_FIRE_SPREAD 28u
 #define FALCON_EVENT_BLOCK_BURN 29u
+#define FALCON_EVENT_CUSTOM 30u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -108,6 +109,7 @@ typedef uint32_t FalconCommandPermission;
 #define FALCON_PERMISSION_OPERATOR 1u
 
 typedef void (*FalconEventHandler)(FalconEvent *event, void *userData);
+typedef const char *(*FalconServiceHandler)(const char *request, void *userData);
 typedef void (*FalconTask)(void *userData);
 typedef int (*FalconCommandHandler)(FalconCommandSender *sender, const char *const *arguments,
                                     uint32_t argumentCount, void *userData);
@@ -345,6 +347,19 @@ typedef struct FalconServerApi {
     int32_t (*eventSourceSlot)(FalconEvent *event);
     const char *(*eventDestinationContainer)(FalconEvent *event);
     int32_t (*eventDestinationSlot)(FalconEvent *event);
+
+    int (*registerService)(FalconPlugin *plugin, const char *name, FalconServiceHandler handler, void *userData);
+    void (*unregisterService)(FalconPlugin *plugin, const char *name);
+    int (*hasService)(const char *name);
+    const char *(*serviceProvider)(const char *name);
+    const char *(*callService)(const char *name, const char *request, int *found);
+    uint64_t (*subscribeCustomEvent)(FalconPlugin *plugin, const char *name, FalconEventPriority priority,
+                                     int ignoreCancelled, FalconEventHandler handler, void *userData);
+    const char *(*fireCustomEvent)(FalconPlugin *plugin, const char *name, const char *data, int cancellable,
+                                   int *cancelled);
+    const char *(*eventName)(FalconEvent *event);
+    const char *(*eventData)(FalconEvent *event);
+    void (*eventSetData)(FalconEvent *event, const char *data);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
