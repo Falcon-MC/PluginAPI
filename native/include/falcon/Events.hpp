@@ -96,8 +96,10 @@ namespace falcon {
     private:
         template<typename T>
         static void dispatch(FalconEvent *handle, void *userData) {
-            T event(handle);
-            (*static_cast<std::function<void(T &)> *>(userData))(event);
+            detail::guarded("An event handler threw an exception", [&] {
+                T event(handle);
+                (*static_cast<std::function<void(T &)> *>(userData))(event);
+            });
         }
     };
 }

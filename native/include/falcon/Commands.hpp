@@ -65,13 +65,17 @@ namespace falcon {
     private:
         static int dispatch(FalconCommandSender *sender, const char *const *arguments, uint32_t argumentCount,
                             void *userData) {
-            std::vector<std::string> values;
-            values.reserve(argumentCount);
-            for (uint32_t index = 0; index < argumentCount; index++)
-                values.emplace_back(arguments[index]);
+            int result = 0;
+            detail::guarded("A command handler threw an exception", [&] {
+                std::vector<std::string> values;
+                values.reserve(argumentCount);
+                for (uint32_t index = 0; index < argumentCount; index++)
+                    values.emplace_back(arguments[index]);
 
-            CommandContext context(sender, std::move(values));
-            return (*static_cast<CommandHandler *>(userData))(context) ? 1 : 0;
+                CommandContext context(sender, std::move(values));
+                result = (*static_cast<CommandHandler *>(userData))(context) ? 1 : 0;
+            });
+            return result;
         }
     };
 }

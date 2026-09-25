@@ -2,6 +2,7 @@
 
 #include "falcon/falcon_api.h"
 
+#include <exception>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -16,6 +17,22 @@ namespace falcon::detail {
 
     inline FalconPlugin *plugin() {
         return gPlugin;
+    }
+
+    inline void reportException(const char *where) {
+        if (gApi != nullptr && gPlugin != nullptr)
+            gApi->log(gPlugin, FALCON_LOG_ERROR, where);
+    }
+
+    template<typename Function>
+    void guarded(const char *where, Function &&function) {
+        try {
+            function();
+        } catch (const std::exception &exception) {
+            reportException(exception.what());
+        } catch (...) {
+            reportException(where);
+        }
     }
 
     template<typename T>

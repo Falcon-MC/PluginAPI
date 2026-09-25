@@ -58,15 +58,23 @@ namespace falcon {
         inline std::unique_ptr<Plugin> gInstance;
 
         inline void onLoad(void *) {
-            gInstance->onLoad();
+            guarded("onLoad threw an exception", [] {
+                gInstance->onLoad();
+            });
         }
 
         inline int onEnable(void *) {
-            return gInstance->onEnable() ? 1 : 0;
+            int result = 0;
+            guarded("onEnable threw an exception", [&] {
+                result = gInstance->onEnable() ? 1 : 0;
+            });
+            return result;
         }
 
         inline void onDisable(void *) {
-            gInstance->onDisable();
+            guarded("onDisable threw an exception", [] {
+                gInstance->onDisable();
+            });
         }
 
         template<typename T>
@@ -79,7 +87,11 @@ namespace falcon {
 
             gApi = api;
             gPlugin = plugin;
-            gInstance = std::make_unique<T>();
+            guarded("The plugin constructor threw an exception", [] {
+                gInstance = std::make_unique<T>();
+            });
+            if (gInstance == nullptr)
+                return 0;
 
             callbacks->onLoad = &onLoad;
             callbacks->onEnable = &onEnable;

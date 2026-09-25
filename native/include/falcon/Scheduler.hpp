@@ -10,11 +10,13 @@ namespace falcon {
     class Scheduler {
     public:
         uint64_t delay(uint64_t ticks, std::function<void()> task) const {
-            return schedule(ticks, 0, std::move(task));
+            auto *once = new std::function<void()>(std::move(task));
+            return detail::api().scheduleTask(detail::plugin(), &runOnce, once, ticks, 0);
         }
 
         uint64_t repeat(uint64_t periodTicks, std::function<void()> task) const {
-            return schedule(periodTicks, periodTicks, std::move(task));
+            auto *stored = detail::keep(std::make_unique<std::function<void()>>(std::move(task)));
+            return detail::api().scheduleTask(detail::plugin(), &runRepeating, stored, periodTicks, periodTicks);
         }
 
         uint64_t async(std::function<void()> work, std::function<void()> done = nullptr) const {
@@ -32,23 +34,33 @@ namespace falcon {
             std::function<void()> mDone;
         };
 
-        uint64_t schedule(uint64_t delayTicks, uint64_t periodTicks, std::function<void()> task) const {
-            auto *stored = detail::keep(std::make_unique<std::function<void()>>(std::move(task)));
-            return detail::api().scheduleTask(detail::plugin(), &runTask, stored, delayTicks, periodTicks);
+        static void runOnce(void *userData) {
+            std::unique_ptr<std::function<void()>> task(static_cast<std::function<void()> *>(userData));
+            detail::guarded("A task threw an exception", [&] {
+                (*task)();
+            });
         }
 
-        static void runTask(void *userData) {
-            (*static_cast<std::function<void()> *>(userData))();
+        static void runRepeating(void *userData) {
+            detail::guarded("A task threw an exception", [&] {
+                (*static_cast<std::function<void()> *>(userData))();
+            });
         }
 
         static void runWork(void *userData) {
-            static_cast<AsyncJob *>(userData)->mWork();
+            detail::guarded("An asynchronous task threw an exception", [&] {
+                static_cast<AsyncJob *>(userData)->mWork();
+            });
         }
 
         static void runDone(void *userData) {
             std::unique_ptr<AsyncJob> job(static_cast<AsyncJob *>(userData));
-            if (job->mDone)
+            if (!job->mDone)
+                return;
+
+            detail::guarded("An asynchronous callback threw an exception", [&] {
                 job->mDone();
+            });
         }
     };
 }
