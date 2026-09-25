@@ -1,0 +1,12 @@
+{
+  "name": "HelloPlugin",
+  "version": "1.0.0",
+  "main": "Hello.HelloPlugin",
+  "runtime": "dotnet",
+  "assembly": "HelloPlugin.dll",
+  "authors": ["Falcon-MC"],
+  "description": "Greets players, counts their visits and adds a /joins command",
+  "depend": [],
+  "softdepend": [],
+  "loadbefore": []
+}

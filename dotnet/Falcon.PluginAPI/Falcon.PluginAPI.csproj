@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Falcon.PluginAPI</AssemblyName>
+    <RootNamespace>Falcon</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <FalconApiHeader>$(MSBuildThisFileDirectory)../../native/include/falcon/falcon_api.h</FalconApiHeader>
+    <FalconApiHeader>$([System.IO.Path]::GetFullPath($(FalconApiHeader)))</FalconApiHeader>
+    <FalconMajor>$([System.IO.File]::ReadAllText($(FalconApiHeader)))</FalconMajor>
+    <FalconMinor>$(FalconMajor)</FalconMinor>
+    <FalconMajor>$([System.Text.RegularExpressions.Regex]::Match($(FalconMajor), '(?&lt;=_MAJOR\s+)\d+'))</FalconMajor>
+    <FalconMinor>$([System.Text.RegularExpressions.Regex]::Match($(FalconMinor), '(?&lt;=_MINOR\s+)\d+'))</FalconMinor>
+    <FalconPatch Condition="'$(FalconPatch)' == ''">0</FalconPatch>
+    <Version>$(FalconMajor).$(FalconMinor).$(FalconPatch)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Falcon.PluginAPI</PackageId>
+    <Authors>Falcon-MC</Authors>
+    <Description>C# API for Falcon plugins, generated from the Falcon plugin C ABI</Description>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Falcon-MC/PluginAPI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Falcon-MC/PluginAPI.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>falcon;bedrock;plugin</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Falcon.PluginAPI.runtimeconfig.json"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest"
+          Pack="true"
+          PackagePath="contentFiles/any/any/"
+          PackageCopyToOutput="true"
+          BuildAction="None" />
+  </ItemGroup>
+
+  <Target Name="FalconCheckApiVersion" BeforeTargets="BeforeBuild">
+    <Error Condition="'$(FalconMajor)' == '' Or '$(FalconMinor)' == ''"
+           Text="Could not read FALCON_API_VERSION_MAJOR and FALCON_API_VERSION_MINOR from $(FalconApiHeader)" />
+  </Target>
+
+  <Import Project="../tools/BindingGenerator/FalconBindings.targets" />
+</Project>

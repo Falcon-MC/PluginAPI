@@ -1,0 +1,4 @@
+build/
+cmake-build-*/
+java/target/
+examples/java/*/target/

@@ -23,8 +23,11 @@ the same stable C ABI, so the server exposes each feature once and all plugins g
 
 - **`native/`** - the C ABI (`falcon_api.h`) and header-only C++ classes built on top of it
 - **`internal/`** - support for internal plugins, which use the server's own C++ classes
-- **`dotnet/`** - C# bindings, planned
-- **`java/`** - Java bindings, planned
+- **`dotnet/`** - the `Falcon.PluginAPI` package for C# plugins: interop generated from `falcon_api.h` at
+  build time, C# classes mirroring the C++ ones, and the loader the server runs through the .NET runtime
+- **`java/`** - the `falcon-plugin-api` Maven artifact for Java plugins: bindings generated from `falcon_api.h`
+  at build time with the Foreign Function & Memory API, Java classes mirroring the C++ ones, and the loader the
+  server runs in its embedded Java virtual machine
 - **`examples/`** - complete plugins, built by CI on every supported platform
 
 The C++ headers only talk to the server through the C ABI, so a plugin built with any compiler runs on
@@ -117,6 +120,120 @@ falcon::CustomEventResult result = services().fire("quests:completed", "{\"quest
 A service belongs to the plugin that provided it and disappears when that plugin is disabled. Call services and
 fire custom events from the main thread.
 
+### C# plugins
+
+A C# plugin is a `net8.0` class library that references `Falcon.PluginAPI` and sets `EnableDynamicLoading`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Falcon.PluginAPI" Version="1.2.0" />
+  </ItemGroup>
+</Project>
+```
+
+```csharp
+using Falcon;
+
+namespace MyPlugin
+{
+    public sealed class Main : Plugin
+    {
+        public override bool OnEnable()
+        {
+            Events.On<PlayerJoinEvent>(joinEvent =>
+            {
+                joinEvent.Player.SendMessage("Welcome!");
+            });
+            return true;
+        }
+    }
+}
+```
+
+Copy the output of `dotnet publish` to `plugins/<name>/`. The manifest uses the `dotnet` runtime, `main` is the
+full class name and `assembly` defaults to `<name>.dll`:
+
+```json
+{
+  "name": "MyPlugin",
+  "version": "1.0.0",
+  "main": "MyPlugin.Main",
+  "runtime": "dotnet",
+  "assembly": "MyPlugin.dll"
+}
+```
+
+The server needs the .NET 8 runtime or newer. It looks for it in `DOTNET_ROOT`, then in the default install
+folders. All C# plugins share one runtime and one `Falcon.PluginAPI`, which the server loads from
+`plugins/.dotnet/` (`Falcon.PluginAPI.dll` and `Falcon.PluginAPI.runtimeconfig.json`), or from the folder of
+the first C# plugin when `plugins/.dotnet/` does not exist. Keep that copy at least as new as the one the
+plugins were built against. Each plugin gets its own `AssemblyLoadContext`, so plugins can ship different
+versions of the same library.
+
+A plugin can reference another plugin's assembly at compile time and call its classes directly, with the same
+types on both sides, as long as it lists that plugin in `depend` or `softdepend`: its assemblies and the
+libraries they loaded then come from that plugin instead of a second copy.
+
+### Java plugins
+
+A Java plugin is a Java 22 jar that depends on `falcon-plugin-api` with the `provided` scope:
+
+```xml
+<dependency>
+    <groupId>io.github.falcon-mc</groupId>
+    <artifactId>falcon-plugin-api</artifactId>
+    <version>1.2.0</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+```java
+package myplugin;
+
+import falcon.api.Plugin;
+import falcon.api.event.PlayerJoinEvent;
+
+public final class MyPlugin extends Plugin {
+    @Override
+    public boolean onEnable() {
+        events().on(PlayerJoinEvent.class, event -> {
+            event.player().sendMessage("Welcome!");
+        });
+        return true;
+    }
+}
+```
+
+Put the jar next to a `plugin.json` in `plugins/<name>/`. The manifest uses the `java` runtime, `main` is the
+full class name and `jar` defaults to `<name>.jar`:
+
+```json
+{
+  "name": "MyPlugin",
+  "version": "1.0.0",
+  "api-version": "1.2",
+  "main": "myplugin.MyPlugin",
+  "runtime": "java",
+  "jar": "MyPlugin.jar"
+}
+```
+
+The server needs Java 22 or newer. It looks for it in `FALCON_JAVA_HOME`, then in `JAVA_HOME`, and passes the
+options in `FALCON_JAVA_OPTIONS` (for example `-Xmx1G`) to the virtual machine. All Java plugins share one
+virtual machine and one `falcon-plugin-api-<version>.jar`, which the server loads from `plugins/.java/`: keep it
+at least as new as the one the plugins were built against. Each plugin gets its own class loader, and objects
+that own native memory, such as a created `Item`, are `AutoCloseable`.
+
+A plugin can compile against another plugin's jar (`provided` scope) and call its classes directly, with the
+same classes on both sides, as long as it lists that plugin in `depend` or `softdepend`: its class loader then
+looks in that plugin's jar before its own, so a class is never loaded twice.
+
 ### Internal plugins
 
 `falcon_add_internal_plugin` builds the library against one server release. It adds the server's include
@@ -197,6 +314,22 @@ cmake --build build
 For a server built from source with `FALCON_EXPORT_SYMBOLS` (on by default), point `FALCON_BUILD_DIR` at its
 build directory instead, or build the plugins inside the server's build tree with
 `-DFALCON_BUILD_INTERNAL_PLUGINS=ON`.
+
+The C# package and its example need the .NET 8 SDK. The interop is generated from `falcon_api.h` on every
+build, and the package version follows the API version of that header:
+
+```
+dotnet build examples/dotnet/HelloPlugin/HelloPlugin.csproj -c Release
+dotnet pack dotnet/Falcon.PluginAPI/Falcon.PluginAPI.csproj -c Release -o nupkg
+```
+
+The Java artifact and its example need JDK 22 and Maven. The bindings are generated from `falcon_api.h` on every
+build, and the build fails when the artifact version does not match the API version of that header:
+
+```
+mvn -B -f java/pom.xml install
+mvn -B -f examples/java/HelloPlugin/pom.xml package
+```
 
 ## Related repositories
 

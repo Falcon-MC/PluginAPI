@@ -1,0 +1,43 @@
+<Project>
+  <PropertyGroup>
+    <FalconApiDefault>$(MSBuildThisFileDirectory)../../../native/include/falcon/falcon_api.h</FalconApiDefault>
+    <FalconApiHeader Condition="'$(FalconApiHeader)' == ''">$(FalconApiDefault)</FalconApiHeader>
+    <FalconBindingsNamespace Condition="'$(FalconBindingsNamespace)' == ''">Falcon.Interop</FalconBindingsNamespace>
+    <FalconBindingsGenerator>$(MSBuildThisFileDirectory)GenerateFalconBindings.cs</FalconBindingsGenerator>
+  </PropertyGroup>
+
+  <UsingTask TaskName="GenerateFalconBindings"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Header ParameterType="System.String" Required="true" />
+      <OutputFile ParameterType="System.String" Required="true" />
+      <Namespace ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)GenerateFalconBindings.cs" />
+    </Task>
+  </UsingTask>
+
+  <Target Name="FalconResolveBindings">
+    <PropertyGroup>
+      <FalconBindingsOutput>$(IntermediateOutputPath)FalconBindings.g.cs</FalconBindingsOutput>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="FalconGenerateBindings"
+          DependsOnTargets="FalconResolveBindings"
+          Inputs="$(FalconApiHeader);$(FalconBindingsGenerator);$(MSBuildThisFileFullPath)"
+          Outputs="$(FalconBindingsOutput)">
+    <GenerateFalconBindings Header="$(FalconApiHeader)"
+                            OutputFile="$(FalconBindingsOutput)"
+                            Namespace="$(FalconBindingsNamespace)" />
+  </Target>
+
+  <Target Name="FalconIncludeBindings" BeforeTargets="CoreCompile" DependsOnTargets="FalconGenerateBindings">
+    <ItemGroup>
+      <Compile Include="$(FalconBindingsOutput)" />
+      <FileWrites Include="$(FalconBindingsOutput)" />
+    </ItemGroup>
+  </Target>
+</Project>

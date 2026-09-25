@@ -1,0 +1,13 @@
+{
+  "name": "HelloPlugin",
+  "version": "1.0.0",
+  "api-version": "1.2",
+  "main": "falcon.examples.hello.HelloPlugin",
+  "runtime": "java",
+  "jar": "HelloPlugin.jar",
+  "authors": ["Falcon-MC"],
+  "description": "Greets players, counts their visits and adds a /joins command",
+  "depend": [],
+  "softdepend": [],
+  "loadbefore": []
+}

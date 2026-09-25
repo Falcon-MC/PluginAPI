@@ -45,3 +45,83 @@ jobs:
 
       - name: Build
         run: cmake --build build --config Release
+
+  dotnet:
+    name: dotnet-${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-22.04
+          - name: windows
+            os: windows-2022
+          - name: macos
+            os: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build the C# API
+        run: dotnet build dotnet/Falcon.PluginAPI/Falcon.PluginAPI.csproj -c Release
+
+      - name: Build the example plugin
+        run: dotnet build examples/dotnet/HelloPlugin/HelloPlugin.csproj -c Release
+
+      - name: Pack the C# API
+        if: matrix.name == 'linux'
+        run: dotnet pack dotnet/Falcon.PluginAPI/Falcon.PluginAPI.csproj -c Release -o nupkg
+
+      - name: Upload the package
+        if: matrix.name == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Falcon.PluginAPI-nupkg
+          path: nupkg/*.nupkg
+          if-no-files-found: error
+
+  java:
+    name: java-${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-22.04
+          - name: windows
+            os: windows-2022
+          - name: macos
+            os: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 22
+          cache: maven
+
+      - name: Build the Java API
+        run: mvn -B -f java/pom.xml install
+
+      - name: Build the example plugin
+        run: mvn -B -f examples/java/HelloPlugin/pom.xml package
+
+      - name: Upload the jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-${{ matrix.name }}
+          path: |
+            java/target/falcon-plugin-api-*.jar
+            examples/java/HelloPlugin/target/HelloPlugin.jar
+            examples/java/HelloPlugin/plugin.json
+          if-no-files-found: error
