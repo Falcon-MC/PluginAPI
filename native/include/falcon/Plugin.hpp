@@ -1,8 +1,10 @@
 #pragma once
 
 #include "falcon/Commands.hpp"
+#include "falcon/Content.hpp"
 #include "falcon/Events.hpp"
 #include "falcon/Logger.hpp"
+#include "falcon/Permissions.hpp"
 #include "falcon/Scheduler.hpp"
 
 #include <memory>
@@ -47,11 +49,21 @@ namespace falcon {
             return mScheduler;
         }
 
+        const Permissions &permissions() const {
+            return mPermissions;
+        }
+
+        const Content &content() const {
+            return mContent;
+        }
+
     private:
         Logger mLogger;
         Events mEvents;
         Commands mCommands;
         Scheduler mScheduler;
+        Permissions mPermissions;
+        Content mContent;
     };
 
     namespace detail {

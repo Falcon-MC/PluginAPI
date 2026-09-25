@@ -1,5 +1,6 @@
 #pragma once
 
+#include "falcon/Level.hpp"
 #include "falcon/Player.hpp"
 
 #include <optional>
@@ -30,6 +31,13 @@ namespace falcon {
 
         static void broadcast(const std::string &message) {
             detail::api().broadcastMessage(message.c_str());
+        }
+
+        static std::optional<Level> level(Dimension dimension) {
+            FalconLevel *handle = detail::api().serverLevel(static_cast<FalconDimension>(dimension));
+            if (handle == nullptr)
+                return std::nullopt;
+            return Level(handle);
         }
     };
 }

@@ -6,6 +6,8 @@
 
 class HelloPlugin : public falcon::Plugin {
 public:
+    void onLoad() override;
+
     bool onEnable() override;
 
     void onDisable() override;

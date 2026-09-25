@@ -35,6 +35,10 @@ namespace falcon {
             return mArguments;
         }
 
+        bool hasPermission(const std::string &node) const {
+            return detail::api().senderHasPermission(mSender, node.c_str()) != 0;
+        }
+
         void reply(const std::string &message) const {
             detail::api().senderSendMessage(mSender, message.c_str());
         }

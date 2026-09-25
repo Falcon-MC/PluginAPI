@@ -5,6 +5,7 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace falcon::detail {
@@ -17,6 +18,18 @@ namespace falcon::detail {
 
     inline FalconPlugin *plugin() {
         return gPlugin;
+    }
+
+    inline std::string text(const char *value) {
+        if (value == nullptr)
+            return std::string();
+        return std::string(value);
+    }
+
+    inline const char *nullable(const std::string &value) {
+        if (value.empty())
+            return nullptr;
+        return value.c_str();
     }
 
     inline void reportException(const char *where) {

@@ -21,11 +21,61 @@ typedef struct FalconPlugin FalconPlugin;
 typedef struct FalconPlayer FalconPlayer;
 typedef struct FalconEvent FalconEvent;
 typedef struct FalconCommandSender FalconCommandSender;
+typedef struct FalconEntity FalconEntity;
+typedef struct FalconLevel FalconLevel;
+typedef struct FalconItem FalconItem;
+
+typedef struct FalconVec3 {
+    double x;
+    double y;
+    double z;
+} FalconVec3;
+
+typedef struct FalconBlockPos {
+    int32_t x;
+    int32_t y;
+    int32_t z;
+} FalconBlockPos;
 
 typedef uint32_t FalconEventType;
 #define FALCON_EVENT_PLAYER_JOIN 1u
 #define FALCON_EVENT_PLAYER_QUIT 2u
 #define FALCON_EVENT_PLAYER_CHAT 3u
+#define FALCON_EVENT_BLOCK_BREAK 4u
+#define FALCON_EVENT_BLOCK_PLACE 5u
+#define FALCON_EVENT_PLAYER_INTERACT_BLOCK 6u
+#define FALCON_EVENT_ENTITY_DAMAGE 7u
+#define FALCON_EVENT_ENTITY_DEATH 8u
+#define FALCON_EVENT_PLAYER_DEATH 9u
+#define FALCON_EVENT_PLAYER_RESPAWN 10u
+#define FALCON_EVENT_PLAYER_MOVE 11u
+#define FALCON_EVENT_PLAYER_DROP_ITEM 12u
+#define FALCON_EVENT_PLAYER_PICKUP_ITEM 13u
+#define FALCON_EVENT_DATA_PACKET_RECEIVE 14u
+#define FALCON_EVENT_DATA_PACKET_SEND 15u
+#define FALCON_EVENT_PLAYER_INTERACT_ENTITY 16u
+
+typedef uint32_t FalconGameMode;
+#define FALCON_GAME_MODE_SURVIVAL 0u
+#define FALCON_GAME_MODE_CREATIVE 1u
+#define FALCON_GAME_MODE_ADVENTURE 2u
+#define FALCON_GAME_MODE_SPECTATOR 6u
+
+typedef uint32_t FalconDimension;
+#define FALCON_DIMENSION_OVERWORLD 0u
+#define FALCON_DIMENSION_NETHER 1u
+#define FALCON_DIMENSION_THE_END 2u
+
+typedef uint32_t FalconPermissionDefault;
+#define FALCON_PERMISSION_DEFAULT_FALSE 0u
+#define FALCON_PERMISSION_DEFAULT_TRUE 1u
+#define FALCON_PERMISSION_DEFAULT_OPERATOR 2u
+
+typedef uint32_t FalconArmorSlot;
+#define FALCON_ARMOR_HEAD 0u
+#define FALCON_ARMOR_CHEST 1u
+#define FALCON_ARMOR_LEGS 2u
+#define FALCON_ARMOR_FEET 3u
 
 typedef uint32_t FalconEventPriority;
 #define FALCON_PRIORITY_LOWEST 0u
@@ -57,6 +107,54 @@ typedef struct FalconCommandDescriptor {
     FalconCommandHandler handler;
     void *userData;
 } FalconCommandDescriptor;
+
+typedef int (*FalconItemUseHandler)(FalconPlayer *player, FalconItem *item, void *userData);
+typedef int (*FalconItemUseOnBlockHandler)(FalconPlayer *player, FalconItem *item, FalconBlockPos position,
+                                           uint32_t face, void *userData);
+typedef int (*FalconBlockInteractHandler)(FalconPlayer *player, FalconBlockPos position, uint32_t face,
+                                          void *userData);
+typedef void (*FalconBlockBreakHandler)(FalconPlayer *player, FalconBlockPos position, void *userData);
+typedef void (*FalconEntityTickHandler)(FalconEntity *entity, void *userData);
+typedef int (*FalconEntityInteractHandler)(FalconEntity *entity, FalconPlayer *player, void *userData);
+
+typedef struct FalconCustomItemDescriptor {
+    const char *identifier;
+    const char *displayName;
+    const char *icon;
+    const char *creativeCategory;
+    uint32_t maxStackSize;
+    uint32_t maxDurability;
+    int32_t handEquipped;
+    FalconItemUseHandler onUse;
+    FalconItemUseOnBlockHandler onUseOnBlock;
+    void *userData;
+} FalconCustomItemDescriptor;
+
+typedef struct FalconCustomBlockDescriptor {
+    const char *identifier;
+    const char *displayName;
+    const char *texture;
+    const char *creativeCategory;
+    float destroyTime;
+    float explosionResistance;
+    uint32_t lightEmission;
+    float friction;
+    const char *drop;
+    FalconBlockInteractHandler onInteract;
+    FalconBlockBreakHandler onBreak;
+    void *userData;
+} FalconCustomBlockDescriptor;
+
+typedef struct FalconCustomEntityDescriptor {
+    const char *identifier;
+    float width;
+    float height;
+    float maxHealth;
+    int32_t summonable;
+    FalconEntityTickHandler onTick;
+    FalconEntityInteractHandler onInteract;
+    void *userData;
+} FalconCustomEntityDescriptor;
 
 typedef struct FalconPluginCallbacks {
     void (*onLoad)(void *userData);
@@ -104,6 +202,120 @@ typedef struct FalconServerApi {
                              uint64_t periodTicks);
     uint64_t (*runAsync)(FalconPlugin *plugin, FalconTask work, FalconTask done, void *userData);
     void (*cancelTask)(uint64_t task);
+
+    FalconEntity *(*eventEntity)(FalconEvent *event);
+    FalconEntity *(*eventAttacker)(FalconEvent *event);
+    FalconBlockPos (*eventBlockPosition)(FalconEvent *event);
+    uint32_t (*eventBlockFace)(FalconEvent *event);
+    const char *(*eventBlockName)(FalconEvent *event);
+    double (*eventAmount)(FalconEvent *event);
+    void (*eventSetAmount)(FalconEvent *event, double amount);
+    const char *(*eventCause)(FalconEvent *event);
+    FalconVec3 (*eventFrom)(FalconEvent *event);
+    FalconVec3 (*eventTo)(FalconEvent *event);
+    void (*eventSetTo)(FalconEvent *event, FalconVec3 position);
+    FalconItem *(*eventItem)(FalconEvent *event);
+    uint32_t (*eventPacketId)(FalconEvent *event);
+    const uint8_t *(*eventPacketData)(FalconEvent *event, uint32_t *length);
+    void (*eventSetPacketData)(FalconEvent *event, const uint8_t *data, uint32_t length);
+
+    FalconEntity *(*playerEntity)(FalconPlayer *player);
+    FalconPlayer *(*entityPlayer)(FalconEntity *entity);
+    const char *(*entityType)(FalconEntity *entity);
+    uint64_t (*entityRuntimeId)(FalconEntity *entity);
+    FalconLevel *(*entityLevel)(FalconEntity *entity);
+    FalconVec3 (*entityPosition)(FalconEntity *entity);
+    FalconVec3 (*entityRotation)(FalconEntity *entity);
+    void (*entityTeleport)(FalconEntity *entity, FalconLevel *level, FalconVec3 position);
+    FalconVec3 (*entityMotion)(FalconEntity *entity);
+    void (*entitySetMotion)(FalconEntity *entity, FalconVec3 motion);
+    float (*entityHealth)(FalconEntity *entity);
+    float (*entityMaxHealth)(FalconEntity *entity);
+    void (*entitySetHealth)(FalconEntity *entity, float health);
+    int (*entityIsAlive)(FalconEntity *entity);
+    int (*entityDamage)(FalconEntity *entity, float amount, const char *cause, FalconEntity *attacker);
+    void (*entityKill)(FalconEntity *entity);
+    void (*entityRemove)(FalconEntity *entity);
+    const char *(*entityNameTag)(FalconEntity *entity);
+    void (*entitySetNameTag)(FalconEntity *entity, const char *nameTag);
+    int (*entityIsOnFire)(FalconEntity *entity);
+    void (*entitySetOnFire)(FalconEntity *entity, uint32_t ticks);
+    uint32_t (*levelEntityCount)(FalconLevel *level);
+    FalconEntity *(*levelEntity)(FalconLevel *level, uint32_t index);
+
+    FalconGameMode (*playerGameMode)(FalconPlayer *player);
+    void (*playerSetGameMode)(FalconPlayer *player, FalconGameMode gameMode);
+    const char *(*playerXuid)(FalconPlayer *player);
+    const char *(*playerUuid)(FalconPlayer *player);
+    const char *(*playerAddress)(FalconPlayer *player);
+    void (*playerSendTitle)(FalconPlayer *player, const char *title, const char *subtitle);
+    void (*playerSendActionBar)(FalconPlayer *player, const char *message);
+    float (*playerFood)(FalconPlayer *player);
+    void (*playerSetFood)(FalconPlayer *player, float food);
+    int32_t (*playerXpLevel)(FalconPlayer *player);
+    void (*playerSetXpLevel)(FalconPlayer *player, int32_t level);
+    void (*playerSetOperator)(FalconPlayer *player, int operator_);
+
+    FalconLevel *(*serverLevel)(FalconDimension dimension);
+    FalconDimension (*levelDimension)(FalconLevel *level);
+    const char *(*levelName)(FalconLevel *level);
+    const char *(*levelGetBlock)(FalconLevel *level, FalconBlockPos position);
+    const char *(*levelGetBlockStates)(FalconLevel *level, FalconBlockPos position);
+    int (*levelSetBlock)(FalconLevel *level, FalconBlockPos position, const char *name, const char *statesJson);
+    int (*levelBreakBlock)(FalconLevel *level, FalconBlockPos position, int dropItems);
+    int (*levelIsChunkLoaded)(FalconLevel *level, int32_t chunkX, int32_t chunkZ);
+    int32_t (*levelHighestBlockY)(FalconLevel *level, int32_t x, int32_t z);
+    int64_t (*levelTime)(FalconLevel *level);
+    void (*levelSetTime)(FalconLevel *level, int64_t time);
+    int (*levelIsRaining)(FalconLevel *level);
+    void (*levelSetRaining)(FalconLevel *level, int raining);
+    int (*levelIsThundering)(FalconLevel *level);
+    void (*levelSetThundering)(FalconLevel *level, int thundering);
+    FalconVec3 (*levelSpawnPosition)(FalconLevel *level);
+    FalconEntity *(*levelSpawnEntity)(FalconLevel *level, const char *identifier, FalconVec3 position);
+    void (*levelDropItem)(FalconLevel *level, FalconVec3 position, FalconItem *item);
+    void (*levelStrikeLightning)(FalconLevel *level, FalconVec3 position);
+    void (*levelCreateExplosion)(FalconLevel *level, FalconVec3 position, float power, int breakBlocks);
+
+    FalconItem *(*itemCreate)(const char *identifier, uint32_t count);
+    FalconItem *(*itemCopy)(FalconItem *item);
+    void (*itemDestroy)(FalconItem *item);
+    int (*itemIsEmpty)(FalconItem *item);
+    const char *(*itemIdentifier)(FalconItem *item);
+    uint32_t (*itemCount)(FalconItem *item);
+    void (*itemSetCount)(FalconItem *item, uint32_t count);
+    int32_t (*itemDamage)(FalconItem *item);
+    void (*itemSetDamage)(FalconItem *item, int32_t damage);
+    const char *(*itemCustomName)(FalconItem *item);
+    void (*itemSetCustomName)(FalconItem *item, const char *name);
+    uint32_t (*itemLoreCount)(FalconItem *item);
+    const char *(*itemLore)(FalconItem *item, uint32_t index);
+    void (*itemSetLore)(FalconItem *item, const char *const *lines, uint32_t count);
+    int32_t (*itemEnchantmentLevel)(FalconItem *item, uint32_t enchantment);
+    void (*itemSetEnchantmentLevel)(FalconItem *item, uint32_t enchantment, int32_t level);
+    uint32_t (*playerInventorySize)(FalconPlayer *player);
+    FalconItem *(*playerInventoryItem)(FalconPlayer *player, uint32_t slot);
+    void (*playerSetInventoryItem)(FalconPlayer *player, uint32_t slot, FalconItem *item);
+    int (*playerGiveItem)(FalconPlayer *player, FalconItem *item);
+    uint32_t (*playerSelectedSlot)(FalconPlayer *player);
+    void (*playerSetSelectedSlot)(FalconPlayer *player, uint32_t slot);
+    FalconItem *(*playerArmorItem)(FalconPlayer *player, FalconArmorSlot slot);
+    void (*playerSetArmorItem)(FalconPlayer *player, FalconArmorSlot slot, FalconItem *item);
+    FalconItem *(*playerOffhandItem)(FalconPlayer *player);
+    void (*playerSetOffhandItem)(FalconPlayer *player, FalconItem *item);
+    void (*playerClearInventory)(FalconPlayer *player);
+
+    int (*registerPermission)(FalconPlugin *plugin, const char *node, FalconPermissionDefault defaultValue);
+    int (*playerHasPermission)(FalconPlayer *player, const char *node);
+    void (*playerSetPermission)(FalconPlugin *plugin, FalconPlayer *player, const char *node, int value);
+    void (*playerUnsetPermission)(FalconPlugin *plugin, FalconPlayer *player, const char *node);
+    int (*senderHasPermission)(FalconCommandSender *sender, const char *node);
+
+    int (*playerSendPacket)(FalconPlayer *player, uint32_t packetId, const uint8_t *data, uint32_t length);
+
+    int (*registerCustomItem)(FalconPlugin *plugin, const FalconCustomItemDescriptor *descriptor);
+    int (*registerCustomBlock)(FalconPlugin *plugin, const FalconCustomBlockDescriptor *descriptor);
+    int (*registerCustomEntity)(FalconPlugin *plugin, const FalconCustomEntityDescriptor *descriptor);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
