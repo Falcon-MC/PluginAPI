@@ -79,16 +79,6 @@ plugins/
 
 Plugins are loaded when the server starts and unloaded when it stops. There is no hot reloading.
 
-## What the API offers
-
-- **Lifecycle**: `onLoad`, `onEnable`, `onDisable`.
-- **Events**: player join, quit and chat, with priorities from `Lowest` to `Monitor`, cancellation and
-  `ignoreCancelled`.
-- **Commands**: registered with a permission and shown in the client's command list.
-- **Scheduler**: delayed and repeating tasks on the main thread, and asynchronous work with a callback on the
-  main thread.
-- **Logger** and a per-plugin data folder.
-
 See `examples/` for complete plugins.
 
 ## Versioning
