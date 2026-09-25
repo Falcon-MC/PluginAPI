@@ -5,7 +5,7 @@
   "main": "HelloPlugin",
   "runtime": "native",
   "authors": ["Falcon-MC"],
-  "description": "Greets players and adds a /hello command",
+  "description": "Greets players, counts their visits and adds a /joins command",
   "depend": [],
   "softdepend": [],
   "loadbefore": []
