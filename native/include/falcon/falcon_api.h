@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #define FALCON_API_VERSION_MAJOR 1
-#define FALCON_API_VERSION_MINOR 0
+#define FALCON_API_VERSION_MINOR 1
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -54,6 +54,19 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_DATA_PACKET_RECEIVE 14u
 #define FALCON_EVENT_DATA_PACKET_SEND 15u
 #define FALCON_EVENT_PLAYER_INTERACT_ENTITY 16u
+#define FALCON_EVENT_INVENTORY_OPEN 17u
+#define FALCON_EVENT_INVENTORY_CLOSE 18u
+#define FALCON_EVENT_INVENTORY_TRANSACTION 19u
+#define FALCON_EVENT_CRAFT_ITEM 20u
+#define FALCON_EVENT_PLAYER_COMMAND 21u
+#define FALCON_EVENT_SERVER_COMMAND 22u
+#define FALCON_EVENT_SERVER_TICK 23u
+#define FALCON_EVENT_PLAYER_GAME_MODE_CHANGE 24u
+#define FALCON_EVENT_PLAYER_CHANGE_DIMENSION 25u
+#define FALCON_EVENT_PROJECTILE_HIT 26u
+#define FALCON_EVENT_EXPLOSION 27u
+#define FALCON_EVENT_FIRE_SPREAD 28u
+#define FALCON_EVENT_BLOCK_BURN 29u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -316,6 +329,22 @@ typedef struct FalconServerApi {
     int (*registerCustomItem)(FalconPlugin *plugin, const FalconCustomItemDescriptor *descriptor);
     int (*registerCustomBlock)(FalconPlugin *plugin, const FalconCustomBlockDescriptor *descriptor);
     int (*registerCustomEntity)(FalconPlugin *plugin, const FalconCustomEntityDescriptor *descriptor);
+
+    FalconLevel *(*eventLevel)(FalconEvent *event);
+    FalconEntity *(*eventTarget)(FalconEvent *event);
+    FalconVec3 (*eventPosition)(FalconEvent *event);
+    uint32_t (*eventBlockCount)(FalconEvent *event);
+    FalconBlockPos (*eventBlockAt)(FalconEvent *event, uint32_t index);
+    void (*eventSetBlocks)(FalconEvent *event, const FalconBlockPos *positions, uint32_t count);
+    FalconGameMode (*eventGameMode)(FalconEvent *event);
+    FalconGameMode (*eventPreviousGameMode)(FalconEvent *event);
+    FalconDimension (*eventDimension)(FalconEvent *event);
+    FalconDimension (*eventPreviousDimension)(FalconEvent *event);
+    uint64_t (*eventTick)(FalconEvent *event);
+    const char *(*eventSourceContainer)(FalconEvent *event);
+    int32_t (*eventSourceSlot)(FalconEvent *event);
+    const char *(*eventDestinationContainer)(FalconEvent *event);
+    int32_t (*eventDestinationSlot)(FalconEvent *event);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

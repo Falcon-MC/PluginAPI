@@ -2,6 +2,7 @@
 
 #include "falcon/Events.hpp"
 #include "falcon/Item.hpp"
+#include "falcon/Level.hpp"
 #include "falcon/Player.hpp"
 #include "falcon/Vec3.hpp"
 
@@ -81,6 +82,75 @@ namespace falcon {
 
         Item item() const {
             return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    class PlayerCommandEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_COMMAND;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        std::string command() const {
+            return detail::text(detail::api().eventMessage(mHandle));
+        }
+
+        void setCommand(const std::string &command) const {
+            detail::api().eventSetMessage(mHandle, command.c_str());
+        }
+    };
+
+    class PlayerGameModeChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_GAME_MODE_CHANGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        GameMode gameMode() const {
+            return static_cast<GameMode>(detail::api().eventGameMode(mHandle));
+        }
+
+        GameMode previousGameMode() const {
+            return static_cast<GameMode>(detail::api().eventPreviousGameMode(mHandle));
+        }
+    };
+
+    class PlayerChangeDimensionEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_CHANGE_DIMENSION;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Dimension dimension() const {
+            return static_cast<Dimension>(detail::api().eventDimension(mHandle));
+        }
+
+        Dimension previousDimension() const {
+            return static_cast<Dimension>(detail::api().eventPreviousDimension(mHandle));
+        }
+
+        Vec3 from() const {
+            return Vec3::from(detail::api().eventFrom(mHandle));
+        }
+
+        Vec3 to() const {
+            return Vec3::from(detail::api().eventTo(mHandle));
+        }
+
+        void setTo(const Vec3 &position) const {
+            detail::api().eventSetTo(mHandle, position.raw());
         }
     };
 
