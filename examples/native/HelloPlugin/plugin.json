@@ -1,0 +1,12 @@
+{
+  "name": "HelloPlugin",
+  "version": "1.0.0",
+  "api-version": "1.0",
+  "main": "HelloPlugin",
+  "runtime": "native",
+  "authors": ["Falcon-MC"],
+  "description": "Greets players and adds a /hello command",
+  "depend": [],
+  "softdepend": [],
+  "loadbefore": []
+}
