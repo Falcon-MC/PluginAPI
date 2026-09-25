@@ -38,7 +38,8 @@ if (FALCON_PLUGIN_API_BUILD_EXAMPLES)
     add_subdirectory(examples/native/HelloPlugin)
 endif ()
 
-option(FALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES "Build the internal example plugins against FALCON_BUILD_DIR" OFF)
+option(FALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES
+        "Build the internal example plugins against FALCON_SDK_DIR or FALCON_BUILD_DIR" OFF)
 
 if (FALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES)
     add_subdirectory(examples/internal)

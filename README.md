@@ -96,8 +96,9 @@ Put the library next to a `plugin.json` in `plugins/<name>/` on the server:
 
 ### Internal plugins
 
-`falcon_add_internal_plugin` builds the library against a built server. It adds the server's include
-directories, links against the server executable and compiles in the server's build identity:
+`falcon_add_internal_plugin` builds the library against one server release. It adds the server's include
+directories, links against the server executable and compiles in the server's build identity. Every Falcon
+release publishes the matching SDK, `FalconSDK-<platform>.tar.gz`:
 
 ```cmake
 falcon_add_internal_plugin(MyPlugin MyPlugin.cpp)
@@ -162,14 +163,17 @@ cmake -B build -G Ninja
 cmake --build build
 ```
 
-Internal plugins need a server built with `FALCON_EXPORT_SYMBOLS` (on by default). Build them inside the
-server's build tree with `-DFALCON_BUILD_INTERNAL_PLUGINS=ON`, or point `FALCON_BUILD_DIR` at the server's
-build directory, using the same compiler:
+Internal plugins are built against one server release, with the compiler named in the SDK's `README.txt`.
+Extract the `FalconSDK-<platform>.tar.gz` of that release and point `FALCON_SDK_DIR` at it:
 
 ```
-cmake -B build -G Ninja -DFALCON_BUILD_DIR=/path/to/Falcon/build -DFALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES=ON
+cmake -B build -G Ninja -DFALCON_SDK_DIR=/path/to/FalconSDK-linux -DFALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES=ON
 cmake --build build
 ```
+
+For a server built from source with `FALCON_EXPORT_SYMBOLS` (on by default), point `FALCON_BUILD_DIR` at its
+build directory instead, or build the plugins inside the server's build tree with
+`-DFALCON_BUILD_INTERNAL_PLUGINS=ON`.
 
 ## Related repositories
 
