@@ -1,0 +1,11 @@
+{
+  "name": "GardenPlugin",
+  "version": "1.0.0",
+  "main": "GardenPlugin",
+  "runtime": "internal",
+  "authors": ["Falcon-MC"],
+  "description": "Grows saplings on right-click, turns sticks into garden wands and makes chickens follow seeds",
+  "depend": [],
+  "softdepend": [],
+  "loadbefore": []
+}

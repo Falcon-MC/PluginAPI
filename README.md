@@ -22,12 +22,31 @@ The API plugins use to extend [Falcon](https://github.com/Falcon-MC/Falcon). Eve
 the same stable C ABI, so the server exposes each feature once and all plugins get it.
 
 - **`native/`** - the C ABI (`falcon_api.h`) and header-only C++ classes built on top of it
+- **`internal/`** - support for internal plugins, which use the server's own C++ classes
 - **`dotnet/`** - C# bindings, planned
 - **`java/`** - Java bindings, planned
 - **`examples/`** - complete plugins, built by CI on every supported platform
 
 The C++ headers only talk to the server through the C ABI, so a plugin built with any compiler runs on
 any Falcon build of the same API major version.
+
+### Native and internal plugins
+
+| | Native (`"runtime": "native"`) | Internal (`"runtime": "internal"`) |
+|---|---|---|
+| Talks to the server through | the C ABI | the server's own headers and classes |
+| Can do | what the API exposes | anything a fork of Falcon can do |
+| Runs on | any server with the same API major version | only the exact server build it was compiled against |
+| Compiler | any | the one that built the server, same version |
+
+An internal plugin includes headers such as `Block/Block.h` or `Actor/Mob/MobActor.h`, subclasses `Block`,
+`Item`, `MobActor`, `Goal` or `Command`, registers them with `FALCON_REGISTER_BLOCK`, `FALCON_REGISTER_ITEM`
+and `FALCON_REGISTER_ACTOR`, and calls any public function of the server. A lower priority number overrides a
+vanilla class.
+
+The server refuses an internal plugin built against another commit, build number or compiler, and logs why.
+Rebuild the plugin for every server update. Keep its classes in a namespace so their names never collide
+with the server's.
 
 ## Usage
 
@@ -75,6 +94,64 @@ Put the library next to a `plugin.json` in `plugins/<name>/` on the server:
 }
 ```
 
+### Internal plugins
+
+`falcon_add_internal_plugin` builds the library against a built server. It adds the server's include
+directories, links against the server executable and compiles in the server's build identity:
+
+```cmake
+falcon_add_internal_plugin(MyPlugin MyPlugin.cpp)
+```
+
+```cpp
+#include "Block/BlockClassRegistry.h"
+#include "Block/Blocks/SaplingBlock.h"
+
+#include <falcon/internal/InternalPlugin.hpp>
+
+namespace myplugin {
+    class CustomSaplingBlock : public SaplingBlock {
+    public:
+        using SaplingBlock::SaplingBlock;
+
+        static bool matches(const std::string &identifier) {
+            return SaplingBlock::matches(identifier);
+        }
+    };
+
+    FALCON_REGISTER_BLOCK(CustomSaplingBlock, 10);
+
+    class MyPlugin : public falcon::internal::Plugin {
+    public:
+        bool onEnable() override {
+            subscribe(getServer().getEventBus().after().mPlayerJoin, [](PlayerJoinAfterEvent &event) {
+                event.mPlayer.sendMessage("Welcome!");
+            });
+            return true;
+        }
+    };
+}
+
+FALCON_INTERNAL_PLUGIN(myplugin::MyPlugin)
+```
+
+The manifest uses the `internal` runtime and needs no `api-version`:
+
+```json
+{
+  "name": "MyPlugin",
+  "version": "1.0.0",
+  "main": "MyPlugin",
+  "runtime": "internal"
+}
+```
+
+Register classes with the macros or in `onLoad`: the server applies them after every plugin has loaded, and
+removes them when the plugin is disabled. The library itself stays loaded until the server exits.
+
+On Windows the plugin imports its symbols from `FalconServer.exe`, so the server executable must keep that
+name.
+
 ## Building
 
 Only CMake 3.16+ and a C++17 compiler are required. The example plugins are built when the project is the
@@ -82,6 +159,15 @@ top level project (`FALCON_PLUGIN_API_BUILD_EXAMPLES`).
 
 ```
 cmake -B build -G Ninja
+cmake --build build
+```
+
+Internal plugins need a server built with `FALCON_EXPORT_SYMBOLS` (on by default). Build them inside the
+server's build tree with `-DFALCON_BUILD_INTERNAL_PLUGINS=ON`, or point `FALCON_BUILD_DIR` at the server's
+build directory, using the same compiler:
+
+```
+cmake -B build -G Ninja -DFALCON_BUILD_DIR=/path/to/Falcon/build -DFALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES=ON
 cmake --build build
 ```
 

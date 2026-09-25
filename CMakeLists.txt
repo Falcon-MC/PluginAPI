@@ -9,6 +9,12 @@ add_library(Falcon::PluginAPI ALIAS FalconPluginAPI)
 target_include_directories(FalconPluginAPI INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/native/include)
 target_compile_features(FalconPluginAPI INTERFACE cxx_std_17)
 
+add_library(FalconInternalPluginAPI INTERFACE)
+add_library(Falcon::InternalPluginAPI ALIAS FalconInternalPluginAPI)
+target_include_directories(FalconInternalPluginAPI INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/internal/include)
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/internal/cmake/FalconInternalPlugin.cmake)
+
 function(falcon_add_plugin target)
     add_library(${target} SHARED ${ARGN})
     target_link_libraries(${target} PRIVATE Falcon::PluginAPI)
@@ -30,4 +36,10 @@ option(FALCON_PLUGIN_API_BUILD_EXAMPLES "Build the example plugins" ${FALCON_PLU
 
 if (FALCON_PLUGIN_API_BUILD_EXAMPLES)
     add_subdirectory(examples/native/HelloPlugin)
+endif ()
+
+option(FALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES "Build the internal example plugins against FALCON_BUILD_DIR" OFF)
+
+if (FALCON_PLUGIN_API_BUILD_INTERNAL_EXAMPLES)
+    add_subdirectory(examples/internal)
 endif ()
