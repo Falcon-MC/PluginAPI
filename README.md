@@ -11,7 +11,7 @@
 
 <p align="center">
 	<a href="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml"><img src="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-	<img src="https://img.shields.io/badge/api-v1.2-blue" alt="API">
+	<img src="https://img.shields.io/badge/api-v1.3-blue" alt="API">
 	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java-00599C" alt="Languages">
 	<img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
 </p>
@@ -132,7 +132,7 @@ A C# plugin is a `net8.0` class library that references `Falcon.PluginAPI` and s
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Falcon.PluginAPI" Version="1.2.0" />
+    <PackageReference Include="Falcon.PluginAPI" Version="1.3.0" />
   </ItemGroup>
 </Project>
 ```
@@ -188,7 +188,7 @@ A Java plugin is a Java 22 jar that depends on `falcon-plugin-api` with the `pro
 <dependency>
     <groupId>io.github.falcon-mc</groupId>
     <artifactId>falcon-plugin-api</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -217,7 +217,7 @@ full class name and `jar` defaults to `<name>.jar`:
 {
   "name": "MyPlugin",
   "version": "1.0.0",
-  "api-version": "1.2",
+  "api-version": "1.3",
   "main": "myplugin.MyPlugin",
   "runtime": "java",
   "jar": "MyPlugin.jar"
