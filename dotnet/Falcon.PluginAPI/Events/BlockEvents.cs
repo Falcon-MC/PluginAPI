@@ -133,4 +133,60 @@ namespace Falcon
             return new PlayerInteractBlockEvent(handle);
         }
     }
+
+    public sealed class SignChangeEvent : Event, IEvent<SignChangeEvent>
+    {
+        private SignChangeEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventSignChange;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public BlockPos Position
+        {
+            get
+            {
+                return EventBlockPosition();
+            }
+        }
+
+        public bool IsFrontSide
+        {
+            get
+            {
+                return EventState();
+            }
+        }
+
+        public string Text
+        {
+            get
+            {
+                return EventMessage();
+            }
+            set
+            {
+                SetEventMessage(value);
+            }
+        }
+
+        public static SignChangeEvent Create(nint handle)
+        {
+            return new SignChangeEvent(handle);
+        }
+    }
 }

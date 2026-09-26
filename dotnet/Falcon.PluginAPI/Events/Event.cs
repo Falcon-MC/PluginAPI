@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Falcon.Interop;
 
 namespace Falcon
@@ -135,6 +136,68 @@ namespace Falcon
         private protected string EventCause()
         {
             return NativeApi.Text(NativeApi.Table->eventCause(Raw));
+        }
+
+        private protected bool EventState()
+        {
+            return NativeApi.Table->eventState(Raw) != 0;
+        }
+
+        private protected double EventPreviousAmount()
+        {
+            return NativeApi.Table->eventPreviousAmount(Raw);
+        }
+
+        private protected string EventPreviousBlockName()
+        {
+            return NativeApi.Text(NativeApi.Table->eventPreviousBlockName(Raw));
+        }
+
+        private protected int EventChunkX()
+        {
+            return NativeApi.Table->eventChunkX(Raw);
+        }
+
+        private protected int EventChunkZ()
+        {
+            return NativeApi.Table->eventChunkZ(Raw);
+        }
+
+        private protected int EventSourceSlot()
+        {
+            return NativeApi.Table->eventSourceSlot(Raw);
+        }
+
+        private protected int EventDestinationSlot()
+        {
+            return NativeApi.Table->eventDestinationSlot(Raw);
+        }
+
+        private protected uint EventBlockFace()
+        {
+            return NativeApi.Table->eventBlockFace(Raw);
+        }
+
+        private protected IReadOnlyList<BlockPos> EventBlocks()
+        {
+            uint count = NativeApi.Table->eventBlockCount(Raw);
+            List<BlockPos> blocks = new List<BlockPos>((int)count);
+            for (uint index = 0; index < count; index++)
+            {
+                blocks.Add(BlockPos.From(NativeApi.Table->eventBlockAt(Raw, index)));
+            }
+
+            return blocks;
+        }
+
+        private protected Item EventResult()
+        {
+            return Item.Borrow(NativeApi.Table->eventResult(Raw));
+        }
+
+        private protected void SetEventResult(Item item)
+        {
+            NativeApi.Table->eventSetResult(Raw, item.Raw);
         }
     }
 }

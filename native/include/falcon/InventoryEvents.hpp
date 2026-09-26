@@ -113,4 +113,115 @@ namespace falcon {
             return (uint32_t) detail::api().eventAmount(mHandle);
         }
     };
+
+    class FurnaceSmeltEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_FURNACE_SMELT;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        Item source() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        Item result() const {
+            return Item::borrow(detail::api().eventResult(mHandle));
+        }
+
+        void setResult(const Item &result) const {
+            detail::api().eventSetResult(mHandle, result.handle());
+        }
+    };
+
+    class FurnaceBurnEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_FURNACE_BURN;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        Item fuel() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        int32_t burnTime() const {
+            return (int32_t) detail::api().eventAmount(mHandle);
+        }
+
+        void setBurnTime(int32_t ticks) const {
+            detail::api().eventSetAmount(mHandle, (double) ticks);
+        }
+    };
+
+    class ItemEnchantEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_ITEM_ENCHANT;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        int32_t levelCost() const {
+            return (int32_t) detail::api().eventAmount(mHandle);
+        }
+    };
+
+    class ItemDamageEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_ITEM_DAMAGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        int32_t damage() const {
+            return (int32_t) detail::api().eventAmount(mHandle);
+        }
+
+        void setDamage(int32_t damage) const {
+            detail::api().eventSetAmount(mHandle, (double) damage);
+        }
+    };
+
+    class ItemBreakEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_ITEM_BREAK;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
 }

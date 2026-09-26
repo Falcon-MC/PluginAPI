@@ -481,4 +481,428 @@ namespace Falcon
             return new PlayerInteractEntityEvent(handle);
         }
     }
+
+    public sealed class PlayerPreLoginEvent : Event, IEvent<PlayerPreLoginEvent>
+    {
+        private PlayerPreLoginEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerPreLogin;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public string KickMessage
+        {
+            get
+            {
+                return EventMessage();
+            }
+            set
+            {
+                SetEventMessage(value);
+            }
+        }
+
+        public static PlayerPreLoginEvent Create(nint handle)
+        {
+            return new PlayerPreLoginEvent(handle);
+        }
+    }
+
+    public sealed class PlayerToggleSneakEvent : Event, IEvent<PlayerToggleSneakEvent>
+    {
+        private PlayerToggleSneakEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerToggleSneak;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public bool IsSneaking
+        {
+            get
+            {
+                return EventState();
+            }
+        }
+
+        public static PlayerToggleSneakEvent Create(nint handle)
+        {
+            return new PlayerToggleSneakEvent(handle);
+        }
+    }
+
+    public sealed class PlayerToggleSprintEvent : Event, IEvent<PlayerToggleSprintEvent>
+    {
+        private PlayerToggleSprintEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerToggleSprint;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public bool IsSprinting
+        {
+            get
+            {
+                return EventState();
+            }
+        }
+
+        public static PlayerToggleSprintEvent Create(nint handle)
+        {
+            return new PlayerToggleSprintEvent(handle);
+        }
+    }
+
+    public sealed class PlayerToggleFlightEvent : Event, IEvent<PlayerToggleFlightEvent>
+    {
+        private PlayerToggleFlightEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerToggleFlight;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public bool IsFlying
+        {
+            get
+            {
+                return EventState();
+            }
+        }
+
+        public static PlayerToggleFlightEvent Create(nint handle)
+        {
+            return new PlayerToggleFlightEvent(handle);
+        }
+    }
+
+    public sealed class PlayerItemHeldEvent : Event, IEvent<PlayerItemHeldEvent>
+    {
+        private PlayerItemHeldEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerItemHeld;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public int PreviousSlot
+        {
+            get
+            {
+                return EventSourceSlot();
+            }
+        }
+
+        public int NewSlot
+        {
+            get
+            {
+                return EventDestinationSlot();
+            }
+        }
+
+        public Item Item
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public static PlayerItemHeldEvent Create(nint handle)
+        {
+            return new PlayerItemHeldEvent(handle);
+        }
+    }
+
+    public sealed class PlayerItemConsumeEvent : Event, IEvent<PlayerItemConsumeEvent>
+    {
+        private PlayerItemConsumeEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerItemConsume;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public Item Item
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public static PlayerItemConsumeEvent Create(nint handle)
+        {
+            return new PlayerItemConsumeEvent(handle);
+        }
+    }
+
+    public sealed class PlayerBedEnterEvent : Event, IEvent<PlayerBedEnterEvent>
+    {
+        private PlayerBedEnterEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerBedEnter;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public BlockPos Bed
+        {
+            get
+            {
+                return EventBlockPosition();
+            }
+        }
+
+        public static PlayerBedEnterEvent Create(nint handle)
+        {
+            return new PlayerBedEnterEvent(handle);
+        }
+    }
+
+    public sealed class PlayerBedLeaveEvent : Event, IEvent<PlayerBedLeaveEvent>
+    {
+        private PlayerBedLeaveEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerBedLeave;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public BlockPos Bed
+        {
+            get
+            {
+                return EventBlockPosition();
+            }
+        }
+
+        public static PlayerBedLeaveEvent Create(nint handle)
+        {
+            return new PlayerBedLeaveEvent(handle);
+        }
+    }
+
+    public sealed class PlayerJumpEvent : Event, IEvent<PlayerJumpEvent>
+    {
+        private PlayerJumpEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerJump;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public static PlayerJumpEvent Create(nint handle)
+        {
+            return new PlayerJumpEvent(handle);
+        }
+    }
+
+    public sealed class PlayerFoodChangeEvent : Event, IEvent<PlayerFoodChangeEvent>
+    {
+        private PlayerFoodChangeEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerFoodChange;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public double Food
+        {
+            get
+            {
+                return EventAmount();
+            }
+            set
+            {
+                SetEventAmount(value);
+            }
+        }
+
+        public double PreviousFood
+        {
+            get
+            {
+                return EventPreviousAmount();
+            }
+        }
+
+        public static PlayerFoodChangeEvent Create(nint handle)
+        {
+            return new PlayerFoodChangeEvent(handle);
+        }
+    }
+
+    public sealed class PlayerExperienceChangeEvent : Event, IEvent<PlayerExperienceChangeEvent>
+    {
+        private PlayerExperienceChangeEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerExperienceChange;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public int Amount
+        {
+            get
+            {
+                return (int)EventAmount();
+            }
+            set
+            {
+                SetEventAmount(value);
+            }
+        }
+
+        public static PlayerExperienceChangeEvent Create(nint handle)
+        {
+            return new PlayerExperienceChangeEvent(handle);
+        }
+    }
 }

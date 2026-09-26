@@ -148,4 +148,245 @@ namespace falcon {
             return Vec3::from(detail::api().eventPosition(mHandle));
         }
     };
+
+    class ProjectileLaunchEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PROJECTILE_LAUNCH;
+
+        using Event::Event;
+
+        Entity projectile() const {
+            return Entity(detail::api().eventEntity(mHandle));
+        }
+
+        std::optional<Entity> shooter() const {
+            FalconEntity *source = detail::api().eventAttacker(mHandle);
+            if (source == nullptr)
+                return std::nullopt;
+            return Entity(source);
+        }
+    };
+
+    class BlockChangeEvent : public Event {
+    public:
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        std::string blockName() const {
+            return detail::text(detail::api().eventBlockName(mHandle));
+        }
+
+        std::string previousBlockName() const {
+            return detail::text(detail::api().eventPreviousBlockName(mHandle));
+        }
+    };
+
+    class BlockGrowEvent : public BlockChangeEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_GROW;
+
+        using BlockChangeEvent::BlockChangeEvent;
+    };
+
+    class BlockSpreadEvent : public BlockChangeEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_SPREAD;
+
+        using BlockChangeEvent::BlockChangeEvent;
+
+        Vec3 source() const {
+            return Vec3::from(detail::api().eventFrom(mHandle));
+        }
+    };
+
+    class BlockFormEvent : public BlockChangeEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_FORM;
+
+        using BlockChangeEvent::BlockChangeEvent;
+    };
+
+    class BlockFadeEvent : public BlockChangeEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_FADE;
+
+        using BlockChangeEvent::BlockChangeEvent;
+    };
+
+    class LeavesDecayEvent : public BlockChangeEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_LEAVES_DECAY;
+
+        using BlockChangeEvent::BlockChangeEvent;
+    };
+
+    class LiquidFlowEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_LIQUID_FLOW;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        Vec3 source() const {
+            return Vec3::from(detail::api().eventFrom(mHandle));
+        }
+
+        std::string liquid() const {
+            return detail::text(detail::api().eventBlockName(mHandle));
+        }
+    };
+
+    class PistonEvent : public Event {
+    public:
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        uint32_t face() const {
+            return detail::api().eventBlockFace(mHandle);
+        }
+
+        std::vector<BlockPos> blocks() const {
+            const uint32_t count = detail::api().eventBlockCount(mHandle);
+            std::vector<BlockPos> result;
+            result.reserve(count);
+            for (uint32_t index = 0; index < count; ++index) {
+                result.push_back(BlockPos::from(detail::api().eventBlockAt(mHandle, index)));
+            }
+            return result;
+        }
+    };
+
+    class PistonExtendEvent : public PistonEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PISTON_EXTEND;
+
+        using PistonEvent::PistonEvent;
+    };
+
+    class PistonRetractEvent : public PistonEvent {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PISTON_RETRACT;
+
+        using PistonEvent::PistonEvent;
+    };
+
+    class RedstoneChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_REDSTONE_CHANGE;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        int32_t power() const {
+            return (int32_t) detail::api().eventAmount(mHandle);
+        }
+
+        void setPower(int32_t power) const {
+            detail::api().eventSetAmount(mHandle, (double) power);
+        }
+
+        int32_t previousPower() const {
+            return (int32_t) detail::api().eventPreviousAmount(mHandle);
+        }
+    };
+
+    class WeatherChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_WEATHER_CHANGE;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        bool isRaining() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class ThunderChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_THUNDER_CHANGE;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        bool isThundering() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class ChunkLoadEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_CHUNK_LOAD;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        int32_t chunkX() const {
+            return detail::api().eventChunkX(mHandle);
+        }
+
+        int32_t chunkZ() const {
+            return detail::api().eventChunkZ(mHandle);
+        }
+
+        bool isNewChunk() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class ChunkUnloadEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_CHUNK_UNLOAD;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        int32_t chunkX() const {
+            return detail::api().eventChunkX(mHandle);
+        }
+
+        int32_t chunkZ() const {
+            return detail::api().eventChunkZ(mHandle);
+        }
+    };
 }

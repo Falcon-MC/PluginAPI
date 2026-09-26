@@ -46,6 +46,41 @@ final class EventType<T extends Event> {
         register(FireSpreadEvent.class, FalconAbi.EVENT_FIRE_SPREAD, FireSpreadEvent::new);
         register(BlockBurnEvent.class, FalconAbi.EVENT_BLOCK_BURN, BlockBurnEvent::new);
         register(CustomEvent.class, FalconAbi.EVENT_CUSTOM, CustomEvent::new);
+        register(PlayerPreLoginEvent.class, FalconAbi.EVENT_PLAYER_PRE_LOGIN, PlayerPreLoginEvent::new);
+        register(PlayerToggleSneakEvent.class, FalconAbi.EVENT_PLAYER_TOGGLE_SNEAK, PlayerToggleSneakEvent::new);
+        register(PlayerToggleSprintEvent.class, FalconAbi.EVENT_PLAYER_TOGGLE_SPRINT, PlayerToggleSprintEvent::new);
+        register(PlayerToggleFlightEvent.class, FalconAbi.EVENT_PLAYER_TOGGLE_FLIGHT, PlayerToggleFlightEvent::new);
+        register(PlayerItemHeldEvent.class, FalconAbi.EVENT_PLAYER_ITEM_HELD, PlayerItemHeldEvent::new);
+        register(PlayerItemConsumeEvent.class, FalconAbi.EVENT_PLAYER_ITEM_CONSUME, PlayerItemConsumeEvent::new);
+        register(PlayerBedEnterEvent.class, FalconAbi.EVENT_PLAYER_BED_ENTER, PlayerBedEnterEvent::new);
+        register(PlayerBedLeaveEvent.class, FalconAbi.EVENT_PLAYER_BED_LEAVE, PlayerBedLeaveEvent::new);
+        register(PlayerJumpEvent.class, FalconAbi.EVENT_PLAYER_JUMP, PlayerJumpEvent::new);
+        register(PlayerFoodChangeEvent.class, FalconAbi.EVENT_PLAYER_FOOD_CHANGE, PlayerFoodChangeEvent::new);
+        register(PlayerExperienceChangeEvent.class, FalconAbi.EVENT_PLAYER_EXPERIENCE_CHANGE,
+                PlayerExperienceChangeEvent::new);
+        register(EntitySpawnEvent.class, FalconAbi.EVENT_ENTITY_SPAWN, EntitySpawnEvent::new);
+        register(EntityTransformEvent.class, FalconAbi.EVENT_ENTITY_TRANSFORM, EntityTransformEvent::new);
+        register(EntityTargetEvent.class, FalconAbi.EVENT_ENTITY_TARGET, EntityTargetEvent::new);
+        register(ProjectileLaunchEvent.class, FalconAbi.EVENT_PROJECTILE_LAUNCH, ProjectileLaunchEvent::new);
+        register(BlockGrowEvent.class, FalconAbi.EVENT_BLOCK_GROW, BlockGrowEvent::new);
+        register(BlockSpreadEvent.class, FalconAbi.EVENT_BLOCK_SPREAD, BlockSpreadEvent::new);
+        register(BlockFormEvent.class, FalconAbi.EVENT_BLOCK_FORM, BlockFormEvent::new);
+        register(BlockFadeEvent.class, FalconAbi.EVENT_BLOCK_FADE, BlockFadeEvent::new);
+        register(LiquidFlowEvent.class, FalconAbi.EVENT_LIQUID_FLOW, LiquidFlowEvent::new);
+        register(PistonExtendEvent.class, FalconAbi.EVENT_PISTON_EXTEND, PistonExtendEvent::new);
+        register(PistonRetractEvent.class, FalconAbi.EVENT_PISTON_RETRACT, PistonRetractEvent::new);
+        register(RedstoneChangeEvent.class, FalconAbi.EVENT_REDSTONE_CHANGE, RedstoneChangeEvent::new);
+        register(SignChangeEvent.class, FalconAbi.EVENT_SIGN_CHANGE, SignChangeEvent::new);
+        register(LeavesDecayEvent.class, FalconAbi.EVENT_LEAVES_DECAY, LeavesDecayEvent::new);
+        register(WeatherChangeEvent.class, FalconAbi.EVENT_WEATHER_CHANGE, WeatherChangeEvent::new);
+        register(ThunderChangeEvent.class, FalconAbi.EVENT_THUNDER_CHANGE, ThunderChangeEvent::new);
+        register(ChunkLoadEvent.class, FalconAbi.EVENT_CHUNK_LOAD, ChunkLoadEvent::new);
+        register(ChunkUnloadEvent.class, FalconAbi.EVENT_CHUNK_UNLOAD, ChunkUnloadEvent::new);
+        register(FurnaceSmeltEvent.class, FalconAbi.EVENT_FURNACE_SMELT, FurnaceSmeltEvent::new);
+        register(FurnaceBurnEvent.class, FalconAbi.EVENT_FURNACE_BURN, FurnaceBurnEvent::new);
+        register(ItemEnchantEvent.class, FalconAbi.EVENT_ITEM_ENCHANT, ItemEnchantEvent::new);
+        register(ItemDamageEvent.class, FalconAbi.EVENT_ITEM_DAMAGE, ItemDamageEvent::new);
+        register(ItemBreakEvent.class, FalconAbi.EVENT_ITEM_BREAK, ItemBreakEvent::new);
     }
 
     private final int mId;

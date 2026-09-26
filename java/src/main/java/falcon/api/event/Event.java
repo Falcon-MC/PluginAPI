@@ -12,6 +12,8 @@ import falcon.api.internal.PluginContext;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class Event {
@@ -112,5 +114,72 @@ public abstract class Event {
         try (Arena arena = Arena.ofConfined()) {
             return Interop.vec3(api().eventPosition(arena, mHandle));
         }
+    }
+
+    boolean eventState() {
+        return api().eventState(mHandle) != 0;
+    }
+
+    double eventAmount() {
+        return api().eventAmount(mHandle);
+    }
+
+    void eventSetAmount(double amount) {
+        api().eventSetAmount(mHandle, amount);
+    }
+
+    double eventPreviousAmount() {
+        return api().eventPreviousAmount(mHandle);
+    }
+
+    String eventPreviousBlockName() {
+        return Interop.string(api().eventPreviousBlockName(mHandle));
+    }
+
+    int eventChunkX() {
+        return api().eventChunkX(mHandle);
+    }
+
+    int eventChunkZ() {
+        return api().eventChunkZ(mHandle);
+    }
+
+    int eventSourceSlot() {
+        return api().eventSourceSlot(mHandle);
+    }
+
+    int eventDestinationSlot() {
+        return api().eventDestinationSlot(mHandle);
+    }
+
+    int eventBlockFace() {
+        return api().eventBlockFace(mHandle);
+    }
+
+    List<BlockPos> eventBlocks() {
+        int count = api().eventBlockCount(mHandle);
+        List<BlockPos> result = new ArrayList<>(Math.max(count, 0));
+        try (Arena arena = Arena.ofConfined()) {
+            for (int index = 0; index < count; index++) {
+                result.add(Interop.blockPos(api().eventBlockAt(arena, mHandle, index)));
+            }
+        }
+        return result;
+    }
+
+    Optional<Entity> eventAttacker() {
+        return optionalEntity(api().eventAttacker(mHandle));
+    }
+
+    Optional<Entity> eventTarget() {
+        return optionalEntity(api().eventTarget(mHandle));
+    }
+
+    Item eventResult() {
+        return Item.borrow(api().eventResult(mHandle));
+    }
+
+    void eventSetResult(Item item) {
+        api().eventSetResult(mHandle, item.handle());
     }
 }

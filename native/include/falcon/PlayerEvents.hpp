@@ -1,11 +1,13 @@
 #pragma once
 
+#include "falcon/BlockPos.hpp"
 #include "falcon/Events.hpp"
 #include "falcon/Item.hpp"
 #include "falcon/Level.hpp"
 #include "falcon/Player.hpp"
 #include "falcon/Vec3.hpp"
 
+#include <cstdint>
 #include <string>
 
 namespace falcon {
@@ -166,6 +168,191 @@ namespace falcon {
 
         Item item() const {
             return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    class PlayerPreLoginEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_PRE_LOGIN;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        std::string kickMessage() const {
+            return detail::text(detail::api().eventMessage(mHandle));
+        }
+
+        void setKickMessage(const std::string &message) const {
+            detail::api().eventSetMessage(mHandle, message.c_str());
+        }
+    };
+
+    class PlayerToggleSneakEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_TOGGLE_SNEAK;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        bool isSneaking() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class PlayerToggleSprintEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_TOGGLE_SPRINT;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        bool isSprinting() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class PlayerToggleFlightEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_TOGGLE_FLIGHT;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        bool isFlying() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    class PlayerItemHeldEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_ITEM_HELD;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        int32_t previousSlot() const {
+            return detail::api().eventSourceSlot(mHandle);
+        }
+
+        int32_t newSlot() const {
+            return detail::api().eventDestinationSlot(mHandle);
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    class PlayerItemConsumeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_ITEM_CONSUME;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    class PlayerBedEnterEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_BED_ENTER;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        BlockPos bed() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+    };
+
+    class PlayerBedLeaveEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_BED_LEAVE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        BlockPos bed() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+    };
+
+    class PlayerJumpEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_JUMP;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+    };
+
+    class PlayerFoodChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_FOOD_CHANGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        double food() const {
+            return detail::api().eventAmount(mHandle);
+        }
+
+        void setFood(double food) const {
+            detail::api().eventSetAmount(mHandle, food);
+        }
+
+        double previousFood() const {
+            return detail::api().eventPreviousAmount(mHandle);
+        }
+    };
+
+    class PlayerExperienceChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_EXPERIENCE_CHANGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        int32_t amount() const {
+            return (int32_t) detail::api().eventAmount(mHandle);
+        }
+
+        void setAmount(int32_t amount) const {
+            detail::api().eventSetAmount(mHandle, (double) amount);
         }
     };
 }

@@ -233,4 +233,244 @@ namespace Falcon
             return new CraftItemEvent(handle);
         }
     }
+
+    public sealed class FurnaceSmeltEvent : Event, IEvent<FurnaceSmeltEvent>
+    {
+        private FurnaceSmeltEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventFurnaceSmelt;
+            }
+        }
+
+        public Level Level
+        {
+            get
+            {
+                return EventLevel();
+            }
+        }
+
+        public BlockPos Position
+        {
+            get
+            {
+                return EventBlockPosition();
+            }
+        }
+
+        public Item Source
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public Item Result
+        {
+            get
+            {
+                return EventResult();
+            }
+            set
+            {
+                SetEventResult(value);
+            }
+        }
+
+        public static FurnaceSmeltEvent Create(nint handle)
+        {
+            return new FurnaceSmeltEvent(handle);
+        }
+    }
+
+    public sealed class FurnaceBurnEvent : Event, IEvent<FurnaceBurnEvent>
+    {
+        private FurnaceBurnEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventFurnaceBurn;
+            }
+        }
+
+        public Level Level
+        {
+            get
+            {
+                return EventLevel();
+            }
+        }
+
+        public BlockPos Position
+        {
+            get
+            {
+                return EventBlockPosition();
+            }
+        }
+
+        public Item Fuel
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public int BurnTime
+        {
+            get
+            {
+                return (int)EventAmount();
+            }
+            set
+            {
+                SetEventAmount(value);
+            }
+        }
+
+        public static FurnaceBurnEvent Create(nint handle)
+        {
+            return new FurnaceBurnEvent(handle);
+        }
+    }
+
+    public sealed class ItemEnchantEvent : Event, IEvent<ItemEnchantEvent>
+    {
+        private ItemEnchantEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventItemEnchant;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public Item Item
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public int LevelCost
+        {
+            get
+            {
+                return (int)EventAmount();
+            }
+        }
+
+        public static ItemEnchantEvent Create(nint handle)
+        {
+            return new ItemEnchantEvent(handle);
+        }
+    }
+
+    public sealed class ItemDamageEvent : Event, IEvent<ItemDamageEvent>
+    {
+        private ItemDamageEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventItemDamage;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public Item Item
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public int Damage
+        {
+            get
+            {
+                return (int)EventAmount();
+            }
+            set
+            {
+                SetEventAmount(value);
+            }
+        }
+
+        public static ItemDamageEvent Create(nint handle)
+        {
+            return new ItemDamageEvent(handle);
+        }
+    }
+
+    public sealed class ItemBreakEvent : Event, IEvent<ItemBreakEvent>
+    {
+        private ItemBreakEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventItemBreak;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public Item Item
+        {
+            get
+            {
+                return EventItem();
+            }
+        }
+
+        public static ItemBreakEvent Create(nint handle)
+        {
+            return new ItemBreakEvent(handle);
+        }
+    }
 }

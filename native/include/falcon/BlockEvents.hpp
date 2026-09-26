@@ -64,4 +64,31 @@ namespace falcon {
             return detail::api().eventBlockFace(mHandle);
         }
     };
+
+    class SignChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_SIGN_CHANGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        BlockPos position() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        bool isFrontSide() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+
+        std::string text() const {
+            return detail::text(detail::api().eventMessage(mHandle));
+        }
+
+        void setText(const std::string &text) const {
+            detail::api().eventSetMessage(mHandle, text.c_str());
+        }
+    };
 }
