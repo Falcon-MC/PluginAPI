@@ -804,4 +804,60 @@ namespace Falcon
             return new ChunkUnloadEvent(handle);
         }
     }
+
+    public sealed unsafe class WorldLoadEvent : Event, IEvent<WorldLoadEvent>
+    {
+        private WorldLoadEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventWorldLoad;
+            }
+        }
+
+        public string World
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventWorldName(Raw));
+            }
+        }
+
+        public static WorldLoadEvent Create(nint handle)
+        {
+            return new WorldLoadEvent(handle);
+        }
+    }
+
+    public sealed unsafe class WorldUnloadEvent : Event, IEvent<WorldUnloadEvent>
+    {
+        private WorldUnloadEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventWorldUnload;
+            }
+        }
+
+        public string World
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventWorldName(Raw));
+            }
+        }
+
+        public static WorldUnloadEvent Create(nint handle)
+        {
+            return new WorldUnloadEvent(handle);
+        }
+    }
 }

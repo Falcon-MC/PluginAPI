@@ -389,4 +389,26 @@ namespace falcon {
             return detail::api().eventChunkZ(mHandle);
         }
     };
+
+    class WorldLoadEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_WORLD_LOAD;
+
+        using Event::Event;
+
+        std::string world() const {
+            return detail::text(detail::api().eventWorldName(mHandle));
+        }
+    };
+
+    class WorldUnloadEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_WORLD_UNLOAD;
+
+        using Event::Event;
+
+        std::string world() const {
+            return detail::text(detail::api().eventWorldName(mHandle));
+        }
+    };
 }

@@ -81,6 +81,9 @@ final class EventType<T extends Event> {
         register(ItemEnchantEvent.class, FalconAbi.EVENT_ITEM_ENCHANT, ItemEnchantEvent::new);
         register(ItemDamageEvent.class, FalconAbi.EVENT_ITEM_DAMAGE, ItemDamageEvent::new);
         register(ItemBreakEvent.class, FalconAbi.EVENT_ITEM_BREAK, ItemBreakEvent::new);
+        register(WorldLoadEvent.class, FalconAbi.EVENT_WORLD_LOAD, WorldLoadEvent::new);
+        register(WorldUnloadEvent.class, FalconAbi.EVENT_WORLD_UNLOAD, WorldUnloadEvent::new);
+        register(PlayerChangeWorldEvent.class, FalconAbi.EVENT_PLAYER_CHANGE_WORLD, PlayerChangeWorldEvent::new);
     }
 
     private final int mId;

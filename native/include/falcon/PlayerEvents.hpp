@@ -125,6 +125,41 @@ namespace falcon {
         }
     };
 
+    class PlayerChangeWorldEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_CHANGE_WORLD;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        std::string world() const {
+            return detail::text(detail::api().eventWorldName(mHandle));
+        }
+
+        std::string previousWorld() const {
+            return detail::text(detail::api().eventPreviousWorldName(mHandle));
+        }
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        Vec3 from() const {
+            return Vec3::from(detail::api().eventFrom(mHandle));
+        }
+
+        Vec3 to() const {
+            return Vec3::from(detail::api().eventTo(mHandle));
+        }
+
+        void setTo(const Vec3 &position) const {
+            detail::api().eventSetTo(mHandle, position.raw());
+        }
+    };
+
     class PlayerChangeDimensionEvent : public Event {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_CHANGE_DIMENSION;

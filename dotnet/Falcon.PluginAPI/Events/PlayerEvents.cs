@@ -446,6 +446,78 @@ namespace Falcon
         }
     }
 
+    public sealed unsafe class PlayerChangeWorldEvent : Event, IEvent<PlayerChangeWorldEvent>
+    {
+        private PlayerChangeWorldEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerChangeWorld;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public string World
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventWorldName(Raw));
+            }
+        }
+
+        public string PreviousWorld
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventPreviousWorldName(Raw));
+            }
+        }
+
+        public Level Level
+        {
+            get
+            {
+                return EventLevel();
+            }
+        }
+
+        public Vec3 From
+        {
+            get
+            {
+                return EventFrom();
+            }
+        }
+
+        public Vec3 To
+        {
+            get
+            {
+                return EventTo();
+            }
+            set
+            {
+                SetEventTo(value);
+            }
+        }
+
+        public static PlayerChangeWorldEvent Create(nint handle)
+        {
+            return new PlayerChangeWorldEvent(handle);
+        }
+    }
+
     public sealed class PlayerInteractEntityEvent : Event, IEvent<PlayerInteractEntityEvent>
     {
         private PlayerInteractEntityEvent(nint handle) : base(handle)

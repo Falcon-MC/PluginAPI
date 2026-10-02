@@ -14,9 +14,10 @@
     <FalconApiHeader>$([System.IO.Path]::GetFullPath($(FalconApiHeader)))</FalconApiHeader>
     <FalconMajor>$([System.IO.File]::ReadAllText($(FalconApiHeader)))</FalconMajor>
     <FalconMinor>$(FalconMajor)</FalconMinor>
+    <FalconPatch Condition="'$(FalconPatch)' == ''">$(FalconMajor)</FalconPatch>
     <FalconMajor>$([System.Text.RegularExpressions.Regex]::Match($(FalconMajor), '(?&lt;=_MAJOR\s+)\d+'))</FalconMajor>
     <FalconMinor>$([System.Text.RegularExpressions.Regex]::Match($(FalconMinor), '(?&lt;=_MINOR\s+)\d+'))</FalconMinor>
-    <FalconPatch Condition="'$(FalconPatch)' == ''">0</FalconPatch>
+    <FalconPatch>$([System.Text.RegularExpressions.Regex]::Match($(FalconPatch), '(?&lt;=_PATCH\s+)\d+'))</FalconPatch>
     <Version>$(FalconMajor).$(FalconMinor).$(FalconPatch)</Version>
   </PropertyGroup>
 
