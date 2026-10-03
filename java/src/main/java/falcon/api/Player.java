@@ -69,6 +69,29 @@ public final class Player {
         return Interop.string(api().playerAddress(mHandle));
     }
 
+    /**
+     * Shows a form built from its JSON definition and returns its id, which the matching
+     * PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
+     */
+    public int sendForm(String formJson) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerSendForm(mHandle, Interop.text(arena, formJson));
+        }
+    }
+
+    /**
+     * Sends the player to another server. Returns false when the address is empty or the port invalid.
+     */
+    public boolean transfer(String address, int port) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerTransfer(mHandle, Interop.text(arena, address), port) != 0;
+        }
+    }
+
+    public boolean transfer(String address) {
+        return transfer(address, 19132);
+    }
+
     public void sendTitle(String title) {
         sendTitle(title, "");
     }

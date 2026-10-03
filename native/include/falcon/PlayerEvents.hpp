@@ -295,6 +295,36 @@ namespace falcon {
         }
     };
 
+    /**
+     * Fired when a player answers or closes a form sent with Player::sendForm.
+     */
+    class PlayerFormResponseEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_FORM_RESPONSE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        uint32_t formId() const {
+            return detail::api().eventFormId(mHandle);
+        }
+
+        /**
+         * The answer as JSON: the button index, a boolean or the array of custom form values.
+         * Empty when the player closed the form.
+         */
+        std::string response() const {
+            return detail::text(detail::api().eventFormResponse(mHandle));
+        }
+
+        bool closed() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
     class PlayerToggleSneakEvent : public Event {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_TOGGLE_SNEAK;

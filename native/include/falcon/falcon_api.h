@@ -15,7 +15,7 @@ extern "C" {
 
 #define FALCON_API_VERSION_MAJOR 1
 #define FALCON_API_VERSION_MINOR 3
-#define FALCON_API_VERSION_PATCH 2
+#define FALCON_API_VERSION_PATCH 3
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -107,6 +107,7 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_WORLD_UNLOAD 66u
 #define FALCON_EVENT_PLAYER_CHANGE_WORLD 67u
 #define FALCON_EVENT_CONNECTION_OPEN 68u
+#define FALCON_EVENT_PLAYER_FORM_RESPONSE 69u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -423,6 +424,13 @@ typedef struct FalconServerApi {
     uint32_t (*eventMtuSize)(FalconEvent *event);
     const char *(*eventClientData)(FalconEvent *event);
     const char *(*eventClientDataField)(FalconEvent *event, const char *key);
+
+    uint32_t (*playerSendForm)(FalconPlayer *player, const char *formJson);
+    int (*playerTransfer)(FalconPlayer *player, const char *address, uint32_t port);
+    uint32_t (*eventFormId)(FalconEvent *event);
+    const char *(*eventFormResponse)(FalconEvent *event);
+    int (*entityIsInvisible)(FalconEntity *entity);
+    void (*entitySetInvisible)(FalconEntity *entity, int invisible);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

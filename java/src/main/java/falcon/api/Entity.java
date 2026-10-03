@@ -127,6 +127,17 @@ public final class Entity {
         api().entitySetOnFire(mHandle, ticks);
     }
 
+    public boolean isInvisible() {
+        return api().entityIsInvisible(mHandle) != 0;
+    }
+
+    /**
+     * Hides the entity from every viewer, its name tag included, until it is made visible again.
+     */
+    public void setInvisible(boolean invisible) {
+        api().entitySetInvisible(mHandle, invisible ? 1 : 0);
+    }
+
     public void extinguish() {
         setOnFire(0);
     }

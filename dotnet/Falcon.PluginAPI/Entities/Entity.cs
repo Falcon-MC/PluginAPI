@@ -195,6 +195,21 @@ namespace Falcon
             NativeApi.Table->entitySetOnFire(_handle, ticks);
         }
 
+        /// <summary>
+        /// Hides the entity from every viewer, its name tag included, until it is made visible again.
+        /// </summary>
+        public bool Invisible
+        {
+            get
+            {
+                return NativeApi.Table->entityIsInvisible(_handle) != 0;
+            }
+            set
+            {
+                NativeApi.Table->entitySetInvisible(_handle, value ? 1 : 0);
+            }
+        }
+
         public void Extinguish()
         {
             SetOnFire(0);

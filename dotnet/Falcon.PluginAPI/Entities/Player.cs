@@ -155,6 +155,29 @@ namespace Falcon
             }
         }
 
+        /// <summary>
+        /// Shows a form built from its JSON definition and returns its id, which the matching
+        /// PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
+        /// </summary>
+        public uint SendForm(string formJson)
+        {
+            fixed (byte* text = NativeApi.Utf8(formJson))
+            {
+                return NativeApi.Table->playerSendForm(_handle, text);
+            }
+        }
+
+        /// <summary>
+        /// Sends the player to another server. Returns false when the address is empty or the port invalid.
+        /// </summary>
+        public bool Transfer(string address, uint port = 19132)
+        {
+            fixed (byte* text = NativeApi.Utf8(address))
+            {
+                return NativeApi.Table->playerTransfer(_handle, text, port) != 0;
+            }
+        }
+
         public void Kick(string reason)
         {
             fixed (byte* text = NativeApi.Utf8(reason))

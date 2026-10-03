@@ -660,6 +660,69 @@ namespace Falcon
     /// Fired when a client opens a connection, before it sends any game packet. Cancelling it closes the
     /// connection without a disconnect screen.
     /// </summary>
+    /// <summary>
+    /// Fired when a player answers or closes a form sent with Player.SendForm.
+    /// </summary>
+    public sealed unsafe class PlayerFormResponseEvent : Event, IEvent<PlayerFormResponseEvent>
+    {
+        private PlayerFormResponseEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventPlayerFormResponse;
+            }
+        }
+
+        public Player Player
+        {
+            get
+            {
+                return EventPlayer();
+            }
+        }
+
+        public uint FormId
+        {
+            get
+            {
+                return NativeApi.Table->eventFormId(Raw);
+            }
+        }
+
+        /// <summary>
+        /// The answer as JSON: the button index, a boolean or the array of custom form values. Empty when the
+        /// player closed the form.
+        /// </summary>
+        public string Response
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventFormResponse(Raw));
+            }
+        }
+
+        public bool Closed
+        {
+            get
+            {
+                return NativeApi.Table->eventState(Raw) != 0;
+            }
+        }
+
+        public static PlayerFormResponseEvent Create(nint handle)
+        {
+            return new PlayerFormResponseEvent(handle);
+        }
+    }
+
+    /// <summary>
+    /// Fired when a client opens a connection, before it sends any game packet. Cancelling it closes the
+    /// connection without a disconnect screen.
+    /// </summary>
     public sealed unsafe class ConnectionOpenEvent : Event, IEvent<ConnectionOpenEvent>
     {
         private ConnectionOpenEvent(nint handle) : base(handle)

@@ -70,6 +70,21 @@ namespace falcon {
             return detail::text(detail::api().playerAddress(mHandle));
         }
 
+        /**
+         * Shows a form built from its JSON definition and returns its id, which the matching
+         * PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
+         */
+        uint32_t sendForm(const std::string &formJson) const {
+            return detail::api().playerSendForm(mHandle, formJson.c_str());
+        }
+
+        /**
+         * Sends the player to another server. Returns false when the address is empty or the port invalid.
+         */
+        bool transfer(const std::string &address, uint32_t port = 19132) const {
+            return detail::api().playerTransfer(mHandle, address.c_str(), port) != 0;
+        }
+
         void sendTitle(const std::string &title, const std::string &subtitle = "") const {
             detail::api().playerSendTitle(mHandle, title.c_str(), subtitle.c_str());
         }

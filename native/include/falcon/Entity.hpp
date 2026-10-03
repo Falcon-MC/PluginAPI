@@ -100,6 +100,17 @@ namespace falcon {
             detail::api().entitySetOnFire(mHandle, ticks);
         }
 
+        bool isInvisible() const {
+            return detail::api().entityIsInvisible(mHandle) != 0;
+        }
+
+        /**
+         * Hides the entity from every viewer, its name tag included, until it is made visible again.
+         */
+        void setInvisible(bool invisible) const {
+            detail::api().entitySetInvisible(mHandle, invisible ? 1 : 0);
+        }
+
         void extinguish() const {
             setOnFire(0);
         }
