@@ -15,7 +15,7 @@ extern "C" {
 
 #define FALCON_API_VERSION_MAJOR 1
 #define FALCON_API_VERSION_MINOR 3
-#define FALCON_API_VERSION_PATCH 1
+#define FALCON_API_VERSION_PATCH 2
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -106,6 +106,7 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_WORLD_LOAD 65u
 #define FALCON_EVENT_WORLD_UNLOAD 66u
 #define FALCON_EVENT_PLAYER_CHANGE_WORLD 67u
+#define FALCON_EVENT_CONNECTION_OPEN 68u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -415,6 +416,13 @@ typedef struct FalconServerApi {
     int (*serverUnloadWorld)(const char *name);
     const char *(*eventWorldName)(FalconEvent *event);
     const char *(*eventPreviousWorldName)(FalconEvent *event);
+
+    const char *(*eventAddress)(FalconEvent *event);
+    const char *(*eventTransport)(FalconEvent *event);
+    uint64_t (*eventClientGuid)(FalconEvent *event);
+    uint32_t (*eventMtuSize)(FalconEvent *event);
+    const char *(*eventClientData)(FalconEvent *event);
+    const char *(*eventClientDataField)(FalconEvent *event, const char *key);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

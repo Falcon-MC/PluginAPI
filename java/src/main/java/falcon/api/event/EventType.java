@@ -84,6 +84,7 @@ final class EventType<T extends Event> {
         register(WorldLoadEvent.class, FalconAbi.EVENT_WORLD_LOAD, WorldLoadEvent::new);
         register(WorldUnloadEvent.class, FalconAbi.EVENT_WORLD_UNLOAD, WorldUnloadEvent::new);
         register(PlayerChangeWorldEvent.class, FalconAbi.EVENT_PLAYER_CHANGE_WORLD, PlayerChangeWorldEvent::new);
+        register(ConnectionOpenEvent.class, FalconAbi.EVENT_CONNECTION_OPEN, ConnectionOpenEvent::new);
     }
 
     private final int mId;

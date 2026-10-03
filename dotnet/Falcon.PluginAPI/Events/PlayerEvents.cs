@@ -554,7 +554,7 @@ namespace Falcon
         }
     }
 
-    public sealed class PlayerPreLoginEvent : Event, IEvent<PlayerPreLoginEvent>
+    public sealed unsafe class PlayerPreLoginEvent : Event, IEvent<PlayerPreLoginEvent>
     {
         private PlayerPreLoginEvent(nint handle) : base(handle)
         {
@@ -588,9 +588,136 @@ namespace Falcon
             }
         }
 
+        /// <summary>
+        /// The client data sent in the login request, as the JSON object the client signed.
+        /// </summary>
+        public string ClientData
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventClientData(Raw));
+            }
+        }
+
+        public string ServerAddress
+        {
+            get
+            {
+                return ClientDataField("ServerAddress");
+            }
+        }
+
+        public string GameVersion
+        {
+            get
+            {
+                return ClientDataField("GameVersion");
+            }
+        }
+
+        public string DeviceModel
+        {
+            get
+            {
+                return ClientDataField("DeviceModel");
+            }
+        }
+
+        public string DeviceOS
+        {
+            get
+            {
+                return ClientDataField("DeviceOS");
+            }
+        }
+
+        public string ThirdPartyName
+        {
+            get
+            {
+                return ClientDataField("ThirdPartyName");
+            }
+        }
+
+        /// <summary>
+        /// One top-level field of the client data, as text; empty when the client did not send it.
+        /// </summary>
+        public string ClientDataField(string key)
+        {
+            fixed (byte* text = NativeApi.Utf8(key))
+            {
+                return NativeApi.Text(NativeApi.Table->eventClientDataField(Raw, text));
+            }
+        }
+
         public static PlayerPreLoginEvent Create(nint handle)
         {
             return new PlayerPreLoginEvent(handle);
+        }
+    }
+
+    /// <summary>
+    /// Fired when a client opens a connection, before it sends any game packet. Cancelling it closes the
+    /// connection without a disconnect screen.
+    /// </summary>
+    public sealed unsafe class ConnectionOpenEvent : Event, IEvent<ConnectionOpenEvent>
+    {
+        private ConnectionOpenEvent(nint handle) : base(handle)
+        {
+        }
+
+        public static uint EventType
+        {
+            get
+            {
+                return FalconConstants.EventConnectionOpen;
+            }
+        }
+
+        public string Address
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventAddress(Raw));
+            }
+        }
+
+        /// <summary>
+        /// The transport the client connected with: "raknet" or "nethernet".
+        /// </summary>
+        public string Transport
+        {
+            get
+            {
+                return NativeApi.Text(NativeApi.Table->eventTransport(Raw));
+            }
+        }
+
+        /// <summary>
+        /// The GUID the client announced during the RakNet handshake, or 0 on other transports.
+        /// </summary>
+        public ulong ClientGuid
+        {
+            get
+            {
+                return NativeApi.Table->eventClientGuid(Raw);
+            }
+        }
+
+        /// <summary>
+        /// The datagram size negotiated during the RakNet handshake, or 0 on other transports.
+        /// </summary>
+        public uint MtuSize
+        {
+            get
+            {
+                return NativeApi.Table->eventMtuSize(Raw);
+            }
+        }
+
+        public static ConnectionOpenEvent Create(nint handle)
+        {
+            return new ConnectionOpenEvent(handle);
         }
     }
 

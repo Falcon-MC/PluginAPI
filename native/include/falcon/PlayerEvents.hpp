@@ -223,6 +223,76 @@ namespace falcon {
         void setKickMessage(const std::string &message) const {
             detail::api().eventSetMessage(mHandle, message.c_str());
         }
+
+        /**
+         * The client data sent in the login request, as the JSON object the client signed.
+         */
+        std::string clientData() const {
+            return detail::text(detail::api().eventClientData(mHandle));
+        }
+
+        /**
+         * One top-level field of the client data, as text; empty when the client did not send it.
+         */
+        std::string clientDataField(const std::string &key) const {
+            return detail::text(detail::api().eventClientDataField(mHandle, key.c_str()));
+        }
+
+        std::string serverAddress() const {
+            return clientDataField("ServerAddress");
+        }
+
+        std::string gameVersion() const {
+            return clientDataField("GameVersion");
+        }
+
+        std::string deviceModel() const {
+            return clientDataField("DeviceModel");
+        }
+
+        std::string deviceOS() const {
+            return clientDataField("DeviceOS");
+        }
+
+        std::string thirdPartyName() const {
+            return clientDataField("ThirdPartyName");
+        }
+    };
+
+    /**
+     * Fired when a client opens a connection, before it sends any game packet. Cancelling it closes
+     * the connection without a disconnect screen.
+     */
+    class ConnectionOpenEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_CONNECTION_OPEN;
+
+        using Event::Event;
+
+        std::string address() const {
+            return detail::text(detail::api().eventAddress(mHandle));
+        }
+
+        /**
+         * The transport the client connected with: "raknet" or "nethernet".
+         */
+        std::string transport() const {
+            return detail::text(detail::api().eventTransport(mHandle));
+        }
+
+        /**
+         * The GUID the client announced during the RakNet handshake, or 0 on other transports.
+         */
+        uint64_t clientGuid() const {
+            return detail::api().eventClientGuid(mHandle);
+        }
+
+        /**
+         * The datagram size negotiated during the RakNet handshake, or 0 on other transports.
+         */
+        uint32_t mtuSize() const {
+            return detail::api().eventMtuSize(mHandle);
+        }
     };
 
     class PlayerToggleSneakEvent : public Event {
