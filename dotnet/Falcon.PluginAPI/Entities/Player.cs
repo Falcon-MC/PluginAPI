@@ -156,6 +156,18 @@ namespace Falcon
         }
 
         /// <summary>
+        /// The network protocol of the player's game version, which can be older than the server's when it accepts
+        /// several versions.
+        /// </summary>
+        public int ProtocolVersion
+        {
+            get
+            {
+                return NativeApi.Table->playerProtocolVersion(_handle);
+            }
+        }
+
+        /// <summary>
         /// Shows a form built from its JSON definition and returns its id, which the matching
         /// PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
         /// </summary>

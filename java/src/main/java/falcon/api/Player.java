@@ -70,6 +70,14 @@ public final class Player {
     }
 
     /**
+     * The network protocol of the player's game version, which can be older than the server's when it accepts
+     * several versions.
+     */
+    public int protocolVersion() {
+        return api().playerProtocolVersion(mHandle);
+    }
+
+    /**
      * Shows a form built from its JSON definition and returns its id, which the matching
      * PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
      */

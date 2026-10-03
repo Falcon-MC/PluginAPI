@@ -431,6 +431,8 @@ typedef struct FalconServerApi {
     const char *(*eventFormResponse)(FalconEvent *event);
     int (*entityIsInvisible)(FalconEntity *entity);
     void (*entitySetInvisible)(FalconEntity *entity, int invisible);
+
+    int32_t (*playerProtocolVersion)(FalconPlayer *player);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
