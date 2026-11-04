@@ -12,7 +12,7 @@
 <p align="center">
 	<a href="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml"><img src="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 	<img src="https://img.shields.io/badge/api-v1.3.3-blue" alt="API">
-	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java-00599C" alt="Languages">
+	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java%20%7C%20Wasm-00599C" alt="Languages">
 	<img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
 </p>
 
@@ -28,7 +28,10 @@ the same stable C ABI, so the server exposes each feature once and all plugins g
 - **`java/`** - the `falcon-plugin-api` Maven artifact for Java plugins: bindings generated from `falcon_api.h`
   at build time with the Foreign Function & Memory API, Java classes mirroring the C++ ones, and the loader the
   server runs in its embedded Java virtual machine
-- **`examples/`** - complete plugins, built by CI on every supported platform
+- **`wasm/`** - the API for WebAssembly plugins: `falcon.wit`, which mirrors `falcon_api.h`, and a small C
+  helper (`wasm/c/falcon_wasm.h`) over the bindings `wit-bindgen` generates from it
+- **`examples/`** - complete plugins, built by CI on every supported platform except the Wasm one, which builds
+  with its own `build.sh`
 
 The C++ headers only talk to the server through the C ABI, so a plugin built with any compiler runs on
 any Falcon build of the same API major version.
