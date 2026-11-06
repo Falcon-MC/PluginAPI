@@ -113,7 +113,7 @@ public final class Player {
     /**
      * Shows a boss bar and returns its id. The newest bar of a player is displayed, the others wait behind it, and a
      * raid bar replaces them all while it is up. Percent goes from 0 to 1. Colors: 0 pink, 1 blue, 2 red, 3 green,
-     * 4 yellow, 5 purple, 6 white.
+     * 4 yellow, 5 purple, 6 rebecca purple, 7 white.
      */
     public int addBossBar(String title, float percent, int color) {
         try (Arena arena = Arena.ofConfined()) {
