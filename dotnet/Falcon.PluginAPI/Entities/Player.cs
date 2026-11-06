@@ -207,6 +207,32 @@ namespace Falcon
             }
         }
 
+        /// <summary>
+        /// Shows a boss bar and returns its id. The newest bar of a player is displayed, the others wait behind it, and
+        /// a raid bar replaces them all while it is up. Percent goes from 0 to 1. Colors: 0 pink, 1 blue, 2 red,
+        /// 3 green, 4 yellow, 5 purple, 6 white.
+        /// </summary>
+        public uint AddBossBar(string title, float percent = 1.0f, uint color = 5)
+        {
+            fixed (byte* text = NativeApi.Utf8(title))
+            {
+                return NativeApi.Table->playerAddBossBar(_handle, text, percent, color);
+            }
+        }
+
+        public bool UpdateBossBar(uint bar, string title, float percent, uint color = 5)
+        {
+            fixed (byte* text = NativeApi.Utf8(title))
+            {
+                return NativeApi.Table->playerUpdateBossBar(_handle, bar, text, percent, color) != 0;
+            }
+        }
+
+        public bool RemoveBossBar(uint bar)
+        {
+            return NativeApi.Table->playerRemoveBossBar(_handle, bar) != 0;
+        }
+
         public void SendActionBar(string message)
         {
             fixed (byte* text = NativeApi.Utf8(message))

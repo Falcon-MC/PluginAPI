@@ -110,6 +110,27 @@ public final class Player {
         }
     }
 
+    /**
+     * Shows a boss bar and returns its id. The newest bar of a player is displayed, the others wait behind it, and a
+     * raid bar replaces them all while it is up. Percent goes from 0 to 1. Colors: 0 pink, 1 blue, 2 red, 3 green,
+     * 4 yellow, 5 purple, 6 white.
+     */
+    public int addBossBar(String title, float percent, int color) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerAddBossBar(mHandle, Interop.text(arena, title), percent, color);
+        }
+    }
+
+    public boolean updateBossBar(int bar, String title, float percent, int color) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerUpdateBossBar(mHandle, bar, Interop.text(arena, title), percent, color) != 0;
+        }
+    }
+
+    public boolean removeBossBar(int bar) {
+        return api().playerRemoveBossBar(mHandle, bar) != 0;
+    }
+
     public void sendActionBar(String message) {
         try (Arena arena = Arena.ofConfined()) {
             api().playerSendActionBar(mHandle, Interop.text(arena, message));
