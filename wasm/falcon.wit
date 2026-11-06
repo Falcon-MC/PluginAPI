@@ -114,6 +114,9 @@ interface players {
     player-address: func(player: player) -> string;
     player-send-title: func(player: player, title: string, subtitle: string);
     player-send-action-bar: func(player: player, message: string);
+    player-add-boss-bar: func(player: player, title: string, percent: f32, color: u32) -> u32;
+    player-update-boss-bar: func(player: player, bar: u32, title: string, percent: f32, color: u32) -> bool;
+    player-remove-boss-bar: func(player: player, bar: u32) -> bool;
     player-food: func(player: player) -> f32;
     player-set-food: func(player: player, food: f32);
     player-xp-level: func(player: player) -> s32;

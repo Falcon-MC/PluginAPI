@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 #define FALCON_API_VERSION_MAJOR 1
-#define FALCON_API_VERSION_MINOR 3
-#define FALCON_API_VERSION_PATCH 3
+#define FALCON_API_VERSION_MINOR 4
+#define FALCON_API_VERSION_PATCH 0
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -433,6 +433,10 @@ typedef struct FalconServerApi {
     void (*entitySetInvisible)(FalconEntity *entity, int invisible);
 
     int32_t (*playerProtocolVersion)(FalconPlayer *player);
+
+    uint32_t (*playerAddBossBar)(FalconPlayer *player, const char *title, float percent, uint32_t color);
+    int (*playerUpdateBossBar)(FalconPlayer *player, uint32_t bar, const char *title, float percent, uint32_t color);
+    int (*playerRemoveBossBar)(FalconPlayer *player, uint32_t bar);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
