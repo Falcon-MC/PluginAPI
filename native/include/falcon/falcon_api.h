@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 #define FALCON_API_VERSION_MAJOR 1
-#define FALCON_API_VERSION_MINOR 3
-#define FALCON_API_VERSION_PATCH 3
+#define FALCON_API_VERSION_MINOR 0
+#define FALCON_API_VERSION_PATCH 5
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;

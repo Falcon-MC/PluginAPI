@@ -1,6 +1,6 @@
 /// The Falcon plugin API for WebAssembly plugins.
 ///
-/// Every imported function mirrors one entry of the C API table in `falcon_api.h` (API 1.3.3) and calls it,
+/// Every imported function mirrors one entry of the C API table in `falcon_api.h` (API 1.0.5) and calls it,
 /// so a Wasm plugin reaches exactly what a native plugin reaches. The only C entry without a counterpart is
 /// `runAsync`: a plugin instance is not thread safe, so it cannot run on the scheduler's worker thread.
 ///
@@ -8,7 +8,7 @@
 /// a stale id is simply not found. Levels and items are host-side handles that are checked on every call.
 /// Events and command senders have no handle: `event` and the sender functions of `commands` act on the
 /// event or command being handled and return default values outside a handler.
-package falcon:plugin@1.3.3;
+package falcon:plugin@1.0.5;
 
 interface types {
     /// The runtime id of a player. A player is also an entity, so the same id works with `entities`.
