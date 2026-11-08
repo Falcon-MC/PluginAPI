@@ -12,6 +12,7 @@
 #include "falcon/Entity.hpp"
 #include "falcon/EntityEvents.hpp"
 #include "falcon/Events.hpp"
+#include "falcon/ImageMaps.hpp"
 #include "falcon/InventoryEvents.hpp"
 #include "falcon/Item.hpp"
 #include "falcon/Level.hpp"

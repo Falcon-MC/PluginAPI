@@ -131,6 +131,11 @@ public final class Player {
         return api().playerRemoveBossBar(mHandle, bar) != 0;
     }
 
+    /** Gives a filled image map of this player's world; dropped at the feet when the inventory is full. */
+    public boolean giveMap(long mapId) {
+        return api().playerGiveMap(mHandle, mapId) != 0;
+    }
+
     public void sendActionBar(String message) {
         try (Arena arena = Arena.ofConfined()) {
             api().playerSendActionBar(mHandle, Interop.text(arena, message));

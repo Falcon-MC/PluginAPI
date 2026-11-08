@@ -139,6 +139,13 @@ typedef uint32_t FalconEventPriority;
 #define FALCON_PRIORITY_HIGHEST 4u
 #define FALCON_PRIORITY_MONITOR 5u
 
+typedef uint32_t FalconImageFit;
+#define FALCON_IMAGE_FIT_STRETCH 0u
+#define FALCON_IMAGE_FIT_CONTAIN 1u
+#define FALCON_IMAGE_FIT_COVER 2u
+
+#define FALCON_MAP_SIZE 128u
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -433,6 +440,26 @@ typedef struct FalconServerApi {
     void (*entitySetInvisible)(FalconEntity *entity, int invisible);
 
     int32_t (*playerProtocolVersion)(FalconPlayer *player);
+
+    uint32_t (*playerAddBossBar)(FalconPlayer *player, const char *title, float percent, uint32_t color);
+    int (*playerUpdateBossBar)(FalconPlayer *player, uint32_t bar, const char *title, float percent, uint32_t color);
+    int (*playerRemoveBossBar)(FalconPlayer *player, uint32_t bar);
+
+    int64_t (*mapCreateImage)(FalconLevel *level, const uint8_t *rgba, uint32_t length);
+    uint32_t (*mapCreateImageGrid)(FalconLevel *level, const uint8_t *rgba, uint32_t length, uint32_t width,
+                                   uint32_t height, uint32_t columns, uint32_t rows, FalconImageFit fit,
+                                   int64_t *mapIds, uint32_t capacity, uint32_t *outColumns, uint32_t *outRows);
+    uint32_t (*mapCreateImageGridFromPng)(FalconLevel *level, const uint8_t *png, uint32_t length, uint32_t columns,
+                                          uint32_t rows, FalconImageFit fit, int64_t *mapIds, uint32_t capacity,
+                                          uint32_t *outColumns, uint32_t *outRows);
+    int (*mapPlaceImageGrid)(FalconLevel *level, FalconBlockPos topLeft, uint32_t facing, const int64_t *mapIds,
+                             uint32_t count, uint32_t columns, uint32_t rows, int glowing);
+    int (*mapUpdateImage)(FalconLevel *level, int64_t mapId, uint32_t x, uint32_t y, uint32_t width,
+                          uint32_t height, const uint8_t *rgba, uint32_t length);
+    int (*mapIsImage)(FalconLevel *level, int64_t mapId);
+    int (*playerGiveMap)(FalconPlayer *player, int64_t mapId);
+    const char *(*mapLastError)(void);
+    int (*mapDeleteImage)(FalconLevel *level, int64_t mapId);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
