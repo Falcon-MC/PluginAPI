@@ -86,12 +86,14 @@ namespace falcon {
 
         /**
          * Hangs the grid in item frames, topLeft being the frame of the first map. Each spot must be air with a solid
-         * block behind it, or a frame with this facing that is empty or holds a picture. Nothing changes on failure.
+         * block behind it, or a frame with this facing that is empty or holds a picture. The grid needs exactly
+         * columns * rows ids. Nothing changes on failure.
          */
         static bool place(const Level &level, const BlockPos &topLeft, WallFacing facing, const ImageMapGrid &grid,
                           bool glowing = false) {
             return detail::api().mapPlaceImageGrid(level.handle(), topLeft.raw(), static_cast<uint32_t>(facing),
-                                                   grid.ids.data(), grid.columns, grid.rows, glowing ? 1 : 0) != 0;
+                                                   grid.ids.data(), static_cast<uint32_t>(grid.ids.size()),
+                                                   grid.columns, grid.rows, glowing ? 1 : 0) != 0;
         }
 
         /** Replaces a width x height block of pixels; only the pixels that changed go to the players who see it. */
@@ -103,6 +105,14 @@ namespace falcon {
 
         static bool isImageMap(const Level &level, int64_t mapId) {
             return detail::api().mapIsImage(level.handle(), mapId) != 0;
+        }
+
+        /**
+         * Erases an image map from memory and from the world save, and takes it out of the frames of loaded chunks
+         * and the inventories of online players. Copies anywhere else stay as blank maps.
+         */
+        static bool remove(const Level &level, int64_t mapId) {
+            return detail::api().mapDeleteImage(level.handle(), mapId) != 0;
         }
 
         static std::string lastError() {

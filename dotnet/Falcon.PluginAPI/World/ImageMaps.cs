@@ -125,15 +125,17 @@ namespace Falcon
 
         /// <summary>
         /// Hangs the grid in item frames, topLeft being the frame of the first map. Each spot must be air with a solid
-        /// block behind it, or a frame with this facing that is empty or holds a picture. Nothing changes on failure.
+        /// block behind it, or a frame with this facing that is empty or holds a picture. The grid needs exactly
+        /// Columns * Rows ids. Nothing changes on failure.
         /// </summary>
         public static bool Place(Level level, BlockPos topLeft, WallFacing facing, ImageMapGrid grid,
             bool glowing = false)
         {
-            fixed (long* ids = grid.Ids)
+            long[] gridIds = grid.Ids ?? Array.Empty<long>();
+            fixed (long* ids = gridIds)
             {
                 return NativeApi.Table->mapPlaceImageGrid(level.Raw, topLeft.ToNative(), (uint)facing, ids,
-                    grid.Columns, grid.Rows, glowing ? 1 : 0) != 0;
+                    (uint)gridIds.Length, grid.Columns, grid.Rows, glowing ? 1 : 0) != 0;
             }
         }
 
@@ -153,6 +155,15 @@ namespace Falcon
         public static bool IsImageMap(Level level, long mapId)
         {
             return NativeApi.Table->mapIsImage(level.Raw, mapId) != 0;
+        }
+
+        /// <summary>
+        /// Erases an image map from memory and from the world save, and takes it out of the frames of loaded chunks
+        /// and the inventories of online players. Copies anywhere else stay as blank maps.
+        /// </summary>
+        public static bool Remove(Level level, long mapId)
+        {
+            return NativeApi.Table->mapDeleteImage(level.Raw, mapId) != 0;
         }
     }
 }

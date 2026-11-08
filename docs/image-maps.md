@@ -61,6 +61,20 @@ Rows go down. Each spot must be air with a solid block behind it, or an item fra
 empty or already holds an image map. Every spot is checked before anything changes. With `glowing`, the frames are
 glow item frames, which keep the picture lit in the dark.
 
+## Keeping and removing maps
+
+Every create call makes new maps with new ids, and they stay in the world save until they are removed. A plugin
+that makes its pictures in `onEnable` adds a grid to the world at every restart unless it reuses them: save the ids
+the first time, in the plugin config for example, and on the next start check them with `isImageMap` before making
+new ones. `update` redraws a kept map in place.
+
+`remove` erases an image map from memory and from the world save. It also empties the item frames of loaded chunks
+that hold it and takes it out of the inventories and off hands of online players. Maps it cannot reach stay where
+they are: frames in unloaded chunks, chests and other containers, dropped items and the inventories of offline
+players. Such a map keeps its item but has no data any more: the server never answers for its id, so the client
+shows it blank, and it is never redrawn by the world or turned into a new map. A client that already received the
+picture may keep showing it until it reconnects.
+
 ## Live updates
 
 `update` replaces a block of pixels in an image map, for animations or live displays. Only the pixels that really
@@ -101,6 +115,7 @@ falcon::ImageMaps::update(level, grid.ids[0], 56, 56, 16, 16, red);
 | `ImageMaps::place(level, topLeft, facing, grid, glowing)` | `bool` |
 | `ImageMaps::update(level, mapId, x, y, width, height, rgba)` | `bool` |
 | `ImageMaps::isImageMap(level, mapId)` | `bool` |
+| `ImageMaps::remove(level, mapId)` | `bool`; `false` when the id is not an image map |
 | `ImageMaps::lastError()` | the reason of the last failure |
 | `Player::giveMap(mapId)` | `bool`; the map drops at the player's feet when the inventory is full |
 
@@ -121,6 +136,8 @@ ImageMaps.Place(level, new BlockPos(10, 72, -4), WallFacing.South, grid, glowing
 player.GiveMap(grid.Ids[0]);
 ```
 
+`ImageMaps.Remove(level, mapId)` erases a map, as described above.
+
 ## Java
 
 ```java
@@ -137,6 +154,8 @@ ImageMaps.place(level, new BlockPos(10, 72, -4), WallFacing.SOUTH, grid, false);
 player.giveMap(grid.ids()[0]);
 ```
 
+`ImageMaps.remove(level, mapId)` erases a map, as described above.
+
 ## C API
 
 ```c
@@ -148,14 +167,16 @@ uint32_t (*mapCreateImageGridFromPng)(FalconLevel *level, const uint8_t *png, ui
                                       uint32_t rows, FalconImageFit fit, int64_t *mapIds, uint32_t capacity,
                                       uint32_t *outColumns, uint32_t *outRows);
 int (*mapPlaceImageGrid)(FalconLevel *level, FalconBlockPos topLeft, uint32_t facing, const int64_t *mapIds,
-                         uint32_t columns, uint32_t rows, int glowing);
+                         uint32_t count, uint32_t columns, uint32_t rows, int glowing);
 int (*mapUpdateImage)(FalconLevel *level, int64_t mapId, uint32_t x, uint32_t y, uint32_t width,
                       uint32_t height, const uint8_t *rgba, uint32_t length);
 int (*mapIsImage)(FalconLevel *level, int64_t mapId);
 int (*playerGiveMap)(FalconPlayer *player, int64_t mapId);
 const char *(*mapLastError)(void);
+int (*mapDeleteImage)(FalconLevel *level, int64_t mapId);
 ```
 
 The grid functions return the number of maps they made, `0` on failure. `outColumns` and `outRows` receive the grid
 size even when `capacity` is too small, so a caller can ask once with a capacity of `0` and allocate. Maps are made
-only when every id fits. Maps belong to the world of `level`, whatever its dimension.
+only when every id fits. Maps belong to the world of `level`, whatever its dimension. `mapPlaceImageGrid` reads
+`count` ids and refuses any count other than `columns * rows`.

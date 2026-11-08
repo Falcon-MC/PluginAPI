@@ -66,7 +66,8 @@ public final class ImageMaps {
 
     /**
      * Hangs the grid in item frames, topLeft being the frame of the first map. Each spot must be air with a solid
-     * block behind it, or a frame with this facing that is empty or holds a picture. Nothing changes on failure.
+     * block behind it, or a frame with this facing that is empty or holds a picture. The grid needs exactly
+     * columns * rows ids. Nothing changes on failure.
      */
     public static boolean place(Level level, BlockPos topLeft, WallFacing facing, ImageMapGrid grid,
                                 boolean glowing) {
@@ -74,7 +75,7 @@ public final class ImageMaps {
             MemorySegment ids = grid.ids().length == 0 ? MemorySegment.NULL
                     : arena.allocateFrom(ValueLayout.JAVA_LONG, grid.ids());
             return api().mapPlaceImageGrid(level.handle(), Interop.blockPos(arena, topLeft), facing.value(), ids,
-                    grid.columns(), grid.rows(), glowing ? 1 : 0) != 0;
+                    grid.ids().length, grid.columns(), grid.rows(), glowing ? 1 : 0) != 0;
         }
     }
 
@@ -88,6 +89,14 @@ public final class ImageMaps {
 
     public static boolean isImageMap(Level level, long mapId) {
         return api().mapIsImage(level.handle(), mapId) != 0;
+    }
+
+    /**
+     * Erases an image map from memory and from the world save, and takes it out of the frames of loaded chunks and
+     * the inventories of online players. Copies anywhere else stay as blank maps.
+     */
+    public static boolean remove(Level level, long mapId) {
+        return api().mapDeleteImage(level.handle(), mapId) != 0;
     }
 
     public static String lastError() {

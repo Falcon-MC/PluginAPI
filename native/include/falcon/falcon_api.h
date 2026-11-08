@@ -453,12 +453,13 @@ typedef struct FalconServerApi {
                                           uint32_t rows, FalconImageFit fit, int64_t *mapIds, uint32_t capacity,
                                           uint32_t *outColumns, uint32_t *outRows);
     int (*mapPlaceImageGrid)(FalconLevel *level, FalconBlockPos topLeft, uint32_t facing, const int64_t *mapIds,
-                             uint32_t columns, uint32_t rows, int glowing);
+                             uint32_t count, uint32_t columns, uint32_t rows, int glowing);
     int (*mapUpdateImage)(FalconLevel *level, int64_t mapId, uint32_t x, uint32_t y, uint32_t width,
                           uint32_t height, const uint8_t *rgba, uint32_t length);
     int (*mapIsImage)(FalconLevel *level, int64_t mapId);
     int (*playerGiveMap)(FalconPlayer *player, int64_t mapId);
     const char *(*mapLastError)(void);
+    int (*mapDeleteImage)(FalconLevel *level, int64_t mapId);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
