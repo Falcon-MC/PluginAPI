@@ -23,7 +23,7 @@ the same stable C ABI, so the server exposes each feature once and all plugins g
 
 - **`native/`** - the C ABI (`falcon_api.h`) and header-only C++ classes built on top of it
 - **`internal/`** - support for internal plugins, which use the server's own C++ classes
-- **`dotnet/`** - the `Falcon.PluginAPI` package for C# plugins: interop generated from `falcon_api.h` at
+- **`dotnet/`** - deprecated, kept for existing C# plugins and given no new API: the `Falcon.PluginAPI` package: interop generated from `falcon_api.h` at
   build time, C# classes mirroring the C++ ones, and the loader the server runs through the .NET runtime
 - **`java/`** - the `falcon-plugin-api` Maven artifact for Java plugins: bindings generated from `falcon_api.h`
   at build time with the Foreign Function & Memory API, Java classes mirroring the C++ ones, and the loader the
@@ -124,6 +124,8 @@ A service belongs to the plugin that provided it and disappears when that plugin
 fire custom events from the main thread.
 
 ### C# plugins
+
+The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.
 
 A C# plugin is a `net8.0` class library that references `Falcon.PluginAPI` and sets `EnableDynamicLoading`:
 
