@@ -97,6 +97,23 @@ namespace falcon {
             detail::api().playerSendTitle(mHandle, title.c_str(), subtitle.c_str());
         }
 
+        /**
+         * Shows a boss bar and returns its id. The newest bar of a player is displayed, the others wait behind it, and
+         * a raid bar replaces them all while it is up. Percent goes from 0 to 1. Colors: 0 pink, 1 blue, 2 red,
+         * 3 green, 4 yellow, 5 purple, 6 rebecca purple, 7 white.
+         */
+        uint32_t addBossBar(const std::string &title, float percent = 1.0f, uint32_t color = 5) const {
+            return detail::api().playerAddBossBar(mHandle, title.c_str(), percent, color);
+        }
+
+        bool updateBossBar(uint32_t bar, const std::string &title, float percent, uint32_t color = 5) const {
+            return detail::api().playerUpdateBossBar(mHandle, bar, title.c_str(), percent, color) != 0;
+        }
+
+        bool removeBossBar(uint32_t bar) const {
+            return detail::api().playerRemoveBossBar(mHandle, bar) != 0;
+        }
+
         void sendActionBar(const std::string &message) const {
             detail::api().playerSendActionBar(mHandle, message.c_str());
         }
