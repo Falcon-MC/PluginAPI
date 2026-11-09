@@ -15,9 +15,6 @@ namespace garden {
 
         const int32_t PANIC_PRIORITY = 1;
         const float PANIC_SPEED = 0.4f;
-        const int32_t PANIC_RANGE = 12;
-        const int32_t PANIC_INTERVAL = 40;
-        const int32_t PANIC_DURATION = 100;
 
         const int32_t FOLLOW_PRIORITY = 3;
         const float FOLLOW_SPEED = 0.25f;
@@ -41,8 +38,9 @@ namespace garden {
 
     void TemptedChickenActor::registerGoals(GoalSelector &goalSelector) {
         goalSelector.addGoal(FLOAT_PRIORITY, std::make_unique<FloatGoal>());
-        goalSelector.addGoal(PANIC_PRIORITY, std::make_unique<PanicGoal>(PANIC_SPEED, PANIC_RANGE, PANIC_INTERVAL,
-                                                                         PANIC_DURATION, true, STROLL_WATER_RETRIES));
+        PanicGoal::Settings panic;
+        panic.mSpeed = PANIC_SPEED;
+        goalSelector.addGoal(PANIC_PRIORITY, std::make_unique<PanicGoal>(panic));
         goalSelector.addGoal(FOLLOW_PRIORITY, std::make_unique<FollowSeedsGoal>(FOLLOW_SPEED, FOLLOW_RANGE));
         goalSelector.addGoal(STROLL_PRIORITY, std::make_unique<RandomStrollGoal>(STROLL_SPEED, STROLL_RANGE,
                                                                                  STROLL_INTERVAL, true,
