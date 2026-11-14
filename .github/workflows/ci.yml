@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Ninja
         if: matrix.name != 'windows-msvc'
-        uses: seanmiddleditch/gha-setup-ninja@v5
+        uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: Configure
         if: matrix.name != 'windows-msvc'
