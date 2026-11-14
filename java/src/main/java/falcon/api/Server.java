@@ -97,6 +97,10 @@ public final class Server {
         }
     }
 
+    public Scoreboard scoreboard() {
+        return new Scoreboard(mContext);
+    }
+
     private static NativeApi api() {
         return Interop.api();
     }

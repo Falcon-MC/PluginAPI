@@ -223,6 +223,37 @@ interface levels {
     level-spawn-particle: func(level: borrow<level>, particle: string, position: vec3);
 }
 
+/// The server's scoreboard. A participant is an entity, a player through its entity id, or a fake player by name.
+interface scoreboard {
+    use types.{entity};
+
+    /// One of the `FALCON_DISPLAY_SLOT_*` values.
+    type display-slot = u32;
+
+    record score-entry {
+        name: string,
+        value: s32,
+    }
+
+    scoreboard-add-objective: func(name: string, display-name: string) -> bool;
+    scoreboard-remove-objective: func(name: string) -> bool;
+    scoreboard-objective-count: func() -> u32;
+    scoreboard-objective-name: func(index: u32) -> option<string>;
+    scoreboard-objective-display-name: func(objective: string) -> option<string>;
+    scoreboard-entity-score: func(objective: string, entity: entity) -> option<s32>;
+    scoreboard-set-entity-score: func(objective: string, entity: entity, score: s32) -> bool;
+    scoreboard-reset-entity-score: func(objective: string, entity: entity) -> bool;
+    scoreboard-fake-player-score: func(objective: string, name: string) -> option<s32>;
+    scoreboard-set-fake-player-score: func(objective: string, name: string, score: s32) -> bool;
+    scoreboard-reset-fake-player-score: func(objective: string, name: string) -> bool;
+    scoreboard-score-count: func(objective: string) -> u32;
+    scoreboard-score-at: func(objective: string, index: u32) -> option<score-entry>;
+    scoreboard-score-entity: func(objective: string, index: u32) -> option<entity>;
+    /// `none` clears the slot.
+    scoreboard-set-display: func(slot: display-slot, objective: option<string>, ascending: bool) -> bool;
+    scoreboard-display-objective: func(slot: display-slot) -> option<string>;
+}
+
 interface items {
     use types.{player, item, armor-slot};
 
@@ -448,6 +479,7 @@ world falcon-plugin {
     import entities;
     import levels;
     import items;
+    import scoreboard;
     import events;
     import event;
     import commands;
