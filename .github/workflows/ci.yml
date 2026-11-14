@@ -29,7 +29,7 @@ jobs:
             cxx: clang++
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Ninja
         if: matrix.name != 'windows-msvc'
@@ -61,7 +61,7 @@ jobs:
             os: macos-14
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install .NET
         uses: actions/setup-dotnet@v6
@@ -101,7 +101,7 @@ jobs:
             os: macos-14
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Java
         uses: actions/setup-java@v4
