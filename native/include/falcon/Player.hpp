@@ -210,6 +210,15 @@ namespace falcon {
             return image;
         }
 
+        /**
+         * Gives the player a classic skin and shows it to everyone. The image is RGBA, four bytes a pixel, at most
+         * 128 by 128. Returns false when the image does not have the size it announces.
+         */
+        bool setSkin(const std::string &skinId, const SkinImage &image) const {
+            return detail::api().playerSetSkin(mHandle, skinId.c_str(), image.rgba.data(), image.width,
+                                               image.height) != 0;
+        }
+
         /** Switches the camera to a preset such as minecraft:free, easing over easeTime seconds when above 0. */
         bool setCamera(const std::string &preset, float easeTime = 0.0f, CameraEase ease = CameraEase::Linear) const {
             return detail::api().playerSetCamera(mHandle, preset.c_str(), nullptr, nullptr, easeTime,

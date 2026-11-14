@@ -197,8 +197,8 @@ if (std::optional<falcon::Item> held = inventory.item(inventory.selectedSlot()))
 ```
 
 Java plugins reach the same store through `plugin.data()`. `Item::nbt` and `Item::setNbt` read and replace an
-item's whole tag as little-endian NBT, the game's own format, and `Entity::nbt` returns what the server would save
-for an entity.
+item's whole tag as little-endian NBT, the game's own format. `Entity::nbt` returns what the server would save
+for an entity, and `Entity::setNbt` loads a mob or any other non-player entity back from such data.
 
 ### Typed commands, running commands and recipes
 
@@ -249,7 +249,7 @@ falcon::Server::setDifficulty(falcon::Difficulty::Hard);
 ### Entities and players
 
 Mobs expose their equipment, riding, tags and attack target; players their spawn point, language, platform, skin,
-camera and item cooldowns:
+camera and item cooldowns. `Player::setSkin` gives a player a classic skin of at most 128 by 128 pixels:
 
 ```cpp
 zombie.setEquipment(falcon::EquipmentSlot::Head, *falcon::Item::create("minecraft:diamond_helmet"));

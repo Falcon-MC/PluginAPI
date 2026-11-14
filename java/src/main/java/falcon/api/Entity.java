@@ -242,6 +242,18 @@ public final class Entity {
     }
 
     /**
+     * Loads the entity from little-endian NBT, as the server does from a save, and shows the result to the players
+     * who see it. Returns false for data that is not a compound, and for players.
+     */
+    public boolean setNbt(byte[] data) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment bytes = data.length == 0 ? MemorySegment.NULL : arena.allocateFrom(ValueLayout.JAVA_BYTE,
+                    data);
+            return api().entitySetNbt(mHandle, bytes, data.length) != 0;
+        }
+    }
+
+    /**
      * What a mob wears or holds; empty for an empty slot or an entity without equipment, players included.
      */
     public Optional<Item> equipment(EquipmentSlot slot) {
