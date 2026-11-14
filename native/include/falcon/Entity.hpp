@@ -1,11 +1,13 @@
 #pragma once
 
 #include "falcon/Api.hpp"
+#include "falcon/Effects.hpp"
 #include "falcon/Vec3.hpp"
 
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace falcon {
     class Level;
@@ -113,6 +115,73 @@ namespace falcon {
 
         void extinguish() const {
             setOnFire(0);
+        }
+
+        /**
+         * Adds a potion effect for duration ticks, or Effect::INFINITE. A weaker or shorter effect than the one
+         * running is refused, as in the game.
+         */
+        bool addEffect(EffectType type, int32_t duration, int32_t amplifier = 0, bool showParticles = true) const {
+            return detail::api().entityAddEffect(mHandle, static_cast<FalconEffectType>(type), duration, amplifier,
+                                                 showParticles ? 1 : 0) != 0;
+        }
+
+        bool removeEffect(EffectType type) const {
+            return detail::api().entityRemoveEffect(mHandle, static_cast<FalconEffectType>(type)) != 0;
+        }
+
+        std::optional<Effect> effect(EffectType type) const {
+            FalconEffect value{};
+            if (detail::api().entityEffect(mHandle, static_cast<FalconEffectType>(type), &value) == 0)
+                return std::nullopt;
+            return Effect::from(value);
+        }
+
+        bool hasEffect(EffectType type) const {
+            return effect(type).has_value();
+        }
+
+        std::vector<Effect> effects() const {
+            std::vector<Effect> result;
+            const uint32_t count = detail::api().entityEffectCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index) {
+                FalconEffect value{};
+                if (detail::api().entityEffectAt(mHandle, index, &value) != 0)
+                    result.push_back(Effect::from(value));
+            }
+            return result;
+        }
+
+        void clearEffects() const {
+            detail::api().entityClearEffects(mHandle);
+        }
+
+        /**
+         * An attribute by its identifier, such as minecraft:movement or minecraft:health. Only the attributes the
+         * entity has are found: attributes() lists them.
+         */
+        std::optional<Attribute> attribute(const std::string &name) const {
+            FalconAttribute value{};
+            if (detail::api().entityAttribute(mHandle, name.c_str(), &value) == 0)
+                return std::nullopt;
+            return Attribute{name, value.value, value.minimum, value.maximum, value.defaultValue};
+        }
+
+        std::vector<Attribute> attributes() const {
+            std::vector<Attribute> result;
+            const uint32_t count = detail::api().entityAttributeCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index) {
+                const std::string name = detail::text(detail::api().entityAttributeName(mHandle, index));
+                std::optional<Attribute> found = attribute(name);
+                if (found.has_value())
+                    result.push_back(*found);
+            }
+            return result;
+        }
+
+        /** False when the entity has no such attribute or the value is outside its range. */
+        bool setAttribute(const std::string &name, float value) const {
+            return detail::api().entitySetAttribute(mHandle, name.c_str(), value) != 0;
         }
 
         std::optional<Player> asPlayer() const;

@@ -2,6 +2,7 @@
 
 #include "falcon/Api.hpp"
 #include "falcon/PlayerInventory.hpp"
+#include "falcon/Vec3.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -121,6 +122,21 @@ namespace falcon {
 
         void sendActionBar(const std::string &message) const {
             detail::api().playerSendActionBar(mHandle, message.c_str());
+        }
+
+        /** Plays a sound only this player hears, from a position in its level. */
+        void playSound(const std::string &sound, const Vec3 &position, float volume = 1.0f, float pitch = 1.0f) const {
+            detail::api().playerPlaySound(mHandle, sound.c_str(), position.raw(), volume, pitch);
+        }
+
+        /** An empty name stops every sound. */
+        void stopSound(const std::string &sound = "") const {
+            detail::api().playerStopSound(mHandle, detail::nullable(sound));
+        }
+
+        /** Shows a particle effect only this player sees, in its level. */
+        void spawnParticle(const std::string &particle, const Vec3 &position) const {
+            detail::api().playerSpawnParticle(mHandle, particle.c_str(), position.raw());
         }
 
         float food() const {

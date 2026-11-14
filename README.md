@@ -11,7 +11,7 @@
 
 <p align="center">
 	<a href="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml"><img src="https://github.com/Falcon-MC/PluginAPI/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-	<img src="https://img.shields.io/badge/api-v1.0.5-blue" alt="API">
+	<img src="https://img.shields.io/badge/api-v1.0.6-blue" alt="API">
 	<img src="https://img.shields.io/badge/language-C%2B%2B17%20%7C%20C%23%20%7C%20Java%20%7C%20Wasm-00599C" alt="Languages">
 	<img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
 </p>
@@ -123,6 +123,26 @@ falcon::CustomEventResult result = services().fire("quests:completed", "{\"quest
 A service belongs to the plugin that provided it and disappears when that plugin is disabled. Call services and
 fire custom events from the main thread.
 
+### Effects, attributes, sounds and particles
+
+Potion effects and attributes work on players and entities alike, through `Entity`. A duration is in ticks,
+`falcon::Effect::INFINITE` for an endless effect, and an effect weaker or shorter than the running one is refused
+as in the game. Attributes are the ones the entity has, by identifier, such as `minecraft:movement`; a value
+outside the attribute's range is refused.
+
+```cpp
+const falcon::Entity body = player.entity();
+body.addEffect(falcon::EffectType::Speed, 200, 1);
+std::optional<falcon::Attribute> speed = body.attribute("minecraft:movement");
+body.setAttribute("minecraft:movement", 0.15f);
+
+player.playSound("random.levelup", body.position());
+body.level().playSound("mob.wolf.bark", body.position(), 1.0f, 1.2f);
+body.level().spawnParticle("minecraft:heart_particle", body.position());
+```
+
+A sound or particle sent through a `Player` reaches only that player; through a `Level`, every player in it.
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.
@@ -137,7 +157,7 @@ A C# plugin is a `net8.0` class library that references `Falcon.PluginAPI` and s
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Falcon.PluginAPI" Version="1.0.5" />
+    <PackageReference Include="Falcon.PluginAPI" Version="1.0.6" />
   </ItemGroup>
 </Project>
 ```
@@ -193,7 +213,7 @@ A Java plugin is a Java 22 jar that depends on `falcon-plugin-api` with the `pro
 <dependency>
     <groupId>io.github.falcon-mc</groupId>
     <artifactId>falcon-plugin-api</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -222,7 +242,7 @@ full class name and `jar` defaults to `<name>.jar`:
 {
   "name": "MyPlugin",
   "version": "1.0.0",
-  "api-version": "1.0.5",
+  "api-version": "1.0.6",
   "main": "myplugin.MyPlugin",
   "runtime": "java",
   "jar": "MyPlugin.jar"
