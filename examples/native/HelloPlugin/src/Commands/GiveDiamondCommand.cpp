@@ -44,4 +44,7 @@ void GiveDiamondCommand::registerTo(const falcon::Plugin &plugin) {
                               context.reply("Here you go!");
                               return true;
                           }, falcon::CommandPermission::Any);
+    plugin.commands().addOverload("give-diamond", {{"count", falcon::CommandParamType::Int, true}});
+    falcon::Recipes::addShapeless("hello:diamond_from_coal",
+                                  {"minecraft:coal", "minecraft:coal", "minecraft:coal", "minecraft:coal"}, DIAMOND);
 }

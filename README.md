@@ -200,6 +200,31 @@ Java plugins reach the same store through `plugin.data()`. `Item::nbt` and `Item
 item's whole tag as little-endian NBT, the game's own format, and `Entity::nbt` returns what the server would save
 for an entity.
 
+### Typed commands, running commands and recipes
+
+An overload gives a command typed parameters that the client shows and completes; enum parameters list their
+choices. The handler still gets its arguments as text. Commands run as the console or as a player:
+
+```cpp
+commands().add("warp", "Teleports to a warp", "/warp <name>", handler, falcon::CommandPermission::Any);
+commands().addOverload("warp", {{"name", falcon::CommandParamType::Enum, false, {"spawn", "shop", "arena"}},
+                                {"target", falcon::CommandParamType::Target, true}});
+
+commands().execute("time set day");
+player.executeCommand("me waves");
+```
+
+Recipes are crafting table recipes, shaped or shapeless; players online get the new recipe book at once. A vanilla
+crafting recipe is removed by its identifier until the server restarts:
+
+```cpp
+falcon::Recipes::addShaped("myplugin:emerald_block", 2, 2,
+                           {"minecraft:emerald", "minecraft:emerald", "minecraft:emerald", "minecraft:emerald"},
+                           "minecraft:emerald_block");
+falcon::Recipes::addShapeless("myplugin:dye", {"minecraft:dandelion"}, "minecraft:yellow_dye", 2);
+falcon::Recipes::remove("myplugin:dye");
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.
