@@ -1,5 +1,6 @@
 package falcon.api;
 
+import falcon.api.internal.FalconAbi;
 import falcon.api.internal.Interop;
 import falcon.api.internal.NativeApi;
 import falcon.api.internal.PluginContext;
@@ -7,6 +8,7 @@ import falcon.api.internal.PluginContext;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.util.Optional;
 
 public final class Player {
     private final PluginContext mContext;
@@ -140,6 +142,104 @@ public final class Player {
         try (Arena arena = Arena.ofConfined()) {
             api().playerSendActionBar(mHandle, Interop.text(arena, message));
         }
+    }
+
+    /**
+     * The spawn point a bed, an anchor or /spawnpoint set; empty when the player has none.
+     */
+    public Optional<SpawnPoint> spawnPoint() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment position = arena.allocate(FalconAbi.BlockPos.LAYOUT);
+            MemorySegment dimension = arena.allocate(ValueLayout.JAVA_INT);
+            if (api().playerSpawnPoint(mHandle, position, dimension) == 0) {
+                return Optional.empty();
+            }
+            return Optional.of(new SpawnPoint(Interop.blockPos(position),
+                    Dimension.of(dimension.get(ValueLayout.JAVA_INT, 0))));
+        }
+    }
+
+    public boolean setSpawnPoint(Level level, BlockPos position) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerSetSpawnPoint(mHandle, level.handle(), Interop.blockPos(arena, position)) != 0;
+        }
+    }
+
+    public void clearSpawnPoint() {
+        api().playerClearSpawnPoint(mHandle);
+    }
+
+    /**
+     * The language code of the client, such as en_US.
+     */
+    public String language() {
+        return Interop.string(api().playerLanguage(mHandle));
+    }
+
+    /**
+     * The platform number the client sent at login, in the game's own numbering.
+     */
+    public int deviceOs() {
+        return api().playerDeviceOs(mHandle);
+    }
+
+    public String skinId() {
+        return Interop.string(api().playerSkinId(mHandle));
+    }
+
+    public SkinImage skinImage() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment width = arena.allocate(ValueLayout.JAVA_INT);
+            MemorySegment height = arena.allocate(ValueLayout.JAVA_INT);
+            MemorySegment length = arena.allocate(ValueLayout.JAVA_INT);
+            MemorySegment data = api().playerSkinImage(mHandle, width, height, length);
+            int size = length.get(ValueLayout.JAVA_INT, 0);
+            byte[] rgba = Interop.isNull(data) || size <= 0 ? new byte[0]
+                                                           : data.reinterpret(size).toArray(ValueLayout.JAVA_BYTE);
+            return new SkinImage(width.get(ValueLayout.JAVA_INT, 0), height.get(ValueLayout.JAVA_INT, 0), rgba);
+        }
+    }
+
+    /**
+     * Switches the camera to a preset such as minecraft:free, easing over easeTime seconds when above 0.
+     */
+    public boolean setCamera(String preset, float easeTime, CameraEase ease) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerSetCamera(mHandle, Interop.text(arena, preset), MemorySegment.NULL, MemorySegment.NULL,
+                    easeTime, ease.value()) != 0;
+        }
+    }
+
+    /**
+     * A preset placed at a position and rotation (x pitch, y yaw, in degrees).
+     */
+    public boolean setCamera(String preset, Vec3 position, Vec3 rotation, float easeTime, CameraEase ease) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerSetCamera(mHandle, Interop.text(arena, preset), Interop.vec3(arena, position),
+                    Interop.vec3(arena, rotation), easeTime, ease.value()) != 0;
+        }
+    }
+
+    /**
+     * Fades the screen to a 0xRRGGBB color and back, times in seconds.
+     */
+    public boolean fadeCamera(float fadeIn, float hold, float fadeOut, int color) {
+        return api().playerFadeCamera(mHandle, fadeIn, hold, fadeOut, color) != 0;
+    }
+
+    public void clearCamera() {
+        api().playerClearCamera(mHandle);
+    }
+
+    /**
+     * Ticks left on the cooldown of the item's category, 0 when it is ready.
+     */
+    public int itemCooldown(Item item) {
+        return api().playerItemCooldown(mHandle, item.handle());
+    }
+
+    public boolean startItemCooldown(Item item, int ticks) {
+        return api().playerStartItemCooldown(mHandle, item.handle(), ticks) != 0;
     }
 
     /**

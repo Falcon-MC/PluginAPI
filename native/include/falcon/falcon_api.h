@@ -212,6 +212,49 @@ typedef uint32_t FalconMirror;
 #define FALCON_MIRROR_Z 2u
 #define FALCON_MIRROR_XZ 3u
 
+typedef uint32_t FalconEquipmentSlot;
+#define FALCON_EQUIPMENT_MAINHAND 0u
+#define FALCON_EQUIPMENT_OFFHAND 1u
+#define FALCON_EQUIPMENT_HEAD 2u
+#define FALCON_EQUIPMENT_CHEST 3u
+#define FALCON_EQUIPMENT_LEGS 4u
+#define FALCON_EQUIPMENT_FEET 5u
+#define FALCON_EQUIPMENT_BODY 6u
+
+typedef uint32_t FalconCameraEase;
+#define FALCON_CAMERA_EASE_LINEAR 0u
+#define FALCON_CAMERA_EASE_SPRING 1u
+#define FALCON_CAMERA_EASE_IN_SINE 2u
+#define FALCON_CAMERA_EASE_OUT_SINE 3u
+#define FALCON_CAMERA_EASE_IN_OUT_SINE 4u
+#define FALCON_CAMERA_EASE_IN_QUAD 5u
+#define FALCON_CAMERA_EASE_OUT_QUAD 6u
+#define FALCON_CAMERA_EASE_IN_OUT_QUAD 7u
+#define FALCON_CAMERA_EASE_IN_CUBIC 8u
+#define FALCON_CAMERA_EASE_OUT_CUBIC 9u
+#define FALCON_CAMERA_EASE_IN_OUT_CUBIC 10u
+#define FALCON_CAMERA_EASE_IN_QUART 11u
+#define FALCON_CAMERA_EASE_OUT_QUART 12u
+#define FALCON_CAMERA_EASE_IN_OUT_QUART 13u
+#define FALCON_CAMERA_EASE_IN_QUINT 14u
+#define FALCON_CAMERA_EASE_OUT_QUINT 15u
+#define FALCON_CAMERA_EASE_IN_OUT_QUINT 16u
+#define FALCON_CAMERA_EASE_IN_EXPO 17u
+#define FALCON_CAMERA_EASE_OUT_EXPO 18u
+#define FALCON_CAMERA_EASE_IN_OUT_EXPO 19u
+#define FALCON_CAMERA_EASE_IN_CIRC 20u
+#define FALCON_CAMERA_EASE_OUT_CIRC 21u
+#define FALCON_CAMERA_EASE_IN_OUT_CIRC 22u
+#define FALCON_CAMERA_EASE_IN_BACK 23u
+#define FALCON_CAMERA_EASE_OUT_BACK 24u
+#define FALCON_CAMERA_EASE_IN_OUT_BACK 25u
+#define FALCON_CAMERA_EASE_IN_ELASTIC 26u
+#define FALCON_CAMERA_EASE_OUT_ELASTIC 27u
+#define FALCON_CAMERA_EASE_IN_OUT_ELASTIC 28u
+#define FALCON_CAMERA_EASE_IN_BOUNCE 29u
+#define FALCON_CAMERA_EASE_OUT_BOUNCE 30u
+#define FALCON_CAMERA_EASE_IN_OUT_BOUNCE 31u
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -666,6 +709,36 @@ typedef struct FalconServerApi {
     int (*levelRemoveTickingArea)(FalconLevel *level, const char *name);
     uint32_t (*levelTickingAreaCount)(FalconLevel *level);
     const char *(*levelTickingAreaName)(FalconLevel *level, uint32_t index);
+
+    FalconItem *(*entityEquipment)(FalconEntity *entity, FalconEquipmentSlot slot);
+    int (*entitySetEquipment)(FalconEntity *entity, FalconEquipmentSlot slot, FalconItem *item);
+    FalconEntity *(*entityVehicle)(FalconEntity *entity);
+    uint32_t (*entityPassengerCount)(FalconEntity *entity);
+    FalconEntity *(*entityPassenger)(FalconEntity *entity, uint32_t index);
+    int (*entityMount)(FalconEntity *rider, FalconEntity *vehicle);
+    void (*entityDismount)(FalconEntity *rider);
+    void (*entityEjectPassengers)(FalconEntity *vehicle);
+    uint32_t (*entityTagCount)(FalconEntity *entity);
+    const char *(*entityTag)(FalconEntity *entity, uint32_t index);
+    int (*entityHasTag)(FalconEntity *entity, const char *tag);
+    int (*entityAddTag)(FalconEntity *entity, const char *tag);
+    int (*entityRemoveTag)(FalconEntity *entity, const char *tag);
+    FalconEntity *(*entityAttackTarget)(FalconEntity *entity);
+    int (*entitySetAttackTarget)(FalconEntity *entity, FalconEntity *target);
+
+    int (*playerSpawnPoint)(FalconPlayer *player, FalconBlockPos *position, FalconDimension *dimension);
+    int (*playerSetSpawnPoint)(FalconPlayer *player, FalconLevel *level, FalconBlockPos position);
+    void (*playerClearSpawnPoint)(FalconPlayer *player);
+    const char *(*playerLanguage)(FalconPlayer *player);
+    int32_t (*playerDeviceOs)(FalconPlayer *player);
+    const char *(*playerSkinId)(FalconPlayer *player);
+    const uint8_t *(*playerSkinImage)(FalconPlayer *player, uint32_t *width, uint32_t *height, uint32_t *length);
+    int (*playerSetCamera)(FalconPlayer *player, const char *preset, const FalconVec3 *position,
+                           const FalconVec3 *rotation, float easeTime, FalconCameraEase ease);
+    int (*playerFadeCamera)(FalconPlayer *player, float fadeIn, float hold, float fadeOut, uint32_t color);
+    void (*playerClearCamera)(FalconPlayer *player);
+    int32_t (*playerItemCooldown)(FalconPlayer *player, FalconItem *item);
+    int (*playerStartItemCooldown)(FalconPlayer *player, FalconItem *item, int32_t ticks);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
