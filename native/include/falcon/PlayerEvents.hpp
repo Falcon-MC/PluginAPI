@@ -5,9 +5,11 @@
 #include "falcon/Item.hpp"
 #include "falcon/Level.hpp"
 #include "falcon/Player.hpp"
+#include "falcon/PlayerInventory.hpp"
 #include "falcon/Vec3.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace falcon {
@@ -488,6 +490,168 @@ namespace falcon {
 
         void setAmount(int32_t amount) const {
             detail::api().eventSetAmount(mHandle, (double) amount);
+        }
+    };
+
+    /**
+     * A player is moved by a command, an ender pearl, a chorus fruit, an end gateway or a plugin; cancellable, the
+     * destination can change.
+     */
+    class PlayerTeleportEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_TELEPORT;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Vec3 from() const {
+            return Vec3::from(detail::api().eventFrom(mHandle));
+        }
+
+        Vec3 to() const {
+            return Vec3::from(detail::api().eventTo(mHandle));
+        }
+
+        void setTo(const Vec3 &position) const {
+            detail::api().eventSetTo(mHandle, position.raw());
+        }
+
+        std::string cause() const {
+            return detail::text(detail::api().eventCause(mHandle));
+        }
+    };
+
+    /** A player uses the held item in the air; cancellable. The item is a copy. */
+    class PlayerItemUseEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_ITEM_USE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    /** A player fills a bucket from a liquid, a cauldron or powder snow; cancellable. */
+    class PlayerBucketFillEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_BUCKET_FILL;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item bucket() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        BlockPos block() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        std::string blockName() const {
+            return detail::text(detail::api().eventBlockName(mHandle));
+        }
+    };
+
+    /** A player empties a bucket into the world or a cauldron; cancellable. The block is where the content goes. */
+    class PlayerBucketEmptyEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_BUCKET_EMPTY;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Item bucket() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        BlockPos block() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        std::string blockName() const {
+            return detail::text(detail::api().eventBlockName(mHandle));
+        }
+    };
+
+    /** A player reels in a hook that caught a fish or holds an entity; cancellable. */
+    class PlayerFishEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_FISH;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        Entity hook() const {
+            return Entity(detail::api().eventEntity(mHandle));
+        }
+
+        std::optional<Entity> caught() const {
+            FalconEntity *entity = detail::api().eventTarget(mHandle);
+            if (entity == nullptr)
+                return std::nullopt;
+            return Entity(entity);
+        }
+
+        bool caughtFish() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    /** An armor slot of a player changed through the inventory or by equipping the held item; not cancellable. */
+    class PlayerArmorChangeEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_ARMOR_CHANGE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        ArmorSlot slot() const {
+            return static_cast<ArmorSlot>(detail::api().eventDestinationSlot(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        Item previousItem() const {
+            return Item::borrow(detail::api().eventResult(mHandle));
+        }
+    };
+
+    /** A player plays an emote; cancellable, the others then do not see it. */
+    class PlayerEmoteEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_EMOTE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        std::string emote() const {
+            return detail::text(detail::api().eventMessage(mHandle));
         }
     };
 }

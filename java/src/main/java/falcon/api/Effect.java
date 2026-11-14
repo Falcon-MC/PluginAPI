@@ -11,7 +11,7 @@ import java.lang.foreign.ValueLayout;
 public record Effect(EffectType type, int duration, int amplifier, boolean showParticles, boolean ambient) {
     public static final int INFINITE = FalconAbi.EFFECT_INFINITE;
 
-    static Effect read(MemorySegment segment) {
+    public static Effect read(MemorySegment segment) {
         return new Effect(EffectType.of(segment.get(ValueLayout.JAVA_INT, FalconAbi.Effect.TYPE)),
                 segment.get(ValueLayout.JAVA_INT, FalconAbi.Effect.DURATION),
                 segment.get(ValueLayout.JAVA_INT, FalconAbi.Effect.AMPLIFIER),

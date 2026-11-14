@@ -108,6 +108,20 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_PLAYER_CHANGE_WORLD 67u
 #define FALCON_EVENT_CONNECTION_OPEN 68u
 #define FALCON_EVENT_PLAYER_FORM_RESPONSE 69u
+#define FALCON_EVENT_PLAYER_TELEPORT 70u
+#define FALCON_EVENT_PLAYER_ITEM_USE 71u
+#define FALCON_EVENT_PLAYER_BUCKET_FILL 72u
+#define FALCON_EVENT_PLAYER_BUCKET_EMPTY 73u
+#define FALCON_EVENT_PLAYER_FISH 74u
+#define FALCON_EVENT_PLAYER_ARMOR_CHANGE 75u
+#define FALCON_EVENT_PLAYER_EMOTE 76u
+#define FALCON_EVENT_ENTITY_EFFECT_ADD 77u
+#define FALCON_EVENT_ENTITY_HEAL 78u
+#define FALCON_EVENT_ENTITY_BREED 79u
+#define FALCON_EVENT_ENTITY_TAME 80u
+#define FALCON_EVENT_ENTITY_MOUNT 81u
+#define FALCON_EVENT_ENTITY_DISMOUNT 82u
+#define FALCON_EVENT_ENTITY_TELEPORT 83u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -767,6 +781,8 @@ typedef struct FalconServerApi {
     const char *(*serverPluginName)(uint32_t index);
     const char *(*serverPluginVersion)(const char *name);
     int (*serverPluginEnabled)(const char *name);
+
+    int (*eventEffect)(FalconEvent *event, FalconEffect *out);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

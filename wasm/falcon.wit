@@ -443,7 +443,7 @@ interface events {
 
 /// The event being handled by `on-event`.
 interface event {
-    use types.{player, entity, level, item, event-kind, game-mode, dimension, vec3, block-pos};
+    use types.{player, entity, level, item, event-kind, game-mode, dimension, vec3, block-pos, effect};
 
     event-type: func() -> event-kind;
     event-is-cancellable: func() -> bool;
@@ -502,6 +502,8 @@ interface event {
     event-client-data-field: func(key: string) -> string;
     event-form-id: func() -> u32;
     event-form-response: func() -> string;
+    /// The effect of an `FALCON_EVENT_ENTITY_EFFECT_ADD` event.
+    event-effect: func() -> option<effect>;
 }
 
 /// Command registration, and the sender of the command being handled by `on-command`.

@@ -17,4 +17,13 @@ public enum ArmorSlot {
     public int value() {
         return mValue;
     }
+
+    public static ArmorSlot of(int value) {
+        for (ArmorSlot slot : values()) {
+            if (slot.mValue == value) {
+                return slot;
+            }
+        }
+        throw new IllegalArgumentException("Unknown armor slot " + value);
+    }
 }
