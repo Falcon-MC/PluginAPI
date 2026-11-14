@@ -263,6 +263,20 @@ player.setCamera("minecraft:free", {0, 100, 0}, {30, 90, 0}, 2.0f, falcon::Camer
 player.fadeCamera(0.5f, 1.0f, 0.5f, 0x000000);
 ```
 
+### Administration
+
+`falcon::Server` reaches the ban lists, the allow list, the server list entry, the tick rate and the other plugins:
+
+```cpp
+falcon::Server::ban("Griefer", "Breaking the spawn");
+falcon::Server::allowListAdd("Friend");
+falcon::Server::setMotd("Falcon", "Event tonight");
+if (falcon::Server::tps() < 15.0)
+    falcon::Server::broadcast("The server is under load");
+for (const std::string &name: falcon::Server::plugins())
+    logger().info(name + " " + falcon::Server::pluginVersion(name).value_or("?"));
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

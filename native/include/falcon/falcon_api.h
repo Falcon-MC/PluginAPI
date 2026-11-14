@@ -739,6 +739,35 @@ typedef struct FalconServerApi {
     void (*playerClearCamera)(FalconPlayer *player);
     int32_t (*playerItemCooldown)(FalconPlayer *player, FalconItem *item);
     int (*playerStartItemCooldown)(FalconPlayer *player, FalconItem *item, int32_t ticks);
+
+    int (*serverBan)(const char *name, const char *reason, const char *source);
+    int (*serverPardon)(const char *name);
+    int (*serverIsBanned)(const char *name);
+    uint32_t (*serverBanCount)(void);
+    const char *(*serverBannedName)(uint32_t index);
+    int (*serverBanIp)(const char *address, const char *reason, const char *source);
+    int (*serverPardonIp)(const char *address);
+    int (*serverIsIpBanned)(const char *address);
+    uint32_t (*serverIpBanCount)(void);
+    const char *(*serverBannedIp)(uint32_t index);
+    int (*serverAllowListAdd)(const char *name);
+    int (*serverAllowListRemove)(const char *name);
+    uint32_t (*serverAllowListCount)(void);
+    const char *(*serverAllowListName)(uint32_t index);
+    int (*serverAllowListEnabled)(void);
+    void (*serverSetAllowListEnabled)(int enabled);
+    const char *(*serverMotd)(void);
+    const char *(*serverSubMotd)(void);
+    void (*serverSetMotd)(const char *motd, const char *subMotd);
+    uint32_t (*serverMaxPlayers)(void);
+    int (*serverSetMaxPlayers)(uint32_t maxPlayers);
+    double (*serverTps)(void);
+    double (*serverMillisecondsPerTick)(void);
+    void (*serverShutdown)(void);
+    uint32_t (*serverPluginCount)(void);
+    const char *(*serverPluginName)(uint32_t index);
+    const char *(*serverPluginVersion)(const char *name);
+    int (*serverPluginEnabled)(const char *name);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

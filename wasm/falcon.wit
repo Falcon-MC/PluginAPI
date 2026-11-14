@@ -131,6 +131,35 @@ interface server {
     /// One of the `FALCON_DIFFICULTY_*` values.
     server-difficulty: func() -> u32;
     server-set-difficulty: func(difficulty: u32) -> bool;
+    /// Kicks the player when online, like /ban; `source` is the name recorded as the one who banned.
+    server-ban: func(name: string, reason: string, source: string) -> bool;
+    server-pardon: func(name: string) -> bool;
+    server-is-banned: func(name: string) -> bool;
+    server-ban-count: func() -> u32;
+    server-banned-name: func(index: u32) -> option<string>;
+    server-ban-ip: func(address: string, reason: string, source: string) -> bool;
+    server-pardon-ip: func(address: string) -> bool;
+    server-is-ip-banned: func(address: string) -> bool;
+    server-ip-ban-count: func() -> u32;
+    server-banned-ip: func(index: u32) -> option<string>;
+    server-allow-list-add: func(name: string) -> bool;
+    server-allow-list-remove: func(name: string) -> bool;
+    server-allow-list-count: func() -> u32;
+    server-allow-list-name: func(index: u32) -> option<string>;
+    server-allow-list-enabled: func() -> bool;
+    server-set-allow-list-enabled: func(enabled: bool);
+    server-motd: func() -> string;
+    server-sub-motd: func() -> string;
+    server-set-motd: func(motd: string, sub-motd: string);
+    server-max-players: func() -> u32;
+    server-set-max-players: func(max-players: u32) -> bool;
+    server-tps: func() -> f64;
+    server-milliseconds-per-tick: func() -> f64;
+    server-shutdown: func();
+    server-plugin-count: func() -> u32;
+    server-plugin-name: func(index: u32) -> option<string>;
+    server-plugin-version: func(name: string) -> option<string>;
+    server-plugin-enabled: func(name: string) -> bool;
 }
 
 interface players {
