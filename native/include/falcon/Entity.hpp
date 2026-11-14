@@ -2,6 +2,7 @@
 
 #include "falcon/Api.hpp"
 #include "falcon/Effects.hpp"
+#include "falcon/Item.hpp"
 #include "falcon/Vec3.hpp"
 
 #include <cstdint>
@@ -12,6 +13,16 @@
 namespace falcon {
     class Level;
     class Player;
+
+    enum class EquipmentSlot : uint32_t {
+        Mainhand = FALCON_EQUIPMENT_MAINHAND,
+        Offhand = FALCON_EQUIPMENT_OFFHAND,
+        Head = FALCON_EQUIPMENT_HEAD,
+        Chest = FALCON_EQUIPMENT_CHEST,
+        Legs = FALCON_EQUIPMENT_LEGS,
+        Feet = FALCON_EQUIPMENT_FEET,
+        Body = FALCON_EQUIPMENT_BODY
+    };
 
     class Entity {
     public:
@@ -218,6 +229,93 @@ namespace falcon {
             if (data == nullptr)
                 return {};
             return std::vector<uint8_t>(data, data + length);
+        }
+
+        /** What a mob wears or holds; nothing for an empty slot or an entity without equipment, players included. */
+        std::optional<Item> equipment(EquipmentSlot slot) const {
+            const FalconEquipmentSlot raw = static_cast<FalconEquipmentSlot>(slot);
+            std::optional<Item> found = Item::adopt(detail::api().entityEquipment(mHandle, raw));
+            if (found.has_value() && found->isEmpty())
+                return std::nullopt;
+            return found;
+        }
+
+        bool setEquipment(EquipmentSlot slot, const Item &item) const {
+            const FalconEquipmentSlot raw = static_cast<FalconEquipmentSlot>(slot);
+            return detail::api().entitySetEquipment(mHandle, raw, item.handle()) != 0;
+        }
+
+        bool clearEquipment(EquipmentSlot slot) const {
+            return detail::api().entitySetEquipment(mHandle, static_cast<FalconEquipmentSlot>(slot), nullptr) != 0;
+        }
+
+        std::optional<Entity> vehicle() const {
+            FalconEntity *ridden = detail::api().entityVehicle(mHandle);
+            if (ridden == nullptr)
+                return std::nullopt;
+            return Entity(ridden);
+        }
+
+        std::vector<Entity> passengers() const {
+            std::vector<Entity> result;
+            const uint32_t count = detail::api().entityPassengerCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index) {
+                FalconEntity *rider = detail::api().entityPassenger(mHandle, index);
+                if (rider != nullptr)
+                    result.emplace_back(rider);
+            }
+            return result;
+        }
+
+        /** Seats this entity on a vehicle that has a free seat, as when a player mounts it. */
+        bool mount(const Entity &vehicle) const {
+            return detail::api().entityMount(mHandle, vehicle.mHandle) != 0;
+        }
+
+        void dismount() const {
+            detail::api().entityDismount(mHandle);
+        }
+
+        void ejectPassengers() const {
+            detail::api().entityEjectPassengers(mHandle);
+        }
+
+        /** The tags of /tag, saved with the entity. */
+        std::vector<std::string> tags() const {
+            std::vector<std::string> result;
+            const uint32_t count = detail::api().entityTagCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index)
+                result.push_back(detail::text(detail::api().entityTag(mHandle, index)));
+            return result;
+        }
+
+        bool hasTag(const std::string &tag) const {
+            return detail::api().entityHasTag(mHandle, tag.c_str()) != 0;
+        }
+
+        bool addTag(const std::string &tag) const {
+            return detail::api().entityAddTag(mHandle, tag.c_str()) != 0;
+        }
+
+        bool removeTag(const std::string &tag) const {
+            return detail::api().entityRemoveTag(mHandle, tag.c_str()) != 0;
+        }
+
+        /** The entity a mob is attacking. */
+        std::optional<Entity> attackTarget() const {
+            FalconEntity *target = detail::api().entityAttackTarget(mHandle);
+            if (target == nullptr)
+                return std::nullopt;
+            return Entity(target);
+        }
+
+        /** Makes a mob attack an entity; EntityTargetEvent listeners can refuse it. */
+        bool setAttackTarget(const Entity &target) const {
+            return detail::api().entitySetAttackTarget(mHandle, target.mHandle) != 0;
+        }
+
+        bool clearAttackTarget() const {
+            return detail::api().entitySetAttackTarget(mHandle, nullptr) != 0;
         }
 
         std::optional<Player> asPlayer() const;

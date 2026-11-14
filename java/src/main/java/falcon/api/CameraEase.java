@@ -1,0 +1,48 @@
+package falcon.api;
+
+import falcon.api.internal.FalconAbi;
+
+public enum CameraEase {
+    LINEAR(FalconAbi.CAMERA_EASE_LINEAR),
+    SPRING(FalconAbi.CAMERA_EASE_SPRING),
+    IN_SINE(FalconAbi.CAMERA_EASE_IN_SINE),
+    OUT_SINE(FalconAbi.CAMERA_EASE_OUT_SINE),
+    IN_OUT_SINE(FalconAbi.CAMERA_EASE_IN_OUT_SINE),
+    IN_QUAD(FalconAbi.CAMERA_EASE_IN_QUAD),
+    OUT_QUAD(FalconAbi.CAMERA_EASE_OUT_QUAD),
+    IN_OUT_QUAD(FalconAbi.CAMERA_EASE_IN_OUT_QUAD),
+    IN_CUBIC(FalconAbi.CAMERA_EASE_IN_CUBIC),
+    OUT_CUBIC(FalconAbi.CAMERA_EASE_OUT_CUBIC),
+    IN_OUT_CUBIC(FalconAbi.CAMERA_EASE_IN_OUT_CUBIC),
+    IN_QUART(FalconAbi.CAMERA_EASE_IN_QUART),
+    OUT_QUART(FalconAbi.CAMERA_EASE_OUT_QUART),
+    IN_OUT_QUART(FalconAbi.CAMERA_EASE_IN_OUT_QUART),
+    IN_QUINT(FalconAbi.CAMERA_EASE_IN_QUINT),
+    OUT_QUINT(FalconAbi.CAMERA_EASE_OUT_QUINT),
+    IN_OUT_QUINT(FalconAbi.CAMERA_EASE_IN_OUT_QUINT),
+    IN_EXPO(FalconAbi.CAMERA_EASE_IN_EXPO),
+    OUT_EXPO(FalconAbi.CAMERA_EASE_OUT_EXPO),
+    IN_OUT_EXPO(FalconAbi.CAMERA_EASE_IN_OUT_EXPO),
+    IN_CIRC(FalconAbi.CAMERA_EASE_IN_CIRC),
+    OUT_CIRC(FalconAbi.CAMERA_EASE_OUT_CIRC),
+    IN_OUT_CIRC(FalconAbi.CAMERA_EASE_IN_OUT_CIRC),
+    IN_BACK(FalconAbi.CAMERA_EASE_IN_BACK),
+    OUT_BACK(FalconAbi.CAMERA_EASE_OUT_BACK),
+    IN_OUT_BACK(FalconAbi.CAMERA_EASE_IN_OUT_BACK),
+    IN_ELASTIC(FalconAbi.CAMERA_EASE_IN_ELASTIC),
+    OUT_ELASTIC(FalconAbi.CAMERA_EASE_OUT_ELASTIC),
+    IN_OUT_ELASTIC(FalconAbi.CAMERA_EASE_IN_OUT_ELASTIC),
+    IN_BOUNCE(FalconAbi.CAMERA_EASE_IN_BOUNCE),
+    OUT_BOUNCE(FalconAbi.CAMERA_EASE_OUT_BOUNCE),
+    IN_OUT_BOUNCE(FalconAbi.CAMERA_EASE_IN_OUT_BOUNCE);
+
+    private final int mValue;
+
+    CameraEase(int value) {
+        mValue = value;
+    }
+
+    public int value() {
+        return mValue;
+    }
+}
