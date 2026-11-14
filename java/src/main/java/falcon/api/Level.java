@@ -140,6 +140,25 @@ public final class Level {
         }
     }
 
+    public void playSound(String sound, Vec3 position) {
+        playSound(sound, position, 1.0f, 1.0f);
+    }
+
+    /**
+     * Plays a sound for every player in this level; the client fades it with distance.
+     */
+    public void playSound(String sound, Vec3 position, float volume, float pitch) {
+        try (Arena arena = Arena.ofConfined()) {
+            api().levelPlaySound(mHandle, Interop.text(arena, sound), Interop.vec3(arena, position), volume, pitch);
+        }
+    }
+
+    public void spawnParticle(String particle, Vec3 position) {
+        try (Arena arena = Arena.ofConfined()) {
+            api().levelSpawnParticle(mHandle, Interop.text(arena, particle), Interop.vec3(arena, position));
+        }
+    }
+
     public List<Entity> entities() {
         int count = api().levelEntityCount(mHandle);
         List<Entity> result = new ArrayList<>(count);

@@ -108,6 +108,15 @@ namespace falcon {
             detail::api().levelCreateExplosion(mHandle, position.raw(), power, breakBlocks ? 1 : 0);
         }
 
+        /** Plays a sound for every player in this level; the client fades it with distance. */
+        void playSound(const std::string &sound, const Vec3 &position, float volume = 1.0f, float pitch = 1.0f) const {
+            detail::api().levelPlaySound(mHandle, sound.c_str(), position.raw(), volume, pitch);
+        }
+
+        void spawnParticle(const std::string &particle, const Vec3 &position) const {
+            detail::api().levelSpawnParticle(mHandle, particle.c_str(), position.raw());
+        }
+
         std::vector<Entity> entities() const;
 
         FalconLevel *handle() const {

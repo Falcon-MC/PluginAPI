@@ -1,11 +1,14 @@
 package falcon.api;
 
+import falcon.api.internal.FalconAbi;
 import falcon.api.internal.Interop;
 import falcon.api.internal.NativeApi;
 import falcon.api.internal.PluginContext;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public final class Entity {
@@ -140,6 +143,86 @@ public final class Entity {
 
     public void extinguish() {
         setOnFire(0);
+    }
+
+    public boolean addEffect(EffectType type, int duration) {
+        return addEffect(type, duration, 0, true);
+    }
+
+    /**
+     * Adds a potion effect for duration ticks, or {@link Effect#INFINITE}. A weaker or shorter effect than the one
+     * running is refused, as in the game.
+     */
+    public boolean addEffect(EffectType type, int duration, int amplifier, boolean showParticles) {
+        return api().entityAddEffect(mHandle, type.value(), duration, amplifier, showParticles ? 1 : 0) != 0;
+    }
+
+    public boolean removeEffect(EffectType type) {
+        return api().entityRemoveEffect(mHandle, type.value()) != 0;
+    }
+
+    public Optional<Effect> effect(EffectType type) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.Effect.LAYOUT);
+            if (api().entityEffect(mHandle, type.value(), out) == 0) {
+                return Optional.empty();
+            }
+            return Optional.of(Effect.read(out));
+        }
+    }
+
+    public boolean hasEffect(EffectType type) {
+        return effect(type).isPresent();
+    }
+
+    public List<Effect> effects() {
+        int count = api().entityEffectCount(mHandle);
+        List<Effect> result = new ArrayList<>(Math.max(count, 0));
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.Effect.LAYOUT);
+            for (int index = 0; index < count; index++) {
+                if (api().entityEffectAt(mHandle, index, out) != 0) {
+                    result.add(Effect.read(out));
+                }
+            }
+        }
+        return result;
+    }
+
+    public void clearEffects() {
+        api().entityClearEffects(mHandle);
+    }
+
+    /**
+     * An attribute by its identifier, such as minecraft:movement or minecraft:health. Only the attributes the entity
+     * has are found: {@link #attributes()} lists them.
+     */
+    public Optional<Attribute> attribute(String name) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.Attribute.LAYOUT);
+            if (api().entityAttribute(mHandle, Interop.text(arena, name), out) == 0) {
+                return Optional.empty();
+            }
+            return Optional.of(Attribute.read(name, out));
+        }
+    }
+
+    public List<Attribute> attributes() {
+        int count = api().entityAttributeCount(mHandle);
+        List<Attribute> result = new ArrayList<>(Math.max(count, 0));
+        for (int index = 0; index < count; index++) {
+            attribute(Interop.string(api().entityAttributeName(mHandle, index))).ifPresent(result::add);
+        }
+        return result;
+    }
+
+    /**
+     * Returns false when the entity has no such attribute or the value is outside its range.
+     */
+    public boolean setAttribute(String name, float value) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().entitySetAttribute(mHandle, Interop.text(arena, name), value) != 0;
+        }
     }
 
     public Optional<Player> asPlayer() {

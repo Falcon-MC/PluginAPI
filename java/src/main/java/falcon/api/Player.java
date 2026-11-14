@@ -142,6 +142,38 @@ public final class Player {
         }
     }
 
+    public void playSound(String sound, Vec3 position) {
+        playSound(sound, position, 1.0f, 1.0f);
+    }
+
+    /**
+     * Plays a sound only this player hears, from a position in its level.
+     */
+    public void playSound(String sound, Vec3 position, float volume, float pitch) {
+        try (Arena arena = Arena.ofConfined()) {
+            api().playerPlaySound(mHandle, Interop.text(arena, sound), Interop.vec3(arena, position), volume, pitch);
+        }
+    }
+
+    public void stopAllSounds() {
+        api().playerStopSound(mHandle, MemorySegment.NULL);
+    }
+
+    public void stopSound(String sound) {
+        try (Arena arena = Arena.ofConfined()) {
+            api().playerStopSound(mHandle, Interop.nullableText(arena, sound));
+        }
+    }
+
+    /**
+     * Shows a particle effect only this player sees, in its level.
+     */
+    public void spawnParticle(String particle, Vec3 position) {
+        try (Arena arena = Arena.ofConfined()) {
+            api().playerSpawnParticle(mHandle, Interop.text(arena, particle), Interop.vec3(arena, position));
+        }
+    }
+
     public float food() {
         return api().playerFood(mHandle);
     }
