@@ -1,6 +1,8 @@
 #pragma once
 
 #include "falcon/Api.hpp"
+#include "falcon/BlockPos.hpp"
+#include "falcon/Item.hpp"
 #include "falcon/PlayerInventory.hpp"
 #include "falcon/Vec3.hpp"
 
@@ -12,6 +14,50 @@
 
 namespace falcon {
     class Entity;
+    class Level;
+    enum class Dimension : uint32_t;
+
+    enum class CameraEase : uint32_t {
+        Linear = FALCON_CAMERA_EASE_LINEAR,
+        Spring = FALCON_CAMERA_EASE_SPRING,
+        InSine = FALCON_CAMERA_EASE_IN_SINE,
+        OutSine = FALCON_CAMERA_EASE_OUT_SINE,
+        InOutSine = FALCON_CAMERA_EASE_IN_OUT_SINE,
+        InQuad = FALCON_CAMERA_EASE_IN_QUAD,
+        OutQuad = FALCON_CAMERA_EASE_OUT_QUAD,
+        InOutQuad = FALCON_CAMERA_EASE_IN_OUT_QUAD,
+        InCubic = FALCON_CAMERA_EASE_IN_CUBIC,
+        OutCubic = FALCON_CAMERA_EASE_OUT_CUBIC,
+        InOutCubic = FALCON_CAMERA_EASE_IN_OUT_CUBIC,
+        InQuart = FALCON_CAMERA_EASE_IN_QUART,
+        OutQuart = FALCON_CAMERA_EASE_OUT_QUART,
+        InOutQuart = FALCON_CAMERA_EASE_IN_OUT_QUART,
+        InQuint = FALCON_CAMERA_EASE_IN_QUINT,
+        OutQuint = FALCON_CAMERA_EASE_OUT_QUINT,
+        InOutQuint = FALCON_CAMERA_EASE_IN_OUT_QUINT,
+        InExpo = FALCON_CAMERA_EASE_IN_EXPO,
+        OutExpo = FALCON_CAMERA_EASE_OUT_EXPO,
+        InOutExpo = FALCON_CAMERA_EASE_IN_OUT_EXPO,
+        InCirc = FALCON_CAMERA_EASE_IN_CIRC,
+        OutCirc = FALCON_CAMERA_EASE_OUT_CIRC,
+        InOutCirc = FALCON_CAMERA_EASE_IN_OUT_CIRC,
+        InBack = FALCON_CAMERA_EASE_IN_BACK,
+        OutBack = FALCON_CAMERA_EASE_OUT_BACK,
+        InOutBack = FALCON_CAMERA_EASE_IN_OUT_BACK,
+        InElastic = FALCON_CAMERA_EASE_IN_ELASTIC,
+        OutElastic = FALCON_CAMERA_EASE_OUT_ELASTIC,
+        InOutElastic = FALCON_CAMERA_EASE_IN_OUT_ELASTIC,
+        InBounce = FALCON_CAMERA_EASE_IN_BOUNCE,
+        OutBounce = FALCON_CAMERA_EASE_OUT_BOUNCE,
+        InOutBounce = FALCON_CAMERA_EASE_IN_OUT_BOUNCE
+    };
+
+    struct SkinImage {
+        uint32_t width = 0;
+        uint32_t height = 0;
+        /** RGBA, four bytes a pixel, rows from the top. */
+        std::vector<uint8_t> rgba;
+    };
 
     enum class GameMode : uint32_t {
         Survival = FALCON_GAME_MODE_SURVIVAL,
@@ -124,6 +170,79 @@ namespace falcon {
             detail::api().playerSendActionBar(mHandle, message.c_str());
         }
 
+        /** The spawn point a bed, an anchor or /spawnpoint set; false when the player has none. */
+        bool spawnPoint(BlockPos &position, Dimension &dimension) const {
+            FalconBlockPos raw{};
+            FalconDimension rawDimension = 0;
+            if (detail::api().playerSpawnPoint(mHandle, &raw, &rawDimension) == 0)
+                return false;
+            position = BlockPos::from(raw);
+            dimension = static_cast<Dimension>(rawDimension);
+            return true;
+        }
+
+        bool setSpawnPoint(const Level &level, const BlockPos &position) const;
+
+        void clearSpawnPoint() const {
+            detail::api().playerClearSpawnPoint(mHandle);
+        }
+
+        /** The language code of the client, such as en_US. */
+        std::string language() const {
+            return detail::text(detail::api().playerLanguage(mHandle));
+        }
+
+        /** The platform number the client sent at login, in the game's own numbering. */
+        int32_t deviceOs() const {
+            return detail::api().playerDeviceOs(mHandle);
+        }
+
+        std::string skinId() const {
+            return detail::text(detail::api().playerSkinId(mHandle));
+        }
+
+        SkinImage skinImage() const {
+            SkinImage image;
+            uint32_t length = 0;
+            const uint8_t *data = detail::api().playerSkinImage(mHandle, &image.width, &image.height, &length);
+            if (data != nullptr)
+                image.rgba.assign(data, data + length);
+            return image;
+        }
+
+        /** Switches the camera to a preset such as minecraft:free, easing over easeTime seconds when above 0. */
+        bool setCamera(const std::string &preset, float easeTime = 0.0f, CameraEase ease = CameraEase::Linear) const {
+            return detail::api().playerSetCamera(mHandle, preset.c_str(), nullptr, nullptr, easeTime,
+                                                 static_cast<FalconCameraEase>(ease)) != 0;
+        }
+
+        /** A preset placed at a position and rotation (x pitch, y yaw, in degrees). */
+        bool setCamera(const std::string &preset, const Vec3 &position, const Vec3 &rotation, float easeTime = 0.0f,
+                       CameraEase ease = CameraEase::Linear) const {
+            const FalconVec3 at = position.raw();
+            const FalconVec3 turned = rotation.raw();
+            return detail::api().playerSetCamera(mHandle, preset.c_str(), &at, &turned, easeTime,
+                                                 static_cast<FalconCameraEase>(ease)) != 0;
+        }
+
+        /** Fades the screen to a 0xRRGGBB color and back, times in seconds. */
+        bool fadeCamera(float fadeIn, float hold, float fadeOut, uint32_t color = 0x000000) const {
+            return detail::api().playerFadeCamera(mHandle, fadeIn, hold, fadeOut, color) != 0;
+        }
+
+        void clearCamera() const {
+            detail::api().playerClearCamera(mHandle);
+        }
+
+        /** Ticks left on the cooldown of the item's category, 0 when it is ready. */
+        int32_t itemCooldown(const Item &item) const {
+            return detail::api().playerItemCooldown(mHandle, item.handle());
+        }
+
+        bool startItemCooldown(const Item &item, int32_t ticks) const {
+            return detail::api().playerStartItemCooldown(mHandle, item.handle(), ticks) != 0;
+        }
+
         /** Runs a command line, without the slash, as this player, with the player's permissions. */
         bool executeCommand(const std::string &commandLine) const {
             return detail::api().playerExecuteCommand(mHandle, commandLine.c_str()) != 0;
@@ -198,9 +317,14 @@ namespace falcon {
 }
 
 #include "falcon/Entity.hpp"
+#include "falcon/Level.hpp"
 
 namespace falcon {
     inline Entity Player::entity() const {
         return Entity(detail::api().playerEntity(mHandle));
+    }
+
+    inline bool Player::setSpawnPoint(const Level &level, const BlockPos &position) const {
+        return detail::api().playerSetSpawnPoint(mHandle, level.handle(), position.raw()) != 0;
     }
 }

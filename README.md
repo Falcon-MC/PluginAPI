@@ -246,6 +246,23 @@ level.addTickingArea("spawn", {-16, 0, -16}, {16, 0, 16});
 falcon::Server::setDifficulty(falcon::Difficulty::Hard);
 ```
 
+### Entities and players
+
+Mobs expose their equipment, riding, tags and attack target; players their spawn point, language, platform, skin,
+camera and item cooldowns:
+
+```cpp
+zombie.setEquipment(falcon::EquipmentSlot::Head, *falcon::Item::create("minecraft:diamond_helmet"));
+player.entity().mount(horse);
+zombie.addTag("boss");
+zombie.setAttackTarget(player.entity());
+
+player.setSpawnPoint(level, {0, 80, 0});
+player.sendMessage("Your language: " + player.language());
+player.setCamera("minecraft:free", {0, 100, 0}, {30, 90, 0}, 2.0f, falcon::CameraEase::InOutSine);
+player.fadeCamera(0.5f, 1.0f, 0.5f, 0x000000);
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

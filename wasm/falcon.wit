@@ -134,7 +134,19 @@ interface server {
 }
 
 interface players {
-    use types.{player, entity, game-mode, vec3};
+    use types.{player, entity, game-mode, vec3, block-pos, dimension, level, item};
+
+    record spawn-point {
+        position: block-pos,
+        dimension: dimension,
+    }
+
+    /// RGBA, four bytes a pixel, rows from the top.
+    record skin-image {
+        width: u32,
+        height: u32,
+        rgba: list<u8>,
+    }
 
     player-name: func(player: player) -> string;
     player-is-operator: func(player: player) -> bool;
@@ -166,10 +178,26 @@ interface players {
     player-stop-sound: func(player: player, sound: option<string>);
     player-spawn-particle: func(player: player, particle: string, position: vec3);
     player-execute-command: func(player: player, command-line: string) -> bool;
+    player-spawn-point: func(player: player) -> option<spawn-point>;
+    player-set-spawn-point: func(player: player, level: borrow<level>, position: block-pos) -> bool;
+    player-clear-spawn-point: func(player: player);
+    player-language: func(player: player) -> string;
+    /// The platform number the client sent at login, in the game's own numbering.
+    player-device-os: func(player: player) -> s32;
+    player-skin-id: func(player: player) -> string;
+    player-skin-image: func(player: player) -> skin-image;
+    /// `ease`: one of the `FALCON_CAMERA_EASE_*` values, used when `ease-time` is above 0.
+    player-set-camera: func(player: player, preset: string, position: option<vec3>, rotation: option<vec3>,
+                            ease-time: f32, ease: u32) -> bool;
+    /// `color`: 0xRRGGBB; times in seconds.
+    player-fade-camera: func(player: player, fade-in: f32, hold: f32, fade-out: f32, color: u32) -> bool;
+    player-clear-camera: func(player: player);
+    player-item-cooldown: func(player: player, item: borrow<item>) -> s32;
+    player-start-item-cooldown: func(player: player, item: borrow<item>, ticks: s32) -> bool;
 }
 
 interface entities {
-    use types.{entity, level, vec3, effect-type, effect, attribute};
+    use types.{entity, level, item, vec3, effect-type, effect, attribute};
 
     entity-type: func(entity: entity) -> string;
     entity-runtime-id: func(entity: entity) -> u64;
@@ -213,6 +241,23 @@ interface entities {
     entity-data-key: func(entity: entity, index: u32) -> option<string>;
     /// What the server would save for the entity, as little-endian NBT.
     entity-nbt: func(entity: entity) -> list<u8>;
+    /// `slot`: one of the `FALCON_EQUIPMENT_*` values; mobs only, `none` for an empty slot.
+    entity-equipment: func(entity: entity, slot: u32) -> option<item>;
+    entity-set-equipment: func(entity: entity, slot: u32, item: option<borrow<item>>) -> bool;
+    entity-vehicle: func(entity: entity) -> option<entity>;
+    entity-passenger-count: func(entity: entity) -> u32;
+    entity-passenger: func(entity: entity, index: u32) -> option<entity>;
+    entity-mount: func(rider: entity, vehicle: entity) -> bool;
+    entity-dismount: func(rider: entity);
+    entity-eject-passengers: func(vehicle: entity);
+    entity-tag-count: func(entity: entity) -> u32;
+    entity-tag: func(entity: entity, index: u32) -> option<string>;
+    entity-has-tag: func(entity: entity, tag: string) -> bool;
+    entity-add-tag: func(entity: entity, tag: string) -> bool;
+    entity-remove-tag: func(entity: entity, tag: string) -> bool;
+    entity-attack-target: func(entity: entity) -> option<entity>;
+    /// `none` clears the target.
+    entity-set-attack-target: func(entity: entity, target: option<entity>) -> bool;
 }
 
 interface levels {

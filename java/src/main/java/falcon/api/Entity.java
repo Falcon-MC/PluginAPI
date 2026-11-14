@@ -241,6 +241,101 @@ public final class Entity {
         }
     }
 
+    /**
+     * What a mob wears or holds; empty for an empty slot or an entity without equipment, players included.
+     */
+    public Optional<Item> equipment(EquipmentSlot slot) {
+        return Item.adoptFilled(api().entityEquipment(mHandle, slot.value()));
+    }
+
+    public boolean setEquipment(EquipmentSlot slot, Item item) {
+        return api().entitySetEquipment(mHandle, slot.value(), item.handle()) != 0;
+    }
+
+    public boolean clearEquipment(EquipmentSlot slot) {
+        return api().entitySetEquipment(mHandle, slot.value(), MemorySegment.NULL) != 0;
+    }
+
+    public Optional<Entity> vehicle() {
+        return optional(api().entityVehicle(mHandle));
+    }
+
+    public List<Entity> passengers() {
+        int count = api().entityPassengerCount(mHandle);
+        List<Entity> result = new ArrayList<>(Math.max(count, 0));
+        for (int index = 0; index < count; index++) {
+            optional(api().entityPassenger(mHandle, index)).ifPresent(result::add);
+        }
+        return result;
+    }
+
+    /**
+     * Seats this entity on a vehicle that has a free seat, as when a player mounts it.
+     */
+    public boolean mount(Entity vehicle) {
+        return api().entityMount(mHandle, vehicle.mHandle) != 0;
+    }
+
+    public void dismount() {
+        api().entityDismount(mHandle);
+    }
+
+    public void ejectPassengers() {
+        api().entityEjectPassengers(mHandle);
+    }
+
+    /**
+     * The tags of /tag, saved with the entity.
+     */
+    public List<String> tags() {
+        int count = api().entityTagCount(mHandle);
+        List<String> result = new ArrayList<>(Math.max(count, 0));
+        for (int index = 0; index < count; index++) {
+            result.add(Interop.string(api().entityTag(mHandle, index)));
+        }
+        return result;
+    }
+
+    public boolean hasTag(String tag) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().entityHasTag(mHandle, Interop.text(arena, tag)) != 0;
+        }
+    }
+
+    public boolean addTag(String tag) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().entityAddTag(mHandle, Interop.text(arena, tag)) != 0;
+        }
+    }
+
+    public boolean removeTag(String tag) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().entityRemoveTag(mHandle, Interop.text(arena, tag)) != 0;
+        }
+    }
+
+    /**
+     * The entity a mob is attacking.
+     */
+    public Optional<Entity> attackTarget() {
+        return optional(api().entityAttackTarget(mHandle));
+    }
+
+    /**
+     * Makes a mob attack an entity; EntityTargetEvent listeners can refuse it.
+     */
+    public boolean setAttackTarget(Entity target) {
+        return api().entitySetAttackTarget(mHandle, target.mHandle) != 0;
+    }
+
+    public boolean clearAttackTarget() {
+        return api().entitySetAttackTarget(mHandle, MemorySegment.NULL) != 0;
+    }
+
+    private Optional<Entity> optional(MemorySegment entity) {
+        return Interop.isNull(entity) ? Optional.empty() : Optional.of(new Entity(mContext, entity));
+    }
+
     public Optional<Player> asPlayer() {
         MemorySegment player = api().entityPlayer(mHandle);
         if (Interop.isNull(player)) {
