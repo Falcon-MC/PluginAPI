@@ -1,6 +1,6 @@
 /// The Falcon plugin API for WebAssembly plugins.
 ///
-/// Every imported function mirrors one entry of the C API table in `falcon_api.h` (API 1.0.5) and calls it,
+/// Every imported function mirrors one entry of the C API table in `falcon_api.h` (API 1.0.6) and calls it,
 /// so a Wasm plugin reaches exactly what a native plugin reaches. The only C entry without a counterpart is
 /// `runAsync`: a plugin instance is not thread safe, so it cannot run on the scheduler's worker thread.
 ///
@@ -8,7 +8,7 @@
 /// a stale id is simply not found. Levels and items are host-side handles that are checked on every call.
 /// Events and command senders have no handle: `event` and the sender functions of `commands` act on the
 /// event or command being handled and return default values outside a handler.
-package falcon:plugin@1.0.5;
+package falcon:plugin@1.0.6;
 
 interface types {
     /// The runtime id of a player. A player is also an entity, so the same id works with `entities`.
@@ -76,6 +76,25 @@ interface types {
         feet,
     }
 
+    /// One of the `FALCON_EFFECT_*` values.
+    type effect-type = u32;
+
+    /// `duration` is in ticks, -1 for an endless effect.
+    record effect {
+        effect-type: effect-type,
+        duration: s32,
+        amplifier: s32,
+        show-particles: bool,
+        ambient: bool,
+    }
+
+    record attribute {
+        value: f32,
+        minimum: f32,
+        maximum: f32,
+        default-value: f32,
+    }
+
     /// A level of a loaded world. A level whose world was unloaded behaves like a missing one.
     resource level;
 
@@ -99,7 +118,7 @@ interface server {
 }
 
 interface players {
-    use types.{player, entity, game-mode};
+    use types.{player, entity, game-mode, vec3};
 
     player-name: func(player: player) -> string;
     player-is-operator: func(player: player) -> bool;
@@ -126,10 +145,14 @@ interface players {
     player-transfer: func(player: player, address: string, port: u32) -> bool;
     player-protocol-version: func(player: player) -> s32;
     player-send-packet: func(player: player, packet-id: u32, data: list<u8>) -> bool;
+    player-play-sound: func(player: player, sound: string, position: vec3, volume: f32, pitch: f32);
+    /// `none` stops every sound.
+    player-stop-sound: func(player: player, sound: option<string>);
+    player-spawn-particle: func(player: player, particle: string, position: vec3);
 }
 
 interface entities {
-    use types.{entity, level, vec3};
+    use types.{entity, level, vec3, effect-type, effect, attribute};
 
     entity-type: func(entity: entity) -> string;
     entity-runtime-id: func(entity: entity) -> u64;
@@ -154,6 +177,17 @@ interface entities {
     entity-set-invisible: func(entity: entity, invisible: bool);
     level-entity-count: func(level: borrow<level>) -> u32;
     level-entity: func(level: borrow<level>, index: u32) -> option<entity>;
+    entity-add-effect: func(entity: entity, effect-type: effect-type, duration: s32, amplifier: s32,
+                            show-particles: bool) -> bool;
+    entity-remove-effect: func(entity: entity, effect-type: effect-type) -> bool;
+    entity-effect: func(entity: entity, effect-type: effect-type) -> option<effect>;
+    entity-effect-count: func(entity: entity) -> u32;
+    entity-effect-at: func(entity: entity, index: u32) -> option<effect>;
+    entity-clear-effects: func(entity: entity);
+    entity-attribute-count: func(entity: entity) -> u32;
+    entity-attribute-name: func(entity: entity, index: u32) -> option<string>;
+    entity-attribute: func(entity: entity, name: string) -> option<attribute>;
+    entity-set-attribute: func(entity: entity, name: string, value: f32) -> bool;
 }
 
 interface levels {
@@ -185,6 +219,8 @@ interface levels {
     world-level: func(name: string, dimension: dimension) -> option<level>;
     server-load-world: func(name: string, create: bool, seed: option<string>) -> bool;
     server-unload-world: func(name: string) -> bool;
+    level-play-sound: func(level: borrow<level>, sound: string, position: vec3, volume: f32, pitch: f32);
+    level-spawn-particle: func(level: borrow<level>, particle: string, position: vec3);
 }
 
 interface items {

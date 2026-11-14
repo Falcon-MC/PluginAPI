@@ -9,6 +9,7 @@
 #include "falcon/CustomBlock.hpp"
 #include "falcon/CustomEntity.hpp"
 #include "falcon/CustomItem.hpp"
+#include "falcon/Effects.hpp"
 #include "falcon/Entity.hpp"
 #include "falcon/EntityEvents.hpp"
 #include "falcon/Events.hpp"

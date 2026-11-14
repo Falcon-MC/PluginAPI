@@ -15,7 +15,7 @@ extern "C" {
 
 #define FALCON_API_VERSION_MAJOR 1
 #define FALCON_API_VERSION_MINOR 0
-#define FALCON_API_VERSION_PATCH 5
+#define FALCON_API_VERSION_PATCH 6
 #define FALCON_PLUGIN_ENTRY_NAME "falcon_plugin_entry"
 
 typedef struct FalconPlugin FalconPlugin;
@@ -146,6 +146,43 @@ typedef uint32_t FalconImageFit;
 
 #define FALCON_MAP_SIZE 128u
 
+typedef uint32_t FalconEffectType;
+#define FALCON_EFFECT_SPEED 1u
+#define FALCON_EFFECT_SLOWNESS 2u
+#define FALCON_EFFECT_HASTE 3u
+#define FALCON_EFFECT_MINING_FATIGUE 4u
+#define FALCON_EFFECT_STRENGTH 5u
+#define FALCON_EFFECT_INSTANT_HEALTH 6u
+#define FALCON_EFFECT_INSTANT_DAMAGE 7u
+#define FALCON_EFFECT_JUMP_BOOST 8u
+#define FALCON_EFFECT_NAUSEA 9u
+#define FALCON_EFFECT_REGENERATION 10u
+#define FALCON_EFFECT_RESISTANCE 11u
+#define FALCON_EFFECT_FIRE_RESISTANCE 12u
+#define FALCON_EFFECT_WATER_BREATHING 13u
+#define FALCON_EFFECT_INVISIBILITY 14u
+#define FALCON_EFFECT_BLINDNESS 15u
+#define FALCON_EFFECT_NIGHT_VISION 16u
+#define FALCON_EFFECT_HUNGER 17u
+#define FALCON_EFFECT_WEAKNESS 18u
+#define FALCON_EFFECT_POISON 19u
+#define FALCON_EFFECT_WITHER 20u
+#define FALCON_EFFECT_HEALTH_BOOST 21u
+#define FALCON_EFFECT_ABSORPTION 22u
+#define FALCON_EFFECT_SATURATION 23u
+#define FALCON_EFFECT_LEVITATION 24u
+#define FALCON_EFFECT_FATAL_POISON 25u
+#define FALCON_EFFECT_CONDUIT_POWER 26u
+#define FALCON_EFFECT_SLOW_FALLING 27u
+#define FALCON_EFFECT_BAD_OMEN 28u
+#define FALCON_EFFECT_VILLAGE_HERO 29u
+#define FALCON_EFFECT_DARKNESS 30u
+#define FALCON_EFFECT_WEAVING 33u
+#define FALCON_EFFECT_RAID_OMEN 36u
+#define FALCON_EFFECT_FREEZING 38u
+
+#define FALCON_EFFECT_INFINITE -1
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -224,6 +261,22 @@ typedef struct FalconPluginCallbacks {
     void (*onDisable)(void *userData);
     void *userData;
 } FalconPluginCallbacks;
+
+typedef struct FalconEffect {
+    FalconEffectType type;
+    /* ticks left, FALCON_EFFECT_INFINITE for an endless effect */
+    int32_t duration;
+    int32_t amplifier;
+    int32_t showParticles;
+    int32_t ambient;
+} FalconEffect;
+
+typedef struct FalconAttribute {
+    float value;
+    float minimum;
+    float maximum;
+    float defaultValue;
+} FalconAttribute;
 
 typedef struct FalconServerApi {
     uint32_t size;
@@ -460,6 +513,23 @@ typedef struct FalconServerApi {
     int (*playerGiveMap)(FalconPlayer *player, int64_t mapId);
     const char *(*mapLastError)(void);
     int (*mapDeleteImage)(FalconLevel *level, int64_t mapId);
+
+    int (*entityAddEffect)(FalconEntity *entity, FalconEffectType type, int32_t duration, int32_t amplifier,
+                           int showParticles);
+    int (*entityRemoveEffect)(FalconEntity *entity, FalconEffectType type);
+    int (*entityEffect)(FalconEntity *entity, FalconEffectType type, FalconEffect *out);
+    uint32_t (*entityEffectCount)(FalconEntity *entity);
+    int (*entityEffectAt)(FalconEntity *entity, uint32_t index, FalconEffect *out);
+    void (*entityClearEffects)(FalconEntity *entity);
+    uint32_t (*entityAttributeCount)(FalconEntity *entity);
+    const char *(*entityAttributeName)(FalconEntity *entity, uint32_t index);
+    int (*entityAttribute)(FalconEntity *entity, const char *name, FalconAttribute *out);
+    int (*entitySetAttribute)(FalconEntity *entity, const char *name, float value);
+    void (*playerPlaySound)(FalconPlayer *player, const char *sound, FalconVec3 position, float volume, float pitch);
+    void (*levelPlaySound)(FalconLevel *level, const char *sound, FalconVec3 position, float volume, float pitch);
+    void (*playerStopSound)(FalconPlayer *player, const char *sound);
+    void (*playerSpawnParticle)(FalconPlayer *player, const char *particle, FalconVec3 position);
+    void (*levelSpawnParticle)(FalconLevel *level, const char *particle, FalconVec3 position);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
