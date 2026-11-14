@@ -411,4 +411,148 @@ namespace falcon {
             return detail::text(detail::api().eventWorldName(mHandle));
         }
     };
+
+    /** A hopper moves one item into the container it faces (pushing) or out of the one above; cancellable. */
+    class HopperTransferEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_HOPPER_TRANSFER;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos hopper() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        bool pushing() const {
+            return detail::api().eventState(mHandle) != 0;
+        }
+    };
+
+    /** A dispenser or dropper fires an item; cancellable. */
+    class BlockDispenseEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_DISPENSE;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos block() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        std::string blockName() const {
+            return detail::text(detail::api().eventBlockName(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    /** A brewing stand finishes brewing; cancellable. */
+    class BrewEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_BREW;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        BlockPos block() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        Item ingredient() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+    };
+
+    /** A player took a result out of an anvil; not cancellable. The amount is the levels it cost. */
+    class AnvilUseEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_ANVIL_USE;
+
+        using Event::Event;
+
+        Player player() const {
+            return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        BlockPos anvil() const {
+            return BlockPos::from(detail::api().eventBlockPosition(mHandle));
+        }
+
+        double levels() const {
+            return detail::api().eventAmount(mHandle);
+        }
+
+        void setLevels(double value) const {
+            detail::api().eventSetAmount(mHandle, value);
+        }
+    };
+
+    /** An item entity is about to appear in the world; cancellable. */
+    class ItemSpawnEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_ITEM_SPAWN;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        Item item() const {
+            return Item::borrow(detail::api().eventItem(mHandle));
+        }
+
+        Vec3 position() const {
+            return Vec3::from(detail::api().eventPosition(mHandle));
+        }
+    };
+
+    /** A nether portal lights up; cancellable. The blocks are the portal blocks. */
+    class PortalCreateEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_PORTAL_CREATE;
+
+        using Event::Event;
+
+        Level level() const {
+            return Level(detail::api().eventLevel(mHandle));
+        }
+
+        std::vector<BlockPos> blocks() const {
+            std::vector<BlockPos> result;
+            const uint32_t count = detail::api().eventBlockCount(mHandle);
+            for (uint32_t index = 0; index < count; index++)
+                result.push_back(BlockPos::from(detail::api().eventBlockAt(mHandle, index)));
+            return result;
+        }
+    };
+
+    /** A world is being saved; not cancellable. */
+    class WorldSaveEvent : public Event {
+    public:
+        static constexpr FalconEventType TYPE = FALCON_EVENT_WORLD_SAVE;
+
+        using Event::Event;
+
+        std::string world() const {
+            return detail::text(detail::api().eventWorldName(mHandle));
+        }
+    };
 }
