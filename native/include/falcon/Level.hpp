@@ -19,6 +19,32 @@ namespace falcon {
         Back = FALCON_SIGN_BACK
     };
 
+    enum class BlockFace : uint32_t {
+        Down = FALCON_FACE_DOWN,
+        Up = FALCON_FACE_UP,
+        North = FALCON_FACE_NORTH,
+        South = FALCON_FACE_SOUTH,
+        West = FALCON_FACE_WEST,
+        East = FALCON_FACE_EAST
+    };
+
+    enum class Mirror : uint32_t {
+        None = FALCON_MIRROR_NONE,
+        X = FALCON_MIRROR_X,
+        Z = FALCON_MIRROR_Z,
+        XZ = FALCON_MIRROR_XZ
+    };
+
+    struct BlockHit {
+        BlockPos block;
+        BlockFace face = BlockFace::Up;
+        /** Where the ray enters the block. */
+        Vec3 position;
+        double distance = 0.0;
+    };
+
+    struct EntityHit;
+
     enum class Dimension : uint32_t {
         Overworld = FALCON_DIMENSION_OVERWORLD,
         Nether = FALCON_DIMENSION_NETHER,
@@ -156,6 +182,80 @@ namespace falcon {
                                                   text.c_str()) != 0;
         }
 
+        std::vector<std::string> gameRules() const {
+            std::vector<std::string> names;
+            const uint32_t count = detail::api().levelGameRuleCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index)
+                names.push_back(detail::text(detail::api().levelGameRuleName(mHandle, index)));
+            return names;
+        }
+
+        /** "true" or "false" for a switch, the number otherwise; the rules belong to the level's world. */
+        std::optional<std::string> gameRule(const std::string &name) const {
+            const char *value = detail::api().levelGameRule(mHandle, name.c_str());
+            if (value == nullptr)
+                return std::nullopt;
+            return std::string(value);
+        }
+
+        bool setGameRule(const std::string &name, const std::string &value) const {
+            return detail::api().levelSetGameRule(mHandle, name.c_str(), value.c_str()) != 0;
+        }
+
+        /** The biome identifier at a position, such as minecraft:plains. */
+        std::string biome(const BlockPos &position) const {
+            return detail::text(detail::api().levelBiome(mHandle, position.raw()));
+        }
+
+        /** The first block on the ray; an unloaded chunk stops it without a hit. */
+        std::optional<BlockHit> raycastBlock(const Vec3 &origin, const Vec3 &direction, double maxDistance,
+                                             bool includeLiquids = false, bool includePassable = false) const {
+            FalconBlockHit hit{};
+            if (detail::api().levelRaycastBlock(mHandle, origin.raw(), direction.raw(), maxDistance,
+                                                includeLiquids ? 1 : 0, includePassable ? 1 : 0, &hit) == 0)
+                return std::nullopt;
+            return BlockHit{BlockPos::from(hit.block), static_cast<BlockFace>(hit.face), Vec3::from(hit.position),
+                            hit.distance};
+        }
+
+        /** The nearest entity on the ray, before any block; except is left out, usually the one looking. */
+        std::optional<EntityHit> raycastEntity(const Vec3 &origin, const Vec3 &direction, double maxDistance) const;
+
+        std::optional<EntityHit> raycastEntity(const Vec3 &origin, const Vec3 &direction, double maxDistance,
+                                               const Entity &except) const;
+
+        /** Every entity and player whose box touches the box between two corners. */
+        std::vector<Entity> entitiesInBox(const Vec3 &from, const Vec3 &to) const;
+
+        /**
+         * Places a structure saved by the structure manager, a pack or a structure block, by identifier, with its
+         * lowest corner at position. Rotation is in quarter turns clockwise; integrity keeps that share of blocks.
+         */
+        bool placeStructure(const std::string &structure, const BlockPos &position, uint32_t rotation = 0,
+                            Mirror mirror = Mirror::None, bool includeEntities = true, float integrity = 1.0f) const {
+            return detail::api().levelPlaceStructure(mHandle, structure.c_str(), position.raw(), rotation,
+                                                     static_cast<FalconMirror>(mirror), includeEntities ? 1 : 0,
+                                                     integrity) != 0;
+        }
+
+        /** Keeps the chunks between two corners loaded and ticking, with the limits of /tickingarea. */
+        bool addTickingArea(const std::string &name, const BlockPos &from, const BlockPos &to,
+                            bool preload = false) const {
+            return detail::api().levelAddTickingArea(mHandle, name.c_str(), from.raw(), to.raw(), preload ? 1 : 0) != 0;
+        }
+
+        bool removeTickingArea(const std::string &name) const {
+            return detail::api().levelRemoveTickingArea(mHandle, name.c_str()) != 0;
+        }
+
+        std::vector<std::string> tickingAreas() const {
+            std::vector<std::string> names;
+            const uint32_t count = detail::api().levelTickingAreaCount(mHandle);
+            for (uint32_t index = 0; index < count; ++index)
+                names.push_back(detail::text(detail::api().levelTickingAreaName(mHandle, index)));
+            return names;
+        }
+
         std::vector<Entity> entities() const;
 
         FalconLevel *handle() const {
@@ -170,6 +270,46 @@ namespace falcon {
 #include "falcon/Entity.hpp"
 
 namespace falcon {
+    struct EntityHit {
+        Entity entity;
+        double distance = 0.0;
+    };
+
+    inline std::optional<EntityHit> Level::raycastEntity(const Vec3 &origin, const Vec3 &direction,
+                                                         double maxDistance) const {
+        double distance = 0.0;
+        FalconEntity *hit = detail::api().levelRaycastEntity(mHandle, origin.raw(), direction.raw(), maxDistance,
+                                                             nullptr, &distance);
+        if (hit == nullptr)
+            return std::nullopt;
+        return EntityHit{Entity(hit), distance};
+    }
+
+    inline std::optional<EntityHit> Level::raycastEntity(const Vec3 &origin, const Vec3 &direction, double maxDistance,
+                                                         const Entity &except) const {
+        double distance = 0.0;
+        FalconEntity *hit = detail::api().levelRaycastEntity(mHandle, origin.raw(), direction.raw(), maxDistance,
+                                                             except.handle(), &distance);
+        if (hit == nullptr)
+            return std::nullopt;
+        return EntityHit{Entity(hit), distance};
+    }
+
+    inline std::vector<Entity> Level::entitiesInBox(const Vec3 &from, const Vec3 &to) const {
+        std::vector<FalconEntity *> handles(64);
+        uint32_t count = detail::api().levelEntitiesInBox(mHandle, from.raw(), to.raw(), handles.data(),
+                                                          static_cast<uint32_t>(handles.size()));
+        if (count > handles.size()) {
+            handles.resize(count);
+            count = detail::api().levelEntitiesInBox(mHandle, from.raw(), to.raw(), handles.data(), count);
+        }
+
+        std::vector<Entity> result;
+        for (uint32_t index = 0; index < count && index < handles.size(); ++index)
+            result.emplace_back(handles[index]);
+        return result;
+    }
+
     inline std::optional<Entity> Level::spawnEntity(const std::string &identifier, const Vec3 &position) const {
         FalconEntity *entity = detail::api().levelSpawnEntity(mHandle, identifier.c_str(), position.raw());
         if (entity == nullptr)
