@@ -100,6 +100,13 @@ final class EventType<T extends Event> {
         register(EntityMountEvent.class, FalconAbi.EVENT_ENTITY_MOUNT, EntityMountEvent::new);
         register(EntityDismountEvent.class, FalconAbi.EVENT_ENTITY_DISMOUNT, EntityDismountEvent::new);
         register(EntityTeleportEvent.class, FalconAbi.EVENT_ENTITY_TELEPORT, EntityTeleportEvent::new);
+        register(HopperTransferEvent.class, FalconAbi.EVENT_HOPPER_TRANSFER, HopperTransferEvent::new);
+        register(BlockDispenseEvent.class, FalconAbi.EVENT_BLOCK_DISPENSE, BlockDispenseEvent::new);
+        register(BrewEvent.class, FalconAbi.EVENT_BREW, BrewEvent::new);
+        register(AnvilUseEvent.class, FalconAbi.EVENT_ANVIL_USE, AnvilUseEvent::new);
+        register(ItemSpawnEvent.class, FalconAbi.EVENT_ITEM_SPAWN, ItemSpawnEvent::new);
+        register(PortalCreateEvent.class, FalconAbi.EVENT_PORTAL_CREATE, PortalCreateEvent::new);
+        register(WorldSaveEvent.class, FalconAbi.EVENT_WORLD_SAVE, WorldSaveEvent::new);
     }
 
     private final int mId;

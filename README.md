@@ -277,7 +277,7 @@ for (const std::string &name: falcon::Server::plugins())
     logger().info(name + " " + falcon::Server::pluginVersion(name).value_or("?"));
 ```
 
-### Player and entity events
+### More events
 
 | Event | Cancellable | Carries |
 |---|---|---|
@@ -293,6 +293,18 @@ for (const std::string &name: falcon::Server::plugins())
 | `EntityTameEvent` | yes | the mob and its tamer |
 | `EntityMountEvent`, `EntityDismountEvent` | mount only | the rider and the vehicle |
 | `EntityTeleportEvent` | yes | from, to (can change), cause: `end_gateway`, `follow_owner`, `plugin` |
+
+World events:
+
+| Event | Cancellable | Carries |
+|---|---|---|
+| `HopperTransferEvent` | yes | the hopper, the item it moves and whether it pushes or pulls |
+| `BlockDispenseEvent` | yes | the dispenser or dropper and the item |
+| `BrewEvent` | yes | the brewing stand and its ingredient |
+| `AnvilUseEvent` | no | the player, the anvil and the levels it cost |
+| `ItemSpawnEvent` | yes | the item and where it appears |
+| `PortalCreateEvent` | yes | the nether portal blocks |
+| `WorldSaveEvent` | no | the world, before it is written |
 
 ```cpp
 events().on<falcon::PlayerTeleportEvent>([](falcon::PlayerTeleportEvent &event) {
