@@ -179,6 +179,27 @@ level.setSignText({12, 64, 10}, "Welcome!");
 Opening a container window that belongs to no block, such as a chest menu, is not part of the API yet: the server
 has no block-less container window.
 
+### Persistent data
+
+A plugin keeps text on entities, players and items, saved with them. The keys belong to the plugin: two plugins
+using the same key never see each other's values. A copy of an inventory item has to be put back for its change
+to stay:
+
+```cpp
+player.entity().setData("rank", "builder");
+std::optional<std::string> rank = player.entity().data("rank");
+
+falcon::PlayerInventory inventory = player.inventory();
+if (std::optional<falcon::Item> held = inventory.item(inventory.selectedSlot())) {
+    held->setData("owner", player.uuid());
+    inventory.setItem(inventory.selectedSlot(), *held);
+}
+```
+
+Java plugins reach the same store through `plugin.data()`. `Item::nbt` and `Item::setNbt` read and replace an
+item's whole tag as little-endian NBT, the game's own format, and `Entity::nbt` returns what the server would save
+for an entity.
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

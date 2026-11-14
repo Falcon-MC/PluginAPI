@@ -184,6 +184,42 @@ namespace falcon {
             return detail::api().entitySetAttribute(mHandle, name.c_str(), value) != 0;
         }
 
+        /**
+         * Text this plugin keeps on the entity or player, saved with it. Keys belong to the plugin: another plugin
+         * never sees them. Entities without saved state, such as dropped items, keep nothing.
+         */
+        std::optional<std::string> data(const std::string &key) const {
+            const char *value = detail::api().entityData(detail::plugin(), mHandle, key.c_str());
+            if (value == nullptr)
+                return std::nullopt;
+            return std::string(value);
+        }
+
+        bool setData(const std::string &key, const std::string &value) const {
+            return detail::api().entitySetData(detail::plugin(), mHandle, key.c_str(), value.c_str()) != 0;
+        }
+
+        bool removeData(const std::string &key) const {
+            return detail::api().entitySetData(detail::plugin(), mHandle, key.c_str(), nullptr) != 0;
+        }
+
+        std::vector<std::string> dataKeys() const {
+            std::vector<std::string> keys;
+            const uint32_t count = detail::api().entityDataCount(detail::plugin(), mHandle);
+            for (uint32_t index = 0; index < count; index++)
+                keys.push_back(detail::text(detail::api().entityDataKey(detail::plugin(), mHandle, index)));
+            return keys;
+        }
+
+        /** What the server would save for this entity, as little-endian NBT; read only. */
+        std::vector<uint8_t> nbt() const {
+            uint32_t length = 0;
+            const uint8_t *data = detail::api().entityNbt(mHandle, &length);
+            if (data == nullptr)
+                return {};
+            return std::vector<uint8_t>(data, data + length);
+        }
+
         std::optional<Player> asPlayer() const;
 
         FalconEntity *handle() const {

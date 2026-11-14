@@ -188,6 +188,14 @@ interface entities {
     entity-attribute-name: func(entity: entity, index: u32) -> option<string>;
     entity-attribute: func(entity: entity, name: string) -> option<attribute>;
     entity-set-attribute: func(entity: entity, name: string, value: f32) -> bool;
+    /// Text kept on the entity for this plugin only, saved with it.
+    entity-data: func(entity: entity, key: string) -> option<string>;
+    /// `none` removes the key.
+    entity-set-data: func(entity: entity, key: string, value: option<string>) -> bool;
+    entity-data-count: func(entity: entity) -> u32;
+    entity-data-key: func(entity: entity, index: u32) -> option<string>;
+    /// What the server would save for the entity, as little-endian NBT.
+    entity-nbt: func(entity: entity) -> list<u8>;
 }
 
 interface levels {
@@ -281,6 +289,16 @@ interface items {
     item-set-lore: func(item: borrow<item>, lines: list<string>);
     item-enchantment-level: func(item: borrow<item>, enchantment: u32) -> s32;
     item-set-enchantment-level: func(item: borrow<item>, enchantment: u32, level: s32);
+    /// Text kept on the item for this plugin only, saved with the item.
+    item-data: func(item: borrow<item>, key: string) -> option<string>;
+    /// `none` removes the key.
+    item-set-data: func(item: borrow<item>, key: string, value: option<string>) -> bool;
+    item-data-count: func(item: borrow<item>) -> u32;
+    item-data-key: func(item: borrow<item>, index: u32) -> option<string>;
+    /// The item's tag as little-endian NBT; empty without one.
+    item-nbt: func(item: borrow<item>) -> list<u8>;
+    /// An empty list removes the tag.
+    item-set-nbt: func(item: borrow<item>, data: list<u8>) -> bool;
     player-inventory-size: func(player: player) -> u32;
     player-inventory-item: func(player: player, slot: u32) -> option<item>;
     player-set-inventory-item: func(player: player, slot: u32, item: option<borrow<item>>);

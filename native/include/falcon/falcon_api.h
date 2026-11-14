@@ -565,6 +565,18 @@ typedef struct FalconServerApi {
     uint32_t (*playerEnderChestSize)(FalconPlayer *player);
     FalconItem *(*playerEnderChestItem)(FalconPlayer *player, uint32_t slot);
     int (*playerSetEnderChestItem)(FalconPlayer *player, uint32_t slot, FalconItem *item);
+
+    const char *(*entityData)(FalconPlugin *plugin, FalconEntity *entity, const char *key);
+    int (*entitySetData)(FalconPlugin *plugin, FalconEntity *entity, const char *key, const char *value);
+    uint32_t (*entityDataCount)(FalconPlugin *plugin, FalconEntity *entity);
+    const char *(*entityDataKey)(FalconPlugin *plugin, FalconEntity *entity, uint32_t index);
+    const char *(*itemData)(FalconPlugin *plugin, FalconItem *item, const char *key);
+    int (*itemSetData)(FalconPlugin *plugin, FalconItem *item, const char *key, const char *value);
+    uint32_t (*itemDataCount)(FalconPlugin *plugin, FalconItem *item);
+    const char *(*itemDataKey)(FalconPlugin *plugin, FalconItem *item, uint32_t index);
+    const uint8_t *(*itemNbt)(FalconItem *item, uint32_t *length);
+    int (*itemSetNbt)(FalconItem *item, const uint8_t *data, uint32_t length);
+    const uint8_t *(*entityNbt)(FalconEntity *entity, uint32_t *length);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
