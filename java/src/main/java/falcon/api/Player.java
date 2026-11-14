@@ -209,7 +209,8 @@ public final class Player {
             byte[] rgba = image.rgba();
             MemorySegment bytes = rgba.length == 0 ? MemorySegment.NULL : arena.allocateFrom(ValueLayout.JAVA_BYTE,
                     rgba);
-            return api().playerSetSkin(mHandle, Interop.text(arena, skinId), bytes, image.width(), image.height()) != 0;
+            return api().playerSetSkin(mHandle, Interop.text(arena, skinId), bytes, rgba.length, image.width(),
+                    image.height()) != 0;
         }
     }
 

@@ -215,7 +215,8 @@ namespace falcon {
          * 128 by 128. Returns false when the image does not have the size it announces.
          */
         bool setSkin(const std::string &skinId, const SkinImage &image) const {
-            return detail::api().playerSetSkin(mHandle, skinId.c_str(), image.rgba.data(), image.width,
+            return detail::api().playerSetSkin(mHandle, skinId.c_str(), image.rgba.data(),
+                                               static_cast<uint32_t>(image.rgba.size()), image.width,
                                                image.height) != 0;
         }
 

@@ -792,8 +792,8 @@ typedef struct FalconServerApi {
     int (*eventEffect)(FalconEvent *event, FalconEffect *out);
 
     int (*entitySetNbt)(FalconEntity *entity, const uint8_t *data, uint32_t length);
-    int (*playerSetSkin)(FalconPlayer *player, const char *skinId, const uint8_t *rgba, uint32_t width,
-                         uint32_t height);
+    int (*playerSetSkin)(FalconPlayer *player, const char *skinId, const uint8_t *rgba, uint32_t length,
+                         uint32_t width, uint32_t height);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
