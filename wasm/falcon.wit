@@ -148,9 +148,9 @@ interface server {
     server-allow-list-name: func(index: u32) -> option<string>;
     server-allow-list-enabled: func() -> bool;
     server-set-allow-list-enabled: func(enabled: bool);
+    /// The server name of the server list entry; server.properties is not changed.
     server-motd: func() -> string;
-    server-sub-motd: func() -> string;
-    server-set-motd: func(motd: string, sub-motd: string);
+    server-set-motd: func(motd: string);
     server-max-players: func() -> u32;
     server-set-max-players: func(max-players: u32) -> bool;
     server-tps: func() -> f64;

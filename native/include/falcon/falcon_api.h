@@ -757,8 +757,7 @@ typedef struct FalconServerApi {
     int (*serverAllowListEnabled)(void);
     void (*serverSetAllowListEnabled)(int enabled);
     const char *(*serverMotd)(void);
-    const char *(*serverSubMotd)(void);
-    void (*serverSetMotd)(const char *motd, const char *subMotd);
+    void (*serverSetMotd)(const char *motd);
     uint32_t (*serverMaxPlayers)(void);
     int (*serverSetMaxPlayers)(uint32_t maxPlayers);
     double (*serverTps)(void);

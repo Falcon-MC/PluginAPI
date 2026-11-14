@@ -87,15 +87,12 @@ namespace falcon {
             return detail::text(detail::api().serverMotd());
         }
 
-        static std::string subMotd() {
-            return detail::text(detail::api().serverSubMotd());
+        /** The server name of the server list entry, until the server restarts; server.properties is not changed. */
+        static void setMotd(const std::string &motd) {
+            detail::api().serverSetMotd(motd.c_str());
         }
 
-        /** The two lines of the server list entry, until the server restarts. */
-        static void setMotd(const std::string &motd, const std::string &subMotd = "") {
-            detail::api().serverSetMotd(motd.c_str(), subMotd.c_str());
-        }
-
+        /** The player limit, shown in the server list too. */
         static uint32_t maxPlayers() {
             return detail::api().serverMaxPlayers();
         }

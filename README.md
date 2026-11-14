@@ -270,7 +270,7 @@ player.fadeCamera(0.5f, 1.0f, 0.5f, 0x000000);
 ```cpp
 falcon::Server::ban("Griefer", "Breaking the spawn");
 falcon::Server::allowListAdd("Friend");
-falcon::Server::setMotd("Falcon", "Event tonight");
+falcon::Server::setMotd("Falcon - event tonight");
 if (falcon::Server::tps() < 15.0)
     falcon::Server::broadcast("The server is under load");
 for (const std::string &name: falcon::Server::plugins())

@@ -195,16 +195,12 @@ public final class Server {
         return Interop.string(api().serverMotd());
     }
 
-    public String subMotd() {
-        return Interop.string(api().serverSubMotd());
-    }
-
     /**
-     * The two lines of the server list entry, until the server restarts.
+     * The server name of the server list entry, until the server restarts; server.properties is not changed.
      */
-    public void setMotd(String motd, String subMotd) {
+    public void setMotd(String motd) {
         try (Arena arena = Arena.ofConfined()) {
-            api().serverSetMotd(Interop.text(arena, motd), Interop.text(arena, subMotd));
+            api().serverSetMotd(Interop.text(arena, motd));
         }
     }
 
