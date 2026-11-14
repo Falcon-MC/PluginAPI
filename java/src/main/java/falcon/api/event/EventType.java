@@ -86,6 +86,20 @@ final class EventType<T extends Event> {
         register(PlayerChangeWorldEvent.class, FalconAbi.EVENT_PLAYER_CHANGE_WORLD, PlayerChangeWorldEvent::new);
         register(ConnectionOpenEvent.class, FalconAbi.EVENT_CONNECTION_OPEN, ConnectionOpenEvent::new);
         register(PlayerFormResponseEvent.class, FalconAbi.EVENT_PLAYER_FORM_RESPONSE, PlayerFormResponseEvent::new);
+        register(PlayerTeleportEvent.class, FalconAbi.EVENT_PLAYER_TELEPORT, PlayerTeleportEvent::new);
+        register(PlayerItemUseEvent.class, FalconAbi.EVENT_PLAYER_ITEM_USE, PlayerItemUseEvent::new);
+        register(PlayerBucketFillEvent.class, FalconAbi.EVENT_PLAYER_BUCKET_FILL, PlayerBucketFillEvent::new);
+        register(PlayerBucketEmptyEvent.class, FalconAbi.EVENT_PLAYER_BUCKET_EMPTY, PlayerBucketEmptyEvent::new);
+        register(PlayerFishEvent.class, FalconAbi.EVENT_PLAYER_FISH, PlayerFishEvent::new);
+        register(PlayerArmorChangeEvent.class, FalconAbi.EVENT_PLAYER_ARMOR_CHANGE, PlayerArmorChangeEvent::new);
+        register(PlayerEmoteEvent.class, FalconAbi.EVENT_PLAYER_EMOTE, PlayerEmoteEvent::new);
+        register(EntityEffectAddEvent.class, FalconAbi.EVENT_ENTITY_EFFECT_ADD, EntityEffectAddEvent::new);
+        register(EntityHealEvent.class, FalconAbi.EVENT_ENTITY_HEAL, EntityHealEvent::new);
+        register(EntityBreedEvent.class, FalconAbi.EVENT_ENTITY_BREED, EntityBreedEvent::new);
+        register(EntityTameEvent.class, FalconAbi.EVENT_ENTITY_TAME, EntityTameEvent::new);
+        register(EntityMountEvent.class, FalconAbi.EVENT_ENTITY_MOUNT, EntityMountEvent::new);
+        register(EntityDismountEvent.class, FalconAbi.EVENT_ENTITY_DISMOUNT, EntityDismountEvent::new);
+        register(EntityTeleportEvent.class, FalconAbi.EVENT_ENTITY_TELEPORT, EntityTeleportEvent::new);
     }
 
     private final int mId;

@@ -277,6 +277,30 @@ for (const std::string &name: falcon::Server::plugins())
     logger().info(name + " " + falcon::Server::pluginVersion(name).value_or("?"));
 ```
 
+### Player and entity events
+
+| Event | Cancellable | Carries |
+|---|---|---|
+| `PlayerTeleportEvent` | yes | from, to (can change), cause: `command`, `ender_pearl`, `chorus_fruit`, `end_gateway`, `plugin` |
+| `PlayerItemUseEvent` | yes | a copy of the held item, for any item used in the air |
+| `PlayerBucketFillEvent`, `PlayerBucketEmptyEvent` | yes | the bucket and the block it takes from or fills |
+| `PlayerFishEvent` | yes | the hook and the entity it holds, or a caught fish |
+| `PlayerArmorChangeEvent` | no | the slot, the new and the previous item |
+| `PlayerEmoteEvent` | yes | the emote id |
+| `EntityEffectAddEvent` | yes | the effect |
+| `EntityHealEvent` | yes | the amount (can change), cause: `heal`, `regeneration`, `self_heal`, `totem` |
+| `EntityBreedEvent` | yes | both parents and the baby's type |
+| `EntityTameEvent` | yes | the mob and its tamer |
+| `EntityMountEvent`, `EntityDismountEvent` | mount only | the rider and the vehicle |
+| `EntityTeleportEvent` | yes | from, to (can change), cause: `end_gateway`, `follow_owner`, `plugin` |
+
+```cpp
+events().on<falcon::PlayerTeleportEvent>([](falcon::PlayerTeleportEvent &event) {
+    if (event.cause() == "ender_pearl" && event.to().y > 200)
+        event.cancel();
+});
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

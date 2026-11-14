@@ -1,11 +1,13 @@
 package falcon.api.event;
 
 import falcon.api.BlockPos;
+import falcon.api.Effect;
 import falcon.api.Entity;
 import falcon.api.Item;
 import falcon.api.Level;
 import falcon.api.Player;
 import falcon.api.Vec3;
+import falcon.api.internal.FalconAbi;
 import falcon.api.internal.Interop;
 import falcon.api.internal.NativeApi;
 import falcon.api.internal.PluginContext;
@@ -173,6 +175,18 @@ public abstract class Event {
 
     Optional<Entity> eventTarget() {
         return optionalEntity(api().eventTarget(mHandle));
+    }
+
+    Effect eventEffect() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.Effect.LAYOUT);
+            api().eventEffect(mHandle, out);
+            return Effect.read(out);
+        }
+    }
+
+    String eventWorldName() {
+        return Interop.string(api().eventWorldName(mHandle));
     }
 
     Item eventResult() {
