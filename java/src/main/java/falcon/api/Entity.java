@@ -7,6 +7,7 @@ import falcon.api.internal.PluginContext;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -222,6 +223,21 @@ public final class Entity {
     public boolean setAttribute(String name, float value) {
         try (Arena arena = Arena.ofConfined()) {
             return api().entitySetAttribute(mHandle, Interop.text(arena, name), value) != 0;
+        }
+    }
+
+    /**
+     * What the server would save for this entity, as little-endian NBT; read only.
+     */
+    public byte[] nbt() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment length = arena.allocate(ValueLayout.JAVA_INT);
+            MemorySegment data = api().entityNbt(mHandle, length);
+            int size = length.get(ValueLayout.JAVA_INT, 0);
+            if (Interop.isNull(data) || size <= 0) {
+                return new byte[0];
+            }
+            return data.reinterpret(size).toArray(ValueLayout.JAVA_BYTE);
         }
     }
 

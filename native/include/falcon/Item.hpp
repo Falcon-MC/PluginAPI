@@ -109,6 +109,47 @@ namespace falcon {
             detail::api().itemSetEnchantmentLevel(mHandle, enchantment, level);
         }
 
+        /**
+         * Text this plugin keeps on the item, saved with the item wherever it goes. Keys belong to the plugin: another
+         * plugin never sees them. A copy of an inventory item must be put back for the change to stay.
+         */
+        std::optional<std::string> data(const std::string &key) const {
+            const char *value = detail::api().itemData(detail::plugin(), mHandle, key.c_str());
+            if (value == nullptr)
+                return std::nullopt;
+            return std::string(value);
+        }
+
+        bool setData(const std::string &key, const std::string &value) const {
+            return detail::api().itemSetData(detail::plugin(), mHandle, key.c_str(), value.c_str()) != 0;
+        }
+
+        bool removeData(const std::string &key) const {
+            return detail::api().itemSetData(detail::plugin(), mHandle, key.c_str(), nullptr) != 0;
+        }
+
+        std::vector<std::string> dataKeys() const {
+            std::vector<std::string> keys;
+            const uint32_t count = detail::api().itemDataCount(detail::plugin(), mHandle);
+            for (uint32_t index = 0; index < count; index++)
+                keys.push_back(detail::text(detail::api().itemDataKey(detail::plugin(), mHandle, index)));
+            return keys;
+        }
+
+        /** The item's tag as little-endian NBT, the game's save format; empty for an item without one. */
+        std::vector<uint8_t> nbt() const {
+            uint32_t length = 0;
+            const uint8_t *data = detail::api().itemNbt(mHandle, &length);
+            if (data == nullptr)
+                return {};
+            return std::vector<uint8_t>(data, data + length);
+        }
+
+        /** Replaces the item's tag; empty data removes it. False when the data is not a little-endian NBT compound. */
+        bool setNbt(const std::vector<uint8_t> &data) const {
+            return detail::api().itemSetNbt(mHandle, data.data(), static_cast<uint32_t>(data.size())) != 0;
+        }
+
         FalconItem *handle() const {
             return mHandle;
         }
