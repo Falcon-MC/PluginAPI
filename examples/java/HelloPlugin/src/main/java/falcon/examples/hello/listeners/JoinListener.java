@@ -1,5 +1,7 @@
 package falcon.examples.hello.listeners;
 
+import falcon.api.EffectType;
+import falcon.api.Entity;
 import falcon.api.Player;
 import falcon.api.Plugin;
 import falcon.api.event.PlayerJoinEvent;
@@ -20,6 +22,11 @@ public final class JoinListener {
             } else {
                 player.sendMessage("Welcome back, " + player.name() + "! Visit number " + count + ".");
             }
+
+            Entity body = player.entity();
+            body.addEffect(EffectType.SPEED, 200, 1, true);
+            player.playSound("random.levelup", body.position());
+            player.spawnParticle("minecraft:villager_happy", body.position());
         });
 
         plugin.events().on(PlayerQuitEvent.class, event -> {
