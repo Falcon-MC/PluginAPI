@@ -221,6 +221,15 @@ interface levels {
     server-unload-world: func(name: string) -> bool;
     level-play-sound: func(level: borrow<level>, sound: string, position: vec3, volume: f32, pitch: f32);
     level-spawn-particle: func(level: borrow<level>, particle: string, position: vec3);
+    level-container-size: func(level: borrow<level>, position: block-pos) -> u32;
+    /// A copy of the item in the slot; `none` for an empty slot or no container.
+    level-container-item: func(level: borrow<level>, position: block-pos, slot: u32) -> option<item>;
+    /// `none` empties the slot.
+    level-set-container-item: func(level: borrow<level>, position: block-pos, slot: u32, item: option<borrow<item>>)
+        -> bool;
+    /// `side`: `FALCON_SIGN_FRONT` or `FALCON_SIGN_BACK`.
+    level-sign-text: func(level: borrow<level>, position: block-pos, side: u32) -> option<string>;
+    level-set-sign-text: func(level: borrow<level>, position: block-pos, side: u32, text: string) -> bool;
 }
 
 /// The server's scoreboard. A participant is an entity, a player through its entity id, or a fake player by name.
@@ -283,6 +292,9 @@ interface items {
     player-offhand-item: func(player: player) -> option<item>;
     player-set-offhand-item: func(player: player, item: option<borrow<item>>);
     player-clear-inventory: func(player: player);
+    player-ender-chest-size: func(player: player) -> u32;
+    player-ender-chest-item: func(player: player, slot: u32) -> option<item>;
+    player-set-ender-chest-item: func(player: player, slot: u32, item: option<borrow<item>>) -> bool;
 }
 
 interface events {

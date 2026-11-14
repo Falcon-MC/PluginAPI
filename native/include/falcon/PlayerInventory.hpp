@@ -35,6 +35,26 @@ namespace falcon {
             return detail::api().playerGiveItem(mPlayer, item.handle()) != 0;
         }
 
+        uint32_t enderChestSize() const {
+            return detail::api().playerEnderChestSize(mPlayer);
+        }
+
+        /** The player's own ender chest, the same in every ender chest block and saved with the player. */
+        std::optional<Item> enderChestItem(uint32_t slot) const {
+            std::optional<Item> found = Item::adopt(detail::api().playerEnderChestItem(mPlayer, slot));
+            if (found.has_value() && found->isEmpty())
+                return std::nullopt;
+            return found;
+        }
+
+        bool setEnderChestItem(uint32_t slot, const Item &item) const {
+            return detail::api().playerSetEnderChestItem(mPlayer, slot, item.handle()) != 0;
+        }
+
+        bool clearEnderChestItem(uint32_t slot) const {
+            return detail::api().playerSetEnderChestItem(mPlayer, slot, nullptr) != 0;
+        }
+
         uint32_t selectedSlot() const {
             return detail::api().playerSelectedSlot(mPlayer);
         }

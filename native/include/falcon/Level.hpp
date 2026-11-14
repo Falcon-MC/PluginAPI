@@ -14,6 +14,11 @@
 namespace falcon {
     class Entity;
 
+    enum class SignSide : uint32_t {
+        Front = FALCON_SIGN_FRONT,
+        Back = FALCON_SIGN_BACK
+    };
+
     enum class Dimension : uint32_t {
         Overworld = FALCON_DIMENSION_OVERWORLD,
         Nether = FALCON_DIMENSION_NETHER,
@@ -115,6 +120,40 @@ namespace falcon {
 
         void spawnParticle(const std::string &particle, const Vec3 &position) const {
             detail::api().levelSpawnParticle(mHandle, particle.c_str(), position.raw());
+        }
+
+        /** The slot count of the chest, barrel, furnace, hopper or other container block there; 0 for none. */
+        uint32_t containerSize(const BlockPos &position) const {
+            return detail::api().levelContainerSize(mHandle, position.raw());
+        }
+
+        /** A copy of the item in a container slot; nothing for an empty slot or no container. */
+        std::optional<Item> containerItem(const BlockPos &position, uint32_t slot) const {
+            std::optional<Item> found = Item::adopt(detail::api().levelContainerItem(mHandle, position.raw(), slot));
+            if (found.has_value() && found->isEmpty())
+                return std::nullopt;
+            return found;
+        }
+
+        bool setContainerItem(const BlockPos &position, uint32_t slot, const Item &item) const {
+            return detail::api().levelSetContainerItem(mHandle, position.raw(), slot, item.handle()) != 0;
+        }
+
+        bool clearContainerItem(const BlockPos &position, uint32_t slot) const {
+            return detail::api().levelSetContainerItem(mHandle, position.raw(), slot, nullptr) != 0;
+        }
+
+        /** The text of a sign or hanging sign, raw or JSON as the game saved it; nothing when no sign is there. */
+        std::optional<std::string> signText(const BlockPos &position, SignSide side = SignSide::Front) const {
+            const char *text = detail::api().levelSignText(mHandle, position.raw(), static_cast<FalconSignSide>(side));
+            if (text == nullptr)
+                return std::nullopt;
+            return std::string(text);
+        }
+
+        bool setSignText(const BlockPos &position, const std::string &text, SignSide side = SignSide::Front) const {
+            return detail::api().levelSetSignText(mHandle, position.raw(), static_cast<FalconSignSide>(side),
+                                                  text.c_str()) != 0;
         }
 
         std::vector<Entity> entities() const;

@@ -36,6 +36,16 @@ public final class Item implements AutoCloseable {
         return Optional.of(new Item(handle, true));
     }
 
+    // an empty stack is freed at once: nobody would close it
+    static Optional<Item> adoptFilled(MemorySegment handle) {
+        Optional<Item> item = adopt(handle);
+        if (item.isPresent() && item.get().isEmpty()) {
+            item.get().close();
+            return Optional.empty();
+        }
+        return item;
+    }
+
     public static Item borrow(MemorySegment handle) {
         return new Item(handle == null ? MemorySegment.NULL : handle, false);
     }

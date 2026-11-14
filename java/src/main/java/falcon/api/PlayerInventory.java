@@ -29,6 +29,25 @@ public final class PlayerInventory {
         return api().playerGiveItem(mPlayer, item.handle()) != 0;
     }
 
+    public int enderChestSize() {
+        return api().playerEnderChestSize(mPlayer);
+    }
+
+    /**
+     * The player's own ender chest, the same in every ender chest block and saved with the player.
+     */
+    public Optional<Item> enderChestItem(int slot) {
+        return Item.adoptFilled(api().playerEnderChestItem(mPlayer, slot));
+    }
+
+    public boolean setEnderChestItem(int slot, Item item) {
+        return api().playerSetEnderChestItem(mPlayer, slot, item.handle()) != 0;
+    }
+
+    public boolean clearEnderChestItem(int slot) {
+        return api().playerSetEnderChestItem(mPlayer, slot, MemorySegment.NULL) != 0;
+    }
+
     public int selectedSlot() {
         return api().playerSelectedSlot(mPlayer);
     }

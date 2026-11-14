@@ -159,6 +159,62 @@ public final class Level {
         }
     }
 
+    /**
+     * The slot count of the chest, barrel, furnace, hopper or other container block there; 0 for none.
+     */
+    public int containerSize(BlockPos position) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().levelContainerSize(mHandle, Interop.blockPos(arena, position));
+        }
+    }
+
+    /**
+     * A copy of the item in a container slot; empty for an empty slot or no container.
+     */
+    public Optional<Item> containerItem(BlockPos position, int slot) {
+        try (Arena arena = Arena.ofConfined()) {
+            return Item.adoptFilled(api().levelContainerItem(mHandle, Interop.blockPos(arena, position), slot));
+        }
+    }
+
+    public boolean setContainerItem(BlockPos position, int slot, Item item) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().levelSetContainerItem(mHandle, Interop.blockPos(arena, position), slot, item.handle()) != 0;
+        }
+    }
+
+    public boolean clearContainerItem(BlockPos position, int slot) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().levelSetContainerItem(mHandle, Interop.blockPos(arena, position), slot,
+                    MemorySegment.NULL) != 0;
+        }
+    }
+
+    public Optional<String> signText(BlockPos position) {
+        return signText(position, SignSide.FRONT);
+    }
+
+    /**
+     * The text of a sign or hanging sign, raw or JSON as the game saved it; empty when no sign is there.
+     */
+    public Optional<String> signText(BlockPos position, SignSide side) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment text = api().levelSignText(mHandle, Interop.blockPos(arena, position), side.value());
+            return Interop.isNull(text) ? Optional.empty() : Optional.of(Interop.string(text));
+        }
+    }
+
+    public boolean setSignText(BlockPos position, String text) {
+        return setSignText(position, text, SignSide.FRONT);
+    }
+
+    public boolean setSignText(BlockPos position, String text, SignSide side) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().levelSetSignText(mHandle, Interop.blockPos(arena, position), side.value(),
+                    Interop.text(arena, text)) != 0;
+        }
+    }
+
     public List<Entity> entities() {
         int count = api().levelEntityCount(mHandle);
         List<Entity> result = new ArrayList<>(count);
