@@ -50,6 +50,27 @@ namespace falcon {
 
     using CommandHandler = std::function<bool(CommandContext &)>;
 
+    enum class CommandParamType : uint32_t {
+        Int = FALCON_COMMAND_PARAM_INT,
+        Float = FALCON_COMMAND_PARAM_FLOAT,
+        String = FALCON_COMMAND_PARAM_STRING,
+        Bool = FALCON_COMMAND_PARAM_BOOL,
+        Target = FALCON_COMMAND_PARAM_TARGET,
+        Position = FALCON_COMMAND_PARAM_POSITION,
+        BlockPosition = FALCON_COMMAND_PARAM_BLOCK_POSITION,
+        Message = FALCON_COMMAND_PARAM_MESSAGE,
+        Json = FALCON_COMMAND_PARAM_JSON,
+        Enum = FALCON_COMMAND_PARAM_ENUM
+    };
+
+    struct CommandParameter {
+        std::string name;
+        CommandParamType type = CommandParamType::String;
+        bool optional = false;
+        /** The choices of an enum parameter, offered by the client's completion. */
+        std::vector<std::string> values;
+    };
+
     class Commands {
     public:
         bool add(const std::string &name, const std::string &description, const std::string &usage,
@@ -64,6 +85,33 @@ namespace falcon {
             descriptor.handler = &dispatch;
             descriptor.userData = stored;
             return detail::api().registerCommand(detail::plugin(), &descriptor) != 0;
+        }
+
+        /**
+         * Adds a typed signature to a command of this plugin; the client shows it and completes its arguments. The
+         * handler still receives the arguments as text, one per word. The first overload replaces the default one.
+         */
+        bool addOverload(const std::string &command, const std::vector<CommandParameter> &parameters) const {
+            std::vector<std::vector<const char *>> values;
+            std::vector<FalconCommandParameter> raw;
+            values.reserve(parameters.size());
+            raw.reserve(parameters.size());
+            for (const CommandParameter &parameter: parameters) {
+                values.emplace_back();
+                for (const std::string &value: parameter.values)
+                    values.back().push_back(value.c_str());
+                raw.push_back(FalconCommandParameter{parameter.name.c_str(),
+                                                     static_cast<FalconCommandParamType>(parameter.type),
+                                                     parameter.optional ? 1 : 0, values.back().data(),
+                                                     static_cast<uint32_t>(values.back().size())});
+            }
+            return detail::api().commandAddOverload(detail::plugin(), command.c_str(), raw.data(),
+                                                    static_cast<uint32_t>(raw.size())) != 0;
+        }
+
+        /** Runs a command line, without the slash, as the server console. */
+        bool execute(const std::string &commandLine) const {
+            return detail::api().serverExecuteCommand(commandLine.c_str()) != 0;
         }
 
     private:

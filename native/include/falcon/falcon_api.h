@@ -201,6 +201,18 @@ typedef uint32_t FalconCommandPermission;
 #define FALCON_PERMISSION_ANY 0u
 #define FALCON_PERMISSION_OPERATOR 1u
 
+typedef uint32_t FalconCommandParamType;
+#define FALCON_COMMAND_PARAM_INT 0u
+#define FALCON_COMMAND_PARAM_FLOAT 1u
+#define FALCON_COMMAND_PARAM_STRING 2u
+#define FALCON_COMMAND_PARAM_BOOL 3u
+#define FALCON_COMMAND_PARAM_TARGET 4u
+#define FALCON_COMMAND_PARAM_POSITION 5u
+#define FALCON_COMMAND_PARAM_BLOCK_POSITION 6u
+#define FALCON_COMMAND_PARAM_MESSAGE 7u
+#define FALCON_COMMAND_PARAM_JSON 8u
+#define FALCON_COMMAND_PARAM_ENUM 9u
+
 typedef void (*FalconEventHandler)(FalconEvent *event, void *userData);
 typedef const char *(*FalconServiceHandler)(const char *request, void *userData);
 typedef void (*FalconTask)(void *userData);
@@ -215,6 +227,27 @@ typedef struct FalconCommandDescriptor {
     FalconCommandHandler handler;
     void *userData;
 } FalconCommandDescriptor;
+
+/* one parameter of a command overload; an enum parameter lists its values, which the client completes */
+typedef struct FalconCommandParameter {
+    const char *name;
+    FalconCommandParamType type;
+    int32_t optional;
+    const char *const *values;
+    uint32_t valueCount;
+} FalconCommandParameter;
+
+/* a crafting table recipe; shaped: width x height ingredients row by row, NULL or "" for an empty cell */
+typedef struct FalconRecipeDescriptor {
+    const char *identifier;
+    int32_t shaped;
+    uint32_t width;
+    uint32_t height;
+    const char *const *ingredients;
+    uint32_t ingredientCount;
+    const char *result;
+    uint32_t resultCount;
+} FalconRecipeDescriptor;
 
 typedef int (*FalconItemUseHandler)(FalconPlayer *player, FalconItem *item, void *userData);
 typedef int (*FalconItemUseOnBlockHandler)(FalconPlayer *player, FalconItem *item, FalconBlockPos position,
@@ -577,6 +610,13 @@ typedef struct FalconServerApi {
     const uint8_t *(*itemNbt)(FalconItem *item, uint32_t *length);
     int (*itemSetNbt)(FalconItem *item, const uint8_t *data, uint32_t length);
     const uint8_t *(*entityNbt)(FalconEntity *entity, uint32_t *length);
+
+    int (*commandAddOverload)(FalconPlugin *plugin, const char *command, const FalconCommandParameter *parameters,
+                              uint32_t count);
+    int (*serverExecuteCommand)(const char *commandLine);
+    int (*playerExecuteCommand)(FalconPlayer *player, const char *commandLine);
+    int (*registerRecipe)(FalconPlugin *plugin, const FalconRecipeDescriptor *descriptor);
+    int (*removeRecipe)(const char *identifier);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

@@ -142,6 +142,15 @@ public final class Player {
         }
     }
 
+    /**
+     * Runs a command line, without the slash, as this player, with the player's permissions.
+     */
+    public boolean executeCommand(String commandLine) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerExecuteCommand(mHandle, Interop.text(arena, commandLine)) != 0;
+        }
+    }
+
     public void playSound(String sound, Vec3 position) {
         playSound(sound, position, 1.0f, 1.0f);
     }
