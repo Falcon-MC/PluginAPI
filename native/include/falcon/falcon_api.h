@@ -183,6 +183,11 @@ typedef uint32_t FalconEffectType;
 
 #define FALCON_EFFECT_INFINITE -1
 
+typedef uint32_t FalconDisplaySlot;
+#define FALCON_DISPLAY_SLOT_SIDEBAR 0u
+#define FALCON_DISPLAY_SLOT_LIST 1u
+#define FALCON_DISPLAY_SLOT_BELOW_NAME 2u
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -530,6 +535,23 @@ typedef struct FalconServerApi {
     void (*playerStopSound)(FalconPlayer *player, const char *sound);
     void (*playerSpawnParticle)(FalconPlayer *player, const char *particle, FalconVec3 position);
     void (*levelSpawnParticle)(FalconLevel *level, const char *particle, FalconVec3 position);
+
+    int (*scoreboardAddObjective)(const char *name, const char *displayName);
+    int (*scoreboardRemoveObjective)(const char *name);
+    uint32_t (*scoreboardObjectiveCount)(void);
+    const char *(*scoreboardObjectiveName)(uint32_t index);
+    const char *(*scoreboardObjectiveDisplayName)(const char *objective);
+    int (*scoreboardEntityScore)(const char *objective, FalconEntity *entity, int32_t *score);
+    int (*scoreboardSetEntityScore)(const char *objective, FalconEntity *entity, int32_t score);
+    int (*scoreboardResetEntityScore)(const char *objective, FalconEntity *entity);
+    int (*scoreboardFakePlayerScore)(const char *objective, const char *name, int32_t *score);
+    int (*scoreboardSetFakePlayerScore)(const char *objective, const char *name, int32_t score);
+    int (*scoreboardResetFakePlayerScore)(const char *objective, const char *name);
+    uint32_t (*scoreboardScoreCount)(const char *objective);
+    const char *(*scoreboardScoreAt)(const char *objective, uint32_t index, int32_t *score);
+    FalconEntity *(*scoreboardScoreEntity)(const char *objective, uint32_t index);
+    int (*scoreboardSetDisplay)(FalconDisplaySlot slot, const char *objective, int ascending);
+    const char *(*scoreboardDisplayObjective)(FalconDisplaySlot slot);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

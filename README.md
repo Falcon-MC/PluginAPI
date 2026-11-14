@@ -143,6 +143,21 @@ body.level().spawnParticle("minecraft:heart_particle", body.position());
 
 A sound or particle sent through a `Player` reaches only that player; through a `Level`, every player in it.
 
+### Scoreboard
+
+`falcon::Scoreboard` is the server's own scoreboard, the one `/scoreboard` and scripts use, saved with the default
+world. A participant is an entity, a player through `player.entity()`, or a fake player named by text:
+
+```cpp
+falcon::Scoreboard::addObjective("kills", "Kills");
+falcon::Scoreboard::setDisplay(falcon::DisplaySlot::Sidebar, "kills");
+falcon::Scoreboard::setScore("kills", player.entity(), 3);
+falcon::Scoreboard::setScore("kills", "Herobrine", 99);
+
+for (const falcon::Score &score: falcon::Scoreboard::scores("kills"))
+    logger().info(score.name + ": " + std::to_string(score.value));
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.
