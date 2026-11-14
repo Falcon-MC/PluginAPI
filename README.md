@@ -158,6 +158,27 @@ for (const falcon::Score &score: falcon::Scoreboard::scores("kills"))
     logger().info(score.name + ": " + std::to_string(score.value));
 ```
 
+### Containers and signs
+
+Any container block of a level, chests, barrels, furnaces, hoppers and the rest, is read and written by slot.
+A player's ender chest is its own inventory, the same in every ender chest block. Players looking into a container
+see the change at once:
+
+```cpp
+const falcon::BlockPos chest{10, 64, 10};
+for (uint32_t slot = 0; slot < level.containerSize(chest); ++slot) {
+    if (std::optional<falcon::Item> item = level.containerItem(chest, slot))
+        logger().info(item->identifier());
+}
+level.setContainerItem(chest, 0, *falcon::Item::create("minecraft:diamond", 3));
+player.inventory().setEnderChestItem(0, *falcon::Item::create("minecraft:elytra"));
+
+level.setSignText({12, 64, 10}, "Welcome!");
+```
+
+Opening a container window that belongs to no block, such as a chest menu, is not part of the API yet: the server
+has no block-less container window.
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

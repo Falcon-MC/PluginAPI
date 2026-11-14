@@ -188,6 +188,10 @@ typedef uint32_t FalconDisplaySlot;
 #define FALCON_DISPLAY_SLOT_LIST 1u
 #define FALCON_DISPLAY_SLOT_BELOW_NAME 2u
 
+typedef uint32_t FalconSignSide;
+#define FALCON_SIGN_FRONT 0u
+#define FALCON_SIGN_BACK 1u
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -552,6 +556,15 @@ typedef struct FalconServerApi {
     FalconEntity *(*scoreboardScoreEntity)(const char *objective, uint32_t index);
     int (*scoreboardSetDisplay)(FalconDisplaySlot slot, const char *objective, int ascending);
     const char *(*scoreboardDisplayObjective)(FalconDisplaySlot slot);
+
+    uint32_t (*levelContainerSize)(FalconLevel *level, FalconBlockPos position);
+    FalconItem *(*levelContainerItem)(FalconLevel *level, FalconBlockPos position, uint32_t slot);
+    int (*levelSetContainerItem)(FalconLevel *level, FalconBlockPos position, uint32_t slot, FalconItem *item);
+    const char *(*levelSignText)(FalconLevel *level, FalconBlockPos position, FalconSignSide side);
+    int (*levelSetSignText)(FalconLevel *level, FalconBlockPos position, FalconSignSide side, const char *text);
+    uint32_t (*playerEnderChestSize)(FalconPlayer *player);
+    FalconItem *(*playerEnderChestItem)(FalconPlayer *player, uint32_t slot);
+    int (*playerSetEnderChestItem)(FalconPlayer *player, uint32_t slot, FalconItem *item);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
