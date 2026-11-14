@@ -8,8 +8,24 @@
 #include <vector>
 
 namespace falcon {
+    enum class Difficulty : uint32_t {
+        Peaceful = FALCON_DIFFICULTY_PEACEFUL,
+        Easy = FALCON_DIFFICULTY_EASY,
+        Normal = FALCON_DIFFICULTY_NORMAL,
+        Hard = FALCON_DIFFICULTY_HARD
+    };
+
     class Server {
     public:
+        static Difficulty difficulty() {
+            return static_cast<Difficulty>(detail::api().serverDifficulty());
+        }
+
+        /** Saved in the server properties and sent to every player, like /difficulty. */
+        static bool setDifficulty(Difficulty difficulty) {
+            return detail::api().serverSetDifficulty(static_cast<FalconDifficulty>(difficulty)) != 0;
+        }
+
         static std::string version() {
             return detail::api().serverVersion();
         }

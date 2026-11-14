@@ -97,6 +97,17 @@ public final class Server {
         }
     }
 
+    public Difficulty difficulty() {
+        return Difficulty.of(api().serverDifficulty());
+    }
+
+    /**
+     * Saved in the server properties and sent to every player, like /difficulty.
+     */
+    public boolean setDifficulty(Difficulty difficulty) {
+        return api().serverSetDifficulty(difficulty.value()) != 0;
+    }
+
     public Scoreboard scoreboard() {
         return new Scoreboard(mContext);
     }
