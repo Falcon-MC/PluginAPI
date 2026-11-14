@@ -192,6 +192,26 @@ typedef uint32_t FalconSignSide;
 #define FALCON_SIGN_FRONT 0u
 #define FALCON_SIGN_BACK 1u
 
+typedef uint32_t FalconDifficulty;
+#define FALCON_DIFFICULTY_PEACEFUL 0u
+#define FALCON_DIFFICULTY_EASY 1u
+#define FALCON_DIFFICULTY_NORMAL 2u
+#define FALCON_DIFFICULTY_HARD 3u
+
+typedef uint32_t FalconBlockFace;
+#define FALCON_FACE_DOWN 0u
+#define FALCON_FACE_UP 1u
+#define FALCON_FACE_NORTH 2u
+#define FALCON_FACE_SOUTH 3u
+#define FALCON_FACE_WEST 4u
+#define FALCON_FACE_EAST 5u
+
+typedef uint32_t FalconMirror;
+#define FALCON_MIRROR_NONE 0u
+#define FALCON_MIRROR_X 1u
+#define FALCON_MIRROR_Z 2u
+#define FALCON_MIRROR_XZ 3u
+
 typedef uint32_t FalconLogLevel;
 #define FALCON_LOG_INFO 0u
 #define FALCON_LOG_WARNING 1u
@@ -319,6 +339,14 @@ typedef struct FalconAttribute {
     float maximum;
     float defaultValue;
 } FalconAttribute;
+
+typedef struct FalconBlockHit {
+    FalconBlockPos block;
+    FalconBlockFace face;
+    /* where the ray enters the block */
+    FalconVec3 position;
+    double distance;
+} FalconBlockHit;
 
 typedef struct FalconServerApi {
     uint32_t size;
@@ -617,6 +645,27 @@ typedef struct FalconServerApi {
     int (*playerExecuteCommand)(FalconPlayer *player, const char *commandLine);
     int (*registerRecipe)(FalconPlugin *plugin, const FalconRecipeDescriptor *descriptor);
     int (*removeRecipe)(const char *identifier);
+
+    uint32_t (*levelGameRuleCount)(FalconLevel *level);
+    const char *(*levelGameRuleName)(FalconLevel *level, uint32_t index);
+    const char *(*levelGameRule)(FalconLevel *level, const char *name);
+    int (*levelSetGameRule)(FalconLevel *level, const char *name, const char *value);
+    FalconDifficulty (*serverDifficulty)(void);
+    int (*serverSetDifficulty)(FalconDifficulty difficulty);
+    const char *(*levelBiome)(FalconLevel *level, FalconBlockPos position);
+    int (*levelRaycastBlock)(FalconLevel *level, FalconVec3 origin, FalconVec3 direction, double maxDistance,
+                             int includeLiquids, int includePassable, FalconBlockHit *out);
+    FalconEntity *(*levelRaycastEntity)(FalconLevel *level, FalconVec3 origin, FalconVec3 direction, double maxDistance,
+                                        FalconEntity *except, double *distance);
+    uint32_t (*levelEntitiesInBox)(FalconLevel *level, FalconVec3 from, FalconVec3 to, FalconEntity **entities,
+                                   uint32_t capacity);
+    int (*levelPlaceStructure)(FalconLevel *level, const char *structure, FalconBlockPos position, uint32_t rotation,
+                               FalconMirror mirror, int includeEntities, float integrity);
+    int (*levelAddTickingArea)(FalconLevel *level, const char *name, FalconBlockPos from, FalconBlockPos to,
+                               int preload);
+    int (*levelRemoveTickingArea)(FalconLevel *level, const char *name);
+    uint32_t (*levelTickingAreaCount)(FalconLevel *level);
+    const char *(*levelTickingAreaName)(FalconLevel *level, uint32_t index);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

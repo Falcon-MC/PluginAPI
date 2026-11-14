@@ -225,6 +225,27 @@ falcon::Recipes::addShapeless("myplugin:dye", {"minecraft:dandelion"}, "minecraf
 falcon::Recipes::remove("myplugin:dye");
 ```
 
+### World
+
+Levels expose the rules and state of their world: game rules, the biome at a position, rays, entities in a box,
+structures and ticking areas. The difficulty belongs to the server:
+
+```cpp
+level.setGameRule("keepinventory", "true");
+std::string biome = level.biome({0, 64, 0});
+
+const falcon::Entity eyes = player.entity();
+if (std::optional<falcon::BlockHit> hit = level.raycastBlock(eyes.position(), {0, -1, 0}, 16.0))
+    player.sendMessage("standing over " + level.blockName(hit->block));
+
+for (const falcon::Entity &nearby: level.entitiesInBox({-8, 60, -8}, {8, 70, 8}))
+    nearby.setOnFire(60);
+
+level.placeStructure("mystructure:house", {100, 64, 100}, 1);
+level.addTickingArea("spawn", {-16, 0, -16}, {16, 0, 16});
+falcon::Server::setDifficulty(falcon::Difficulty::Hard);
+```
+
 ### C# plugins
 
 The `dotnet` runtime is deprecated. Write new plugins for Wasm, native C++ or Java.

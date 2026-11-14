@@ -95,6 +95,19 @@ interface types {
         default-value: f32,
     }
 
+    /// `face`: one of the `FALCON_FACE_*` values; `position`: where the ray enters the block.
+    record block-hit {
+        block: block-pos,
+        face: u32,
+        position: vec3,
+        distance: f64,
+    }
+
+    record entity-hit {
+        entity: entity,
+        distance: f64,
+    }
+
     /// A level of a loaded world. A level whose world was unloaded behaves like a missing one.
     resource level;
 
@@ -115,6 +128,9 @@ interface server {
     online-player: func(index: u32) -> option<player>;
     find-player: func(name: string) -> option<player>;
     broadcast-message: func(message: string);
+    /// One of the `FALCON_DIFFICULTY_*` values.
+    server-difficulty: func() -> u32;
+    server-set-difficulty: func(difficulty: u32) -> bool;
 }
 
 interface players {
@@ -200,7 +216,7 @@ interface entities {
 }
 
 interface levels {
-    use types.{entity, dimension, level, item, vec3, block-pos};
+    use types.{entity, dimension, level, item, vec3, block-pos, block-hit, entity-hit};
 
     server-level: func(dimension: dimension) -> option<level>;
     level-dimension: func(level: borrow<level>) -> dimension;
@@ -239,6 +255,25 @@ interface levels {
     /// `side`: `FALCON_SIGN_FRONT` or `FALCON_SIGN_BACK`.
     level-sign-text: func(level: borrow<level>, position: block-pos, side: u32) -> option<string>;
     level-set-sign-text: func(level: borrow<level>, position: block-pos, side: u32, text: string) -> bool;
+    level-game-rule-count: func(level: borrow<level>) -> u32;
+    level-game-rule-name: func(level: borrow<level>, index: u32) -> option<string>;
+    /// "true" or "false" for a switch, the number otherwise.
+    level-game-rule: func(level: borrow<level>, name: string) -> option<string>;
+    level-set-game-rule: func(level: borrow<level>, name: string, value: string) -> bool;
+    level-biome: func(level: borrow<level>, position: block-pos) -> string;
+    level-raycast-block: func(level: borrow<level>, origin: vec3, direction: vec3, max-distance: f64,
+                              include-liquids: bool, include-passable: bool) -> option<block-hit>;
+    level-raycast-entity: func(level: borrow<level>, origin: vec3, direction: vec3, max-distance: f64,
+                               except: option<entity>) -> option<entity-hit>;
+    level-entities-in-box: func(level: borrow<level>, low: vec3, high: vec3) -> list<entity>;
+    /// `mirror`: one of the `FALCON_MIRROR_*` values; `rotation` in quarter turns clockwise.
+    level-place-structure: func(level: borrow<level>, structure: string, position: block-pos, rotation: u32,
+                                mirror: u32, include-entities: bool, integrity: f32) -> bool;
+    level-add-ticking-area: func(level: borrow<level>, name: string, low: block-pos, high: block-pos, preload: bool)
+        -> bool;
+    level-remove-ticking-area: func(level: borrow<level>, name: string) -> bool;
+    level-ticking-area-count: func(level: borrow<level>) -> u32;
+    level-ticking-area-name: func(level: borrow<level>, index: u32) -> option<string>;
 }
 
 /// The server's scoreboard. A participant is an entity, a player through its entity id, or a fake player by name.
