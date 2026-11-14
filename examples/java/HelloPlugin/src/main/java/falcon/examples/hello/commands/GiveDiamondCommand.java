@@ -6,6 +6,8 @@ import falcon.api.PermissionDefault;
 import falcon.api.Player;
 import falcon.api.Plugin;
 import falcon.api.command.CommandContext;
+import falcon.api.command.CommandParamType;
+import falcon.api.command.CommandParameter;
 import falcon.api.command.CommandPermission;
 
 import java.util.List;
@@ -22,6 +24,10 @@ public final class GiveDiamondCommand {
         plugin.permissions().add(PERMISSION, PermissionDefault.OPERATOR);
         plugin.commands().add("give-diamond", "Gives you a shiny diamond", "/give-diamond [count]",
                 GiveDiamondCommand::execute, CommandPermission.ANY);
+        plugin.commands().addOverload("give-diamond",
+                List.of(CommandParameter.optional("count", CommandParamType.INT)));
+        plugin.server().recipes().addShapeless("hello:diamond_from_coal", List.of("minecraft:coal", "minecraft:coal",
+                "minecraft:coal", "minecraft:coal"), DIAMOND, 1);
     }
 
     private static boolean execute(CommandContext context) {

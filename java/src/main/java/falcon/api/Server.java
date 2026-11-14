@@ -101,6 +101,10 @@ public final class Server {
         return new Scoreboard(mContext);
     }
 
+    public Recipes recipes() {
+        return new Recipes(mContext);
+    }
+
     private static NativeApi api() {
         return Interop.api();
     }

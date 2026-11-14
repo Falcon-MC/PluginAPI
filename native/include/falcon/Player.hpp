@@ -124,6 +124,11 @@ namespace falcon {
             detail::api().playerSendActionBar(mHandle, message.c_str());
         }
 
+        /** Runs a command line, without the slash, as this player, with the player's permissions. */
+        bool executeCommand(const std::string &commandLine) const {
+            return detail::api().playerExecuteCommand(mHandle, commandLine.c_str()) != 0;
+        }
+
         /** Plays a sound only this player hears, from a position in its level. */
         void playSound(const std::string &sound, const Vec3 &position, float volume = 1.0f, float pitch = 1.0f) const {
             detail::api().playerPlaySound(mHandle, sound.c_str(), position.raw(), volume, pitch);

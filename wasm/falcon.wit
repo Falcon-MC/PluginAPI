@@ -149,6 +149,7 @@ interface players {
     /// `none` stops every sound.
     player-stop-sound: func(player: player, sound: option<string>);
     player-spawn-particle: func(player: player, particle: string, position: vec3);
+    player-execute-command: func(player: player, command-line: string) -> bool;
 }
 
 interface entities {
@@ -407,7 +408,19 @@ interface commands {
         handler: u32,
     }
 
+    /// `kind` is one of the `FALCON_COMMAND_PARAM_*` values; `values` are the choices of an enum parameter.
+    record command-parameter {
+        name: string,
+        kind: u32,
+        optional: bool,
+        values: list<string>,
+    }
+
     register-command: func(descriptor: command-descriptor) -> bool;
+    /// For a command of this plugin; the first overload replaces the default one.
+    command-add-overload: func(command: string, parameters: list<command-parameter>) -> bool;
+    /// Runs a command line, without the slash, as the server console.
+    execute-command: func(command-line: string) -> bool;
     sender-name: func() -> string;
     sender-player: func() -> option<player>;
     sender-send-message: func(message: string);
@@ -437,6 +450,24 @@ interface services {
     has-service: func(name: string) -> bool;
     service-provider: func(name: string) -> option<string>;
     call-service: func(name: string, request: string) -> option<string>;
+}
+
+/// Crafting table recipes. Shaped ingredients go row by row, width x height of them, an empty string for an empty
+/// cell.
+interface recipes {
+    record recipe {
+        identifier: string,
+        shaped: bool,
+        width: u32,
+        height: u32,
+        ingredients: list<string>,
+        output: string,
+        output-count: u32,
+    }
+
+    register-recipe: func(recipe: recipe) -> bool;
+    /// A recipe of a plugin or a pack, or a vanilla crafting recipe by its identifier.
+    remove-recipe: func(identifier: string) -> bool;
 }
 
 /// Custom content. A callback left as `none` is not registered, like a null handler in the C API; the value of
@@ -517,6 +548,7 @@ world falcon-plugin {
     import permissions;
     import services;
     import content;
+    import recipes;
 
     export plugin;
 }
