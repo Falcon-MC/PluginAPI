@@ -25,6 +25,7 @@
 #include "falcon/PlayerInventory.hpp"
 #include "falcon/Plugin.hpp"
 #include "falcon/Scheduler.hpp"
+#include "falcon/Scoreboard.hpp"
 #include "falcon/Server.hpp"
 #include "falcon/ServerEvents.hpp"
 #include "falcon/Services.hpp"
