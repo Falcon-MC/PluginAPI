@@ -50,6 +50,33 @@ public final class Item implements AutoCloseable {
         return new Item(handle == null ? MemorySegment.NULL : handle, false);
     }
 
+    /**
+     * The item's tag as little-endian NBT, the game's save format; empty for an item without one.
+     */
+    public byte[] nbt() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment length = arena.allocate(ValueLayout.JAVA_INT);
+            MemorySegment data = api().itemNbt(mHandle, length);
+            int size = length.get(ValueLayout.JAVA_INT, 0);
+            if (Interop.isNull(data) || size <= 0) {
+                return new byte[0];
+            }
+            return data.reinterpret(size).toArray(ValueLayout.JAVA_BYTE);
+        }
+    }
+
+    /**
+     * Replaces the item's tag; empty data removes it. Returns false when the data is not a little-endian NBT
+     * compound.
+     */
+    public boolean setNbt(byte[] data) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment bytes = data.length == 0 ? MemorySegment.NULL : arena.allocateFrom(ValueLayout.JAVA_BYTE,
+                    data);
+            return api().itemSetNbt(mHandle, bytes, data.length) != 0;
+        }
+    }
+
     public Optional<Item> copy() {
         if (Interop.isNull(mHandle)) {
             return Optional.empty();

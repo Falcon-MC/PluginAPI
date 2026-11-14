@@ -20,6 +20,7 @@ public abstract class Plugin {
     private final Permissions mPermissions;
     private final Content mContent;
     private final Services mServices;
+    private final PersistentData mData;
     private Config mConfig;
 
     protected Plugin() {
@@ -32,6 +33,7 @@ public abstract class Plugin {
         mPermissions = new Permissions(mContext);
         mContent = new Content(mContext);
         mServices = new Services(mContext);
+        mData = new PersistentData(mContext);
     }
 
     public void onLoad() {
@@ -82,6 +84,10 @@ public abstract class Plugin {
 
     public final Services services() {
         return mServices;
+    }
+
+    public final PersistentData data() {
+        return mData;
     }
 
     public final Config config() {
