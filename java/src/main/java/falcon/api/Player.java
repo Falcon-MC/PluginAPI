@@ -201,6 +201,20 @@ public final class Player {
     }
 
     /**
+     * Gives the player a classic skin and shows it to everyone. The image is RGBA, four bytes a pixel, at most 128
+     * by 128. Returns false when the image does not have the size it announces.
+     */
+    public boolean setSkin(String skinId, SkinImage image) {
+        try (Arena arena = Arena.ofConfined()) {
+            byte[] rgba = image.rgba();
+            MemorySegment bytes = rgba.length == 0 ? MemorySegment.NULL : arena.allocateFrom(ValueLayout.JAVA_BYTE,
+                    rgba);
+            return api().playerSetSkin(mHandle, Interop.text(arena, skinId), bytes, rgba.length, image.width(),
+                    image.height()) != 0;
+        }
+    }
+
+    /**
      * Switches the camera to a preset such as minecraft:free, easing over easeTime seconds when above 0.
      */
     public boolean setCamera(String preset, float easeTime, CameraEase ease) {

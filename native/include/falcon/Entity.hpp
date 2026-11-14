@@ -231,6 +231,14 @@ namespace falcon {
             return std::vector<uint8_t>(data, data + length);
         }
 
+        /**
+         * Loads the entity from little-endian NBT, as the server does from a save, and shows the result to the
+         * players who see it. Returns false for data that is not a compound, and for players.
+         */
+        bool setNbt(const std::vector<uint8_t> &data) const {
+            return detail::api().entitySetNbt(mHandle, data.data(), static_cast<uint32_t>(data.size())) != 0;
+        }
+
         /** What a mob wears or holds; nothing for an empty slot or an entity without equipment, players included. */
         std::optional<Item> equipment(EquipmentSlot slot) const {
             const FalconEquipmentSlot raw = static_cast<FalconEquipmentSlot>(slot);

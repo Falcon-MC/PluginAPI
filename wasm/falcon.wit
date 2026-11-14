@@ -215,6 +215,8 @@ interface players {
     player-device-os: func(player: player) -> s32;
     player-skin-id: func(player: player) -> string;
     player-skin-image: func(player: player) -> skin-image;
+    /// A classic skin, at most 128 by 128, shown to everyone.
+    player-set-skin: func(player: player, skin-id: string, image: skin-image) -> bool;
     /// `ease`: one of the `FALCON_CAMERA_EASE_*` values, used when `ease-time` is above 0.
     player-set-camera: func(player: player, preset: string, position: option<vec3>, rotation: option<vec3>,
                             ease-time: f32, ease: u32) -> bool;
@@ -270,6 +272,8 @@ interface entities {
     entity-data-key: func(entity: entity, index: u32) -> option<string>;
     /// What the server would save for the entity, as little-endian NBT.
     entity-nbt: func(entity: entity) -> list<u8>;
+    /// Loads the entity from little-endian NBT and shows the result to the players who see it; not for players.
+    entity-set-nbt: func(entity: entity, data: list<u8>) -> bool;
     /// `slot`: one of the `FALCON_EQUIPMENT_*` values; mobs only, `none` for an empty slot.
     entity-equipment: func(entity: entity, slot: u32) -> option<item>;
     entity-set-equipment: func(entity: entity, slot: u32, item: option<borrow<item>>) -> bool;
