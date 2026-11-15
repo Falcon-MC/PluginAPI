@@ -185,6 +185,13 @@ interface players {
     entity-player: func(entity: entity) -> option<player>;
     player-game-mode: func(player: player) -> game-mode;
     player-set-game-mode: func(player: player, game-mode: game-mode);
+    /// A player played by the server, as the game's simulated players: it joins like anyone, shows in the player
+    /// list and stays until removed. `none` when the name or the place is refused.
+    server-spawn-simulated-player: func(name: string, level: level, position: vec3, yaw: f32,
+                                        game-mode: game-mode) -> option<player>;
+    player-is-simulated: func(player: player) -> bool;
+    /// Makes a simulated player leave as a player who disconnects; false for any other player.
+    player-remove-simulated: func(player: player) -> bool;
     player-xuid: func(player: player) -> string;
     player-uuid: func(player: player) -> string;
     player-address: func(player: player) -> string;

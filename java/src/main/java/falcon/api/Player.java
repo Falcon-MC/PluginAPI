@@ -55,6 +55,16 @@ public final class Player {
         return GameMode.of(api().playerGameMode(mHandle));
     }
 
+    /** Whether the server plays this player, as one from Server#spawnSimulatedPlayer. */
+    public boolean isSimulated() {
+        return api().playerIsSimulated(mHandle) != 0;
+    }
+
+    /** Makes a simulated player leave as a player who disconnects; false for any other player. */
+    public boolean removeSimulated() {
+        return api().playerRemoveSimulated(mHandle) != 0;
+    }
+
     public void setGameMode(GameMode gameMode) {
         api().playerSetGameMode(mHandle, gameMode.value());
     }

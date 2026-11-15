@@ -40,6 +40,21 @@ public final class Server {
         }
     }
 
+    /**
+     * Brings in a player played by the server, as the game's simulated players: it joins like anyone, shows in the
+     * player list and stays until removed. Empty when the name or the place is refused.
+     */
+    public Optional<Player> spawnSimulatedPlayer(String name, Level level, Vec3 position, float yaw, GameMode gameMode) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment player = api().serverSpawnSimulatedPlayer(Interop.text(arena, name), level.handle(),
+                    Interop.vec3(arena, position), yaw, gameMode.value());
+            if (Interop.isNull(player)) {
+                return Optional.empty();
+            }
+            return Optional.of(new Player(mContext, player));
+        }
+    }
+
     public void broadcast(String message) {
         try (Arena arena = Arena.ofConfined()) {
             api().broadcastMessage(Interop.text(arena, message));
