@@ -149,6 +149,20 @@ namespace falcon {
             return Player(handle);
         }
 
+        /**
+         * Brings in a player played by the server, as the game's simulated players: it joins like anyone, shows in
+         * the player list and stays until removed. Empty when the name or the place is refused.
+         */
+        static std::optional<Player> spawnSimulatedPlayer(const std::string &name, const Level &level,
+                                                          const Vec3 &position, float yaw = 0.0f,
+                                                          GameMode gameMode = GameMode::Survival) {
+            FalconPlayer *handle = detail::api().serverSpawnSimulatedPlayer(
+                    name.c_str(), level.handle(), position.raw(), yaw, static_cast<FalconGameMode>(gameMode));
+            if (handle == nullptr)
+                return std::nullopt;
+            return Player(handle);
+        }
+
         static void broadcast(const std::string &message) {
             detail::api().broadcastMessage(message.c_str());
         }

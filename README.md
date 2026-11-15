@@ -249,7 +249,9 @@ falcon::Server::setDifficulty(falcon::Difficulty::Hard);
 ### Entities and players
 
 Mobs expose their equipment, riding, tags and attack target; players their spawn point, language, platform, skin,
-camera and item cooldowns. `Player::setSkin` gives a player a classic skin of at most 128 by 128 pixels:
+camera and item cooldowns. `Player::setSkin` gives a player a classic skin of at most 128 by 128 pixels.
+`Server::spawnSimulatedPlayer` brings in a player the server plays, as the game's simulated players: it joins
+with the usual message, shows in the player list and leaves with `Player::removeSimulated`:
 
 ```cpp
 zombie.setEquipment(falcon::EquipmentSlot::Head, *falcon::Item::create("minecraft:diamond_helmet"));
@@ -261,6 +263,9 @@ player.setSpawnPoint(level, {0, 80, 0});
 player.sendMessage("Your language: " + player.language());
 player.setCamera("minecraft:free", {0, 100, 0}, {30, 90, 0}, 2.0f, falcon::CameraEase::InOutSine);
 player.fadeCamera(0.5f, 1.0f, 0.5f, 0x000000);
+
+if (std::optional<falcon::Player> bot = falcon::Server::spawnSimulatedPlayer("Steve", level, {0, 80, 0}))
+    bot->removeSimulated();
 ```
 
 ### Administration

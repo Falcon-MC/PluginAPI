@@ -95,6 +95,16 @@ namespace falcon {
             detail::api().playerKick(mHandle, reason.c_str());
         }
 
+        /** Whether the server plays this player, as one from Server::spawnSimulatedPlayer. */
+        bool isSimulated() const {
+            return detail::api().playerIsSimulated(mHandle) != 0;
+        }
+
+        /** Makes a simulated player leave as a player who disconnects; false for any other player. */
+        bool removeSimulated() const {
+            return detail::api().playerRemoveSimulated(mHandle) != 0;
+        }
+
         Entity entity() const;
 
         GameMode gameMode() const {
