@@ -799,6 +799,8 @@ typedef struct FalconServerApi {
                                                FalconGameMode gameMode);
     int (*playerIsSimulated)(FalconPlayer *player);
     int (*playerRemoveSimulated)(FalconPlayer *player);
+
+    int64_t (*playerUniqueId)(FalconPlayer *player);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
