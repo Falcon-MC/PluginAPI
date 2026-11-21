@@ -90,6 +90,14 @@ public final class Player {
     }
 
     /**
+     * The player's unique actor id: the one packets name the player by, such as UpdateAbilities, and the one their
+     * saved data keeps from one session to the next. Not the runtime id of Entity#runtimeId.
+     */
+    public long uniqueId() {
+        return api().playerUniqueId(mHandle);
+    }
+
+    /**
      * Shows a form built from its JSON definition and returns its id, which the matching
      * PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.
      */

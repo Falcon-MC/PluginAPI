@@ -208,6 +208,9 @@ interface players {
     player-send-form: func(player: player, form-json: string) -> u32;
     player-transfer: func(player: player, address: string, port: u32) -> bool;
     player-protocol-version: func(player: player) -> s32;
+    /// The player's unique actor id: the one packets name the player by, such as UpdateAbilities, and the one
+    /// their saved data keeps from one session to the next. Not the runtime id of entity-runtime-id.
+    player-unique-id: func(player: player) -> s64;
     player-send-packet: func(player: player, packet-id: u32, data: list<u8>) -> bool;
     player-play-sound: func(player: player, sound: string, position: vec3, volume: f32, pitch: f32);
     /// `none` stops every sound.
