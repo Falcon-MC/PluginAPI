@@ -305,6 +305,23 @@ typedef void (*FalconTask)(void *userData);
 typedef int (*FalconCommandHandler)(FalconCommandSender *sender, const char *const *arguments,
                                     uint32_t argumentCount, void *userData);
 
+/* a window a plugin opened: called once when it closes, whoever closed it */
+typedef void (*FalconWindowCloseHandler)(FalconPlayer *player, uint32_t window, void *userData);
+
+/* a container screen holding the plugin's own items, with no block behind it: menus and virtual chests. The client
+   draws it from a block or an entity it knows, such as a chest the plugin sent it with playerSendPacket. Moves in it
+   fire INVENTORY_TRANSACTION with the "container" source or destination, which can refuse them */
+typedef struct FalconWindowDescriptor {
+    /* the game's container type: 0 a chest, 6 a dispenser, 7 a dropper, 8 a hopper, 12 a horse */
+    uint32_t containerType;
+    FalconBlockPos position;
+    /* the entity it belongs to, -1 for none */
+    int64_t actorUniqueId;
+    uint32_t size;
+    FalconWindowCloseHandler onClose;
+    void *userData;
+} FalconWindowDescriptor;
+
 typedef struct FalconCommandDescriptor {
     const char *name;
     const char *description;
@@ -815,6 +832,13 @@ typedef struct FalconServerApi {
 
     /* the entity or player with that runtime id, NULL once it is gone: a handle kept across ticks is checked so */
     FalconEntity *(*serverEntity)(uint64_t runtimeId);
+
+    /* the window's id, 0 while the player has another window open or for a size of 0 */
+    uint32_t (*playerOpenWindow)(FalconPlugin *plugin, FalconPlayer *player, const FalconWindowDescriptor *descriptor);
+    /* a copy of what the slot holds now, NULL once the window closed */
+    FalconItem *(*playerWindowItem)(FalconPlayer *player, uint32_t window, uint32_t slot);
+    int (*playerSetWindowItem)(FalconPlayer *player, uint32_t window, uint32_t slot, FalconItem *item);
+    void (*playerCloseWindow)(FalconPlayer *player, uint32_t window);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
