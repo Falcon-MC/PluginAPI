@@ -30,6 +30,14 @@ public final class Server {
         return players;
     }
 
+    /**
+     * The entity or player with that runtime id, empty once it is gone.
+     */
+    public Optional<Entity> entity(long runtimeId) {
+        MemorySegment entity = api().serverEntity(runtimeId);
+        return Interop.isNull(entity) ? Optional.empty() : Optional.of(new Entity(mContext, entity));
+    }
+
     public Optional<Player> findPlayer(String name) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment player = api().findPlayer(Interop.text(arena, name));
