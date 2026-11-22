@@ -812,6 +812,9 @@ typedef struct FalconServerApi {
     /* says one line in the public chat as the player, as if they typed it: the chat events fire; 0 when the player
        is not in the world or the line is empty */
     int (*playerChat)(FalconPlayer *player, const char *message);
+
+    /* the entity or player with that runtime id, NULL once it is gone: a handle kept across ticks is checked so */
+    FalconEntity *(*serverEntity)(uint64_t runtimeId);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

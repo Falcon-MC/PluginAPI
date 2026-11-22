@@ -118,7 +118,7 @@ interface types {
 }
 
 interface server {
-    use types.{player, log-level};
+    use types.{player, entity, log-level};
 
     server-version: func() -> string;
     log: func(level: log-level, message: string);
@@ -127,6 +127,8 @@ interface server {
     online-player-count: func() -> u32;
     online-player: func(index: u32) -> option<player>;
     find-player: func(name: string) -> option<player>;
+    /// The entity or player with that runtime id, none once it is gone.
+    server-entity: func(runtime-id: u64) -> option<entity>;
     broadcast-message: func(message: string);
     /// One of the `FALCON_DIFFICULTY_*` values.
     server-difficulty: func() -> u32;

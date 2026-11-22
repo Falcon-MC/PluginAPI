@@ -1,5 +1,6 @@
 #pragma once
 
+#include "falcon/Entity.hpp"
 #include "falcon/Level.hpp"
 #include "falcon/Player.hpp"
 
@@ -140,6 +141,14 @@ namespace falcon {
             for (uint32_t index = 0; index < count; index++)
                 players.emplace_back(detail::api().onlinePlayer(index));
             return players;
+        }
+
+        /** The entity or player with that runtime id, empty once it is gone. */
+        static std::optional<Entity> entity(uint64_t runtimeId) {
+            FalconEntity *handle = detail::api().serverEntity(runtimeId);
+            if (handle == nullptr)
+                return std::nullopt;
+            return Entity(handle);
         }
 
         static std::optional<Player> findPlayer(const std::string &name) {
