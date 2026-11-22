@@ -1,6 +1,7 @@
 #pragma once
 
 #include "falcon/BlockPos.hpp"
+#include "falcon/Drops.hpp"
 #include "falcon/Events.hpp"
 #include "falcon/Player.hpp"
 
@@ -8,11 +9,12 @@
 #include <string>
 
 namespace falcon {
-    class BlockBreakEvent : public Event {
+    /** Fires before the block breaks; its drops and experience are the ones it will drop. */
+    class BlockBreakEvent : public DropsEvent {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_BLOCK_BREAK;
 
-        using Event::Event;
+        using DropsEvent::DropsEvent;
 
         Player player() const {
             return Player(detail::api().eventPlayer(mHandle));

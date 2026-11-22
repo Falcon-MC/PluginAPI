@@ -322,6 +322,44 @@ typedef struct FalconWindowDescriptor {
     void *userData;
 } FalconWindowDescriptor;
 
+/* what the game knows of an item type; the name is the English one, kept until the server stops */
+typedef struct FalconItemInfo {
+    const char *name;
+    uint32_t maxStackSize;
+    /* 0 for an item that takes no wear */
+    int32_t maxDurability;
+    /* 0 none, 1 sword, 2 shovel, 3 pickaxe, 4 axe, 5 shears, 6 hoe, 7 spear */
+    uint32_t toolType;
+    /* 0 none, 1 wooden, 2 gold, 3 stone, 4 copper, 5 iron, 6 diamond, 7 netherite */
+    uint32_t toolTier;
+    int32_t attackDamage;
+    /* the FALCON_ARMOR_ slot + 1 for armour, 0 for an item worn nowhere */
+    uint32_t armorSlot;
+    int32_t armorPoints;
+    int32_t armorToughness;
+    /* the hunger and saturation eating it gives, 0 for an item that is not food */
+    int32_t nutrition;
+    float saturation;
+} FalconItemInfo;
+
+/* what the game knows of a block type; the name is the English one, kept until the server stops */
+typedef struct FalconBlockInfo {
+    const char *name;
+    /* seconds of mining by hand, about; -1 for a block that cannot be broken */
+    float hardness;
+    float blastResistance;
+    /* the tool that breaks it fastest, as FalconItemInfo.toolType, and the tier it needs to drop anything */
+    uint32_t toolType;
+    uint32_t toolTier;
+    int32_t lightEmission;
+    int32_t transparent;
+    int32_t solid;
+    /* how readily fire catches it and burns it away, 0 for a block that does not burn */
+    int32_t flameEncouragement;
+    int32_t flammability;
+    uint32_t maxStackSize;
+} FalconBlockInfo;
+
 typedef struct FalconCommandDescriptor {
     const char *name;
     const char *description;
@@ -841,6 +879,30 @@ typedef struct FalconServerApi {
     void (*playerCloseWindow)(FalconPlayer *player, uint32_t window);
     /* the id clients know a block state by, for packets a plugin builds such as UpdateBlock; 0 for an unknown block */
     uint32_t (*serverBlockNetworkId)(const char *name, const char *statesJson);
+
+    /* 0 for an unknown identifier */
+    int (*serverItemInfo)(const char *identifier, FalconItemInfo *out);
+    int (*serverBlockInfo)(const char *identifier, FalconBlockInfo *out);
+
+    /* BLOCK_BREAK, ENTITY_DEATH and PLAYER_DEATH: the items that will drop, borrowed for the event; a death with
+       the keepInventory game rule drops none */
+    uint32_t (*eventDropCount)(FalconEvent *event);
+    FalconItem *(*eventDropAt)(FalconEvent *event, uint32_t index);
+    /* what drops in their place, copied; NULL entries are skipped */
+    void (*eventSetDrops)(FalconEvent *event, FalconItem *const *items, uint32_t count);
+    /* the same events: the experience that will drop */
+    int32_t (*eventExperience)(FalconEvent *event);
+    void (*eventSetExperience)(FalconEvent *event, int32_t experience);
+    /* PLAYER_DEATH: whether the player keeps their items, and their experience, as the keepInventory rule says
+       until a plugin changes it */
+    int (*eventKeepInventory)(FalconEvent *event);
+    void (*eventSetKeepInventory)(FalconEvent *event, int keepInventory);
+    int (*eventKeepExperience)(FalconEvent *event);
+    void (*eventSetKeepExperience)(FalconEvent *event, int keepExperience);
+    /* ENTITY_DAMAGE: the push the hit gives, horizontal and vertical; 0 for damage that pushes nothing, which
+       setting does not change */
+    int (*eventKnockback)(FalconEvent *event, float *horizontal, float *vertical);
+    void (*eventSetKnockback)(FalconEvent *event, float horizontal, float vertical);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

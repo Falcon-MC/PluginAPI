@@ -1,5 +1,6 @@
 #pragma once
 
+#include "falcon/Drops.hpp"
 #include "falcon/Effects.hpp"
 #include "falcon/Entity.hpp"
 #include "falcon/Events.hpp"
@@ -8,6 +9,7 @@
 #include "falcon/Vec3.hpp"
 
 #include <optional>
+#include <utility>
 #include <string>
 
 namespace falcon {
@@ -54,13 +56,26 @@ namespace falcon {
         std::string cause() const {
             return detail::text(detail::api().eventCause(mHandle));
         }
+
+        /** The push the hit gives, horizontal then vertical; empty for damage that pushes nothing. */
+        std::optional<std::pair<float, float>> knockback() const {
+            float horizontal = 0.0f, vertical = 0.0f;
+            if (detail::api().eventKnockback(mHandle, &horizontal, &vertical) == 0)
+                return std::nullopt;
+            return std::make_pair(horizontal, vertical);
+        }
+
+        void setKnockback(float horizontal, float vertical) const {
+            detail::api().eventSetKnockback(mHandle, horizontal, vertical);
+        }
     };
 
-    class EntityDeathEvent : public Event {
+    /** Fires as a mob dies, before its loot and experience drop. */
+    class EntityDeathEvent : public DropsEvent {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_ENTITY_DEATH;
 
-        using Event::Event;
+        using DropsEvent::DropsEvent;
 
         Entity entity() const {
             return Entity(detail::api().eventEntity(mHandle));
