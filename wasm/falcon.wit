@@ -464,8 +464,12 @@ interface event {
     event-is-cancelled: func() -> bool;
     event-set-cancelled: func(cancelled: bool);
     event-player: func() -> option<player>;
+    /// For player-join and player-quit, the join or leave message: in English while it is still the game's own,
+    /// and "" sends none.
     event-message: func() -> option<string>;
     event-set-message: func(message: string);
+    /// Player-join and player-quit: true while the message is the game's own, which each client translates.
+    event-message-is-default: func() -> bool;
     event-entity: func() -> option<entity>;
     event-attacker: func() -> option<entity>;
     event-block-position: func() -> block-pos;
@@ -544,6 +548,8 @@ interface commands {
     register-command: func(descriptor: command-descriptor) -> bool;
     /// For a command of this plugin; the first overload replaces the default one.
     command-add-overload: func(command: string, parameters: list<command-parameter>) -> bool;
+    /// The other names a command of this plugin answers to, in place of the ones set before.
+    command-set-aliases: func(command: string, aliases: list<string>) -> bool;
     /// Runs a command line, without the slash, as the server console.
     execute-command: func(command-line: string) -> bool;
     sender-name: func() -> string;

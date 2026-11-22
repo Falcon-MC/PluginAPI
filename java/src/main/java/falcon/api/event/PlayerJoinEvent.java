@@ -13,4 +13,25 @@ public final class PlayerJoinEvent extends Event {
     public Player player() {
         return eventPlayer();
     }
+
+    /**
+     * The join message everyone sees, in English while it is still the game's own.
+     */
+    public String message() {
+        return eventMessage();
+    }
+
+    /**
+     * Replaces the join message; an empty one sends none.
+     */
+    public void setMessage(String message) {
+        eventSetMessage(message);
+    }
+
+    /**
+     * True while the message is the game's own, which each client shows in its language.
+     */
+    public boolean messageIsDefault() {
+        return eventMessageIsDefault();
+    }
 }

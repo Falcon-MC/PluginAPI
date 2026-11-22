@@ -109,6 +109,16 @@ namespace falcon {
                                                     static_cast<uint32_t>(raw.size())) != 0;
         }
 
+        /** Sets the other names a command of this plugin answers to, in place of the ones set before. */
+        bool setAliases(const std::string &command, const std::vector<std::string> &aliases) const {
+            std::vector<const char *> names;
+            names.reserve(aliases.size());
+            for (const std::string &alias: aliases)
+                names.push_back(alias.c_str());
+            return detail::api().commandSetAliases(detail::plugin(), command.c_str(), names.data(),
+                                                   static_cast<uint32_t>(names.size())) != 0;
+        }
+
         /** Runs a command line, without the slash, as the server console. */
         bool execute(const std::string &commandLine) const {
             return detail::api().serverExecuteCommand(commandLine.c_str()) != 0;
