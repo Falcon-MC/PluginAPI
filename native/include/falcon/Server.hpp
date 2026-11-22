@@ -148,6 +148,22 @@ namespace falcon {
             return detail::api().serverBlockNetworkId(name.c_str(), statesJson.c_str());
         }
 
+        /** What the game knows of an item type, empty for an unknown identifier. */
+        static std::optional<FalconItemInfo> itemInfo(const std::string &identifier) {
+            FalconItemInfo info{};
+            if (detail::api().serverItemInfo(identifier.c_str(), &info) == 0)
+                return std::nullopt;
+            return info;
+        }
+
+        /** What the game knows of a block type, empty for an unknown identifier. */
+        static std::optional<FalconBlockInfo> blockInfo(const std::string &identifier) {
+            FalconBlockInfo info{};
+            if (detail::api().serverBlockInfo(identifier.c_str(), &info) == 0)
+                return std::nullopt;
+            return info;
+        }
+
         /** The entity or player with that runtime id, empty once it is gone. */
         static std::optional<Entity> entity(uint64_t runtimeId) {
             FalconEntity *handle = detail::api().serverEntity(runtimeId);

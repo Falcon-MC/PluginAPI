@@ -1,6 +1,7 @@
 #pragma once
 
 #include "falcon/BlockPos.hpp"
+#include "falcon/Drops.hpp"
 #include "falcon/Events.hpp"
 #include "falcon/Item.hpp"
 #include "falcon/Level.hpp"
@@ -13,11 +14,28 @@
 #include <string>
 
 namespace falcon {
-    class PlayerDeathEvent : public Event {
+    /** Fires as a player dies, before what they carry and their experience drop. */
+    class PlayerDeathEvent : public DropsEvent {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_DEATH;
 
-        using Event::Event;
+        using DropsEvent::DropsEvent;
+
+        bool keepInventory() const {
+            return detail::api().eventKeepInventory(mHandle) != 0;
+        }
+
+        void setKeepInventory(bool keep) const {
+            detail::api().eventSetKeepInventory(mHandle, keep ? 1 : 0);
+        }
+
+        bool keepExperience() const {
+            return detail::api().eventKeepExperience(mHandle) != 0;
+        }
+
+        void setKeepExperience(bool keep) const {
+            detail::api().eventSetKeepExperience(mHandle, keep ? 1 : 0);
+        }
 
         Player player() const {
             return Player(detail::api().eventPlayer(mHandle));
