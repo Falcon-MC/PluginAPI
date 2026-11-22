@@ -143,6 +143,11 @@ namespace falcon {
             return players;
         }
 
+        /** The id clients know a block state by, for packets a plugin builds; 0 for an unknown block. */
+        static uint32_t blockNetworkId(const std::string &name, const std::string &statesJson = "{}") {
+            return detail::api().serverBlockNetworkId(name.c_str(), statesJson.c_str());
+        }
+
         /** The entity or player with that runtime id, empty once it is gone. */
         static std::optional<Entity> entity(uint64_t runtimeId) {
             FalconEntity *handle = detail::api().serverEntity(runtimeId);

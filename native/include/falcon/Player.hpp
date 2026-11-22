@@ -8,6 +8,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -271,6 +274,33 @@ namespace falcon {
             return detail::api().playerStartItemCooldown(mHandle, item.handle(), ticks) != 0;
         }
 
+        /**
+         * Opens a container screen holding the plugin's own items, drawn from a block or an entity the client knows;
+         * onClose runs once when it closes. Returns the window, 0 while another window is open.
+         */
+        uint32_t openWindow(uint32_t containerType, const BlockPos &position, uint32_t size,
+                            std::function<void()> onClose = nullptr, int64_t actorUniqueId = -1) const {
+            auto *stored = new std::function<void()>(std::move(onClose));
+            FalconWindowDescriptor descriptor{containerType, position.raw(), actorUniqueId, size, &closeWindowHandler,
+                                              stored};
+            const uint32_t window = detail::api().playerOpenWindow(detail::plugin(), mHandle, &descriptor);
+            if (window == 0)
+                delete stored;
+            return window;
+        }
+
+        std::optional<Item> windowItem(uint32_t window, uint32_t slot) const {
+            return Item::adopt(detail::api().playerWindowItem(mHandle, window, slot));
+        }
+
+        bool setWindowItem(uint32_t window, uint32_t slot, const Item &item) const {
+            return detail::api().playerSetWindowItem(mHandle, window, slot, item.handle()) != 0;
+        }
+
+        void closeWindow(uint32_t window) const {
+            detail::api().playerCloseWindow(mHandle, window);
+        }
+
         /** Says one line in the public chat as this player, as if they typed it; the chat events fire. */
         bool chat(const std::string &message) const {
             return detail::api().playerChat(mHandle, message.c_str()) != 0;
@@ -345,6 +375,12 @@ namespace falcon {
         }
 
     private:
+        static void closeWindowHandler(FalconPlayer *, uint32_t, void *userData) {
+            std::unique_ptr<std::function<void()>> onClose(static_cast<std::function<void()> *>(userData));
+            if (*onClose)
+                detail::guarded("A window close handler threw an exception", [&] { (*onClose)(); });
+        }
+
         FalconPlayer *mHandle;
     };
 }
