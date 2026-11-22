@@ -39,6 +39,8 @@ typedef struct FalconBlockPos {
 } FalconBlockPos;
 
 typedef uint32_t FalconEventType;
+/* PLAYER_JOIN fires before the join message goes out and PLAYER_QUIT before the leave message: eventMessage and
+   eventSetMessage read and replace it, "" sends none. PLAYER_QUIT's eventCause is why the player left. */
 #define FALCON_EVENT_PLAYER_JOIN 1u
 #define FALCON_EVENT_PLAYER_QUIT 2u
 #define FALCON_EVENT_PLAYER_CHAT 3u
@@ -801,6 +803,15 @@ typedef struct FalconServerApi {
     int (*playerRemoveSimulated)(FalconPlayer *player);
 
     int64_t (*playerUniqueId)(FalconPlayer *player);
+
+    /* PLAYER_JOIN and PLAYER_QUIT: 1 while the message is still the game's own, which each client translates;
+       eventMessage gives it in English */
+    int (*eventMessageIsDefault)(FalconEvent *event);
+    /* the other names a command of this plugin answers to, in place of the ones set before */
+    int (*commandSetAliases)(FalconPlugin *plugin, const char *command, const char *const *aliases, uint32_t count);
+    /* says one line in the public chat as the player, as if they typed it: the chat events fire; 0 when the player
+       is not in the world or the line is empty */
+    int (*playerChat)(FalconPlayer *player, const char *message);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

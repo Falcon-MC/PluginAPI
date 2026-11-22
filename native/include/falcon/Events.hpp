@@ -38,6 +38,7 @@ namespace falcon {
         FalconEvent *mHandle;
     };
 
+    /** Fires before the join message goes out, which the handler may replace. */
     class PlayerJoinEvent : public Event {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_JOIN;
@@ -47,8 +48,24 @@ namespace falcon {
         Player player() const {
             return Player(detail::api().eventPlayer(mHandle));
         }
+
+        /** The join message everyone sees, in English while it is still the game's own. */
+        std::string message() const {
+            return detail::text(detail::api().eventMessage(mHandle));
+        }
+
+        /** Replaces the join message; an empty one sends none. */
+        void setMessage(const std::string &message) const {
+            detail::api().eventSetMessage(mHandle, message.c_str());
+        }
+
+        /** True while the message is the game's own, which each client shows in its language. */
+        bool messageIsDefault() const {
+            return detail::api().eventMessageIsDefault(mHandle) != 0;
+        }
     };
 
+    /** Fires before the leave message goes out, which the handler may replace. */
     class PlayerQuitEvent : public Event {
     public:
         static constexpr FalconEventType TYPE = FALCON_EVENT_PLAYER_QUIT;
@@ -57,6 +74,26 @@ namespace falcon {
 
         Player player() const {
             return Player(detail::api().eventPlayer(mHandle));
+        }
+
+        /** Why the player left: the kick reason, or what the connection gave. */
+        std::string reason() const {
+            return detail::text(detail::api().eventCause(mHandle));
+        }
+
+        /** The leave message everyone sees, in English while it is still the game's own. */
+        std::string message() const {
+            return detail::text(detail::api().eventMessage(mHandle));
+        }
+
+        /** Replaces the leave message; an empty one sends none. */
+        void setMessage(const std::string &message) const {
+            detail::api().eventSetMessage(mHandle, message.c_str());
+        }
+
+        /** True while the message is the game's own, which each client shows in its language. */
+        bool messageIsDefault() const {
+            return detail::api().eventMessageIsDefault(mHandle) != 0;
         }
     };
 

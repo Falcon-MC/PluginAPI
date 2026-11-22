@@ -90,6 +90,10 @@ public abstract class Event {
         }
     }
 
+    boolean eventMessageIsDefault() {
+        return api().eventMessageIsDefault(mHandle) != 0;
+    }
+
     String eventCause() {
         return Interop.string(api().eventCause(mHandle));
     }

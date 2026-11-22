@@ -76,6 +76,20 @@ public final class Commands {
     }
 
     /**
+     * Sets the other names a command of this plugin answers to, in place of the ones set before.
+     */
+    public boolean setAliases(String command, List<String> aliases) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment names = arena.allocate(ValueLayout.ADDRESS, Math.max(aliases.size(), 1));
+            for (int index = 0; index < aliases.size(); index++) {
+                names.setAtIndex(ValueLayout.ADDRESS, index, Interop.text(arena, aliases.get(index)));
+            }
+            return Interop.api().commandSetAliases(mContext.handle(), Interop.text(arena, command), names,
+                    aliases.size()) != 0;
+        }
+    }
+
+    /**
      * Runs a command line, without the slash, as the server console.
      */
     public boolean execute(String commandLine) {

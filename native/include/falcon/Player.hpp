@@ -271,6 +271,11 @@ namespace falcon {
             return detail::api().playerStartItemCooldown(mHandle, item.handle(), ticks) != 0;
         }
 
+        /** Says one line in the public chat as this player, as if they typed it; the chat events fire. */
+        bool chat(const std::string &message) const {
+            return detail::api().playerChat(mHandle, message.c_str()) != 0;
+        }
+
         /** Runs a command line, without the slash, as this player, with the player's permissions. */
         bool executeCommand(const std::string &commandLine) const {
             return detail::api().playerExecuteCommand(mHandle, commandLine.c_str()) != 0;

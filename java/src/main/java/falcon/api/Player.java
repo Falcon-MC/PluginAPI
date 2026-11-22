@@ -275,6 +275,15 @@ public final class Player {
     }
 
     /**
+     * Says one line in the public chat as this player, as if they typed it; the chat events fire.
+     */
+    public boolean chat(String message) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerChat(mHandle, Interop.text(arena, message)) != 0;
+        }
+    }
+
+    /**
      * Runs a command line, without the slash, as this player, with the player's permissions.
      */
     public boolean executeCommand(String commandLine) {
