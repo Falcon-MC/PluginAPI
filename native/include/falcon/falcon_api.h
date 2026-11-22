@@ -809,6 +809,9 @@ typedef struct FalconServerApi {
     int (*eventMessageIsDefault)(FalconEvent *event);
     /* the other names a command of this plugin answers to, in place of the ones set before */
     int (*commandSetAliases)(FalconPlugin *plugin, const char *command, const char *const *aliases, uint32_t count);
+    /* says one line in the public chat as the player, as if they typed it: the chat events fire; 0 when the player
+       is not in the world or the line is empty */
+    int (*playerChat)(FalconPlayer *player, const char *message);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

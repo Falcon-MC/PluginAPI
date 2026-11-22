@@ -217,6 +217,8 @@ interface players {
     player-stop-sound: func(player: player, sound: option<string>);
     player-spawn-particle: func(player: player, particle: string, position: vec3);
     player-execute-command: func(player: player, command-line: string) -> bool;
+    /// One line in the public chat as the player, as if they typed it: the chat events fire.
+    player-chat: func(player: player, message: string) -> bool;
     player-spawn-point: func(player: player) -> option<spawn-point>;
     player-set-spawn-point: func(player: player, level: borrow<level>, position: block-pos) -> bool;
     player-clear-spawn-point: func(player: player);
