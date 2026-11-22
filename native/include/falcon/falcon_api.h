@@ -839,6 +839,8 @@ typedef struct FalconServerApi {
     FalconItem *(*playerWindowItem)(FalconPlayer *player, uint32_t window, uint32_t slot);
     int (*playerSetWindowItem)(FalconPlayer *player, uint32_t window, uint32_t slot, FalconItem *item);
     void (*playerCloseWindow)(FalconPlayer *player, uint32_t window);
+    /* the id clients know a block state by, for packets a plugin builds such as UpdateBlock; 0 for an unknown block */
+    uint32_t (*serverBlockNetworkId)(const char *name, const char *statesJson);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
