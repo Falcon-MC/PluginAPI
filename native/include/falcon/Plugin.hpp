@@ -9,6 +9,7 @@
 #include "falcon/Scheduler.hpp"
 #include "falcon/Services.hpp"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -112,11 +113,12 @@ namespace falcon {
         }
 
         template<typename T>
-        int entry(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks) {
+        int entry(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks,
+                  std::size_t minimumApiSize = sizeof(FalconServerApi)) {
             if (api == nullptr || api->versionMajor != FALCON_API_VERSION_MAJOR)
                 return 0;
 
-            if (api->size < sizeof(FalconServerApi))
+            if (api->size < minimumApiSize)
                 return 0;
 
             gApi = api;

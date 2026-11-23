@@ -298,6 +298,8 @@ typedef uint32_t FalconCommandParamType;
 #define FALCON_COMMAND_PARAM_MESSAGE 7u
 #define FALCON_COMMAND_PARAM_JSON 8u
 #define FALCON_COMMAND_PARAM_ENUM 9u
+/* the rest of the line, words and spaces, as a command's default [args] */
+#define FALCON_COMMAND_PARAM_RAWTEXT 10u
 
 typedef void (*FalconEventHandler)(FalconEvent *event, void *userData);
 typedef const char *(*FalconServiceHandler)(const char *request, void *userData);
@@ -926,6 +928,10 @@ typedef struct FalconServerApi {
     /* the id clients know the item by, 0 for air, and in blockNetworkId the one of the block it places, 0 for none:
        for packets a plugin builds that carry items, such as MobEquipment */
     int32_t (*itemNetworkId)(FalconItem *item, int32_t *blockNetworkId);
+
+    /* sends the player the commands it may run again, built anew as when it joined: after its permissions changed.
+       DATA_PACKET_SEND fires for it; 0 when there is no spawned client to receive the list */
+    int (*playerSendCommands)(FalconPlayer *player);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

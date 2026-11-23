@@ -60,7 +60,8 @@ namespace falcon {
         BlockPosition = FALCON_COMMAND_PARAM_BLOCK_POSITION,
         Message = FALCON_COMMAND_PARAM_MESSAGE,
         Json = FALCON_COMMAND_PARAM_JSON,
-        Enum = FALCON_COMMAND_PARAM_ENUM
+        Enum = FALCON_COMMAND_PARAM_ENUM,
+        RawText = FALCON_COMMAND_PARAM_RAWTEXT
     };
 
     struct CommandParameter {
