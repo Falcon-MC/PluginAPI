@@ -477,6 +477,8 @@ typedef struct FalconBox {
     FalconVec3 max;
 } FalconBox;
 
+#define FALCON_API_PLAYER_COMPATIBILITY 1
+
 typedef struct FalconServerApi {
     uint32_t size;
     uint32_t versionMajor;
@@ -932,6 +934,14 @@ typedef struct FalconServerApi {
     /* sends the player the commands it may run again, built anew as when it joined: after its permissions changed.
        DATA_PACKET_SEND fires for it; 0 when there is no spawned client to receive the list */
     int (*playerSendCommands)(FalconPlayer *player);
+    /* queues a close after all earlier sends for this player */
+    int (*playerCloseForms)(FalconPlayer *player);
+    /* changes the overhead name for current and future viewers, without changing the login name */
+    int (*playerSetNameTag)(FalconPlayer *player, const char *nameTag);
+    /* -1: deny, 0: no explicit decision, 1: grant. Excludes defaults and operator fallback. */
+    int (*playerPermissionOverride)(FalconPlayer *player, const char *node);
+    /* average round-trip time in milliseconds; -1 until known */
+    int (*playerPing)(FalconPlayer *player);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
