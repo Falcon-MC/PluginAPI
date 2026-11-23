@@ -1,6 +1,7 @@
 #ifndef FALCON_API_H
 #define FALCON_API_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -131,6 +132,48 @@ typedef uint32_t FalconEventType;
 #define FALCON_EVENT_ITEM_SPAWN 88u
 #define FALCON_EVENT_PORTAL_CREATE 89u
 #define FALCON_EVENT_WORLD_SAVE 90u
+#define FALCON_EVENT_BLOCK_DEATH 91u
+#define FALCON_EVENT_BLOCK_PRE_EXPLODE 92u
+#define FALCON_EVENT_BLOCK_TELEPORT 93u
+#define FALCON_EVENT_BLOCK_UPDATE 94u
+#define FALCON_EVENT_BREWING_FUEL_USE 95u
+#define FALCON_EVENT_CAMPFIRE_COOK 96u
+#define FALCON_EVENT_CHEST_PAIR 97u
+#define FALCON_EVENT_FARMLAND_HYDRATION_CHANGE 98u
+#define FALCON_EVENT_PRESSURE_PLATE_UPDATE 99u
+#define FALCON_EVENT_STRUCTURE_GROW 100u
+#define FALCON_EVENT_CHUNK_POPULATE 101u
+#define FALCON_EVENT_SPAWN_CHANGE 102u
+#define FALCON_EVENT_WORLD_DIFFICULTY_CHANGE 103u
+#define FALCON_EVENT_WORLD_INIT 104u
+#define FALCON_EVENT_ENTITY_BLOCK_CHANGE 105u
+#define FALCON_EVENT_ENTITY_FROST_WALKER 106u
+#define FALCON_EVENT_ENTITY_TRAMPLE_FARMLAND 107u
+#define FALCON_EVENT_AREA_EFFECT_CLOUD_APPLY 108u
+#define FALCON_EVENT_BREW_ITEM 110u
+#define FALCON_EVENT_UPDATE_NOTIFY 111u
+#define FALCON_EVENT_PLAYER_BLOCK_PICK 116u
+#define FALCON_EVENT_PLAYER_CHANGE_SKIN 117u
+#define FALCON_EVENT_PLAYER_CREATION 118u
+#define FALCON_EVENT_PLAYER_DATA_SAVE 119u
+#define FALCON_EVENT_PLAYER_DUPLICATE_LOGIN 120u
+#define FALCON_EVENT_PLAYER_EDIT_BOOK 121u
+#define FALCON_EVENT_PLAYER_ENCHANTING_OPTIONS 122u
+#define FALCON_EVENT_PLAYER_ENTITY_PICK 123u
+#define FALCON_EVENT_PLAYER_MISS_SWING 124u
+#define FALCON_EVENT_PLAYER_POST_CHUNK_SEND 125u
+#define FALCON_EVENT_PLAYER_RESOURCE_PACK_OFFER 126u
+#define FALCON_EVENT_PLAYER_RESPAWN_ANCHOR_USE 127u
+#define FALCON_EVENT_PLAYER_TOGGLE_GLIDE 128u
+#define FALCON_EVENT_PLAYER_TOGGLE_SWIM 129u
+#define FALCON_EVENT_PLAYER_VIEW_DISTANCE_CHANGE 130u
+#define FALCON_EVENT_ENTITY_COMBUST_BY_BLOCK 131u
+#define FALCON_EVENT_ENTITY_COMBUST_BY_ENTITY 132u
+#define FALCON_EVENT_ENTITY_PRE_EXPLODE 133u
+#define FALCON_EVENT_ENTITY_SHOOT_BOW 134u
+#define FALCON_EVENT_ITEM_DESPAWN 135u
+#define FALCON_EVENT_ITEM_MERGE 136u
+#define FALCON_EVENT_PLAYER_LOGIN_ATTEMPT 137u
 
 typedef uint32_t FalconGameMode;
 #define FALCON_GAME_MODE_SURVIVAL 0u
@@ -480,6 +523,8 @@ typedef struct FalconBox {
 #define FALCON_API_PLAYER_COMPATIBILITY 1
 #define FALCON_API_ENTITY_MAX_HEALTH 1
 #define FALCON_API_RESOURCE_PACKS 1
+#define FALCON_API_WORLD_SPAWN_POSITION 1
+#define FALCON_API_RESOURCE_PACK_OFFER 1
 
 typedef struct FalconResourcePackDescriptor {
     /* zip bytes (including manifest.json) and optional Bedrock encryption key */
@@ -487,6 +532,23 @@ typedef struct FalconResourcePackDescriptor {
     uint32_t size;
     const char *contentKey;
 } FalconResourcePackDescriptor;
+
+typedef struct FalconOfferedResourcePack {
+    const char *id;
+    const char *name;
+    const char *version;
+    const char *contentKey;
+    const char *sha256;
+    uint64_t size;
+    const char *data;
+    size_t dataSize;
+} FalconOfferedResourcePack;
+
+typedef struct FalconResourcePackOfferEntry {
+    /* Existing offered UUID when archive.size is zero, or a replacement archive otherwise. */
+    const char *id;
+    FalconResourcePackDescriptor archive;
+} FalconResourcePackOfferEntry;
 
 typedef struct FalconServerApi {
     uint32_t size;
@@ -959,6 +1021,14 @@ typedef struct FalconServerApi {
        Returns 1 on success. Invalid archives and conflicting UUIDs leave the previous stack intact. */
     int (*resourcePacksReplace)(FalconPlugin *plugin, const FalconResourcePackDescriptor *packs, uint32_t count,
                                 int required);
+
+    int (*levelSetSpawnPosition)(FalconLevel *level, FalconBlockPos position);
+
+    /* Login offer only. Borrowed pack data is valid until the offer is changed or the event ends. */
+    uint32_t (*eventResourcePackCount)(FalconEvent *event);
+    int (*eventResourcePackAt)(FalconEvent *event, uint32_t index, FalconOfferedResourcePack *pack);
+    int (*eventReplaceResourcePackOffer)(FalconEvent *event, const FalconResourcePackOfferEntry *packs,
+                                         uint32_t count, int required);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
