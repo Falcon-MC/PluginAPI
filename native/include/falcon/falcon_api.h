@@ -479,6 +479,14 @@ typedef struct FalconBox {
 
 #define FALCON_API_PLAYER_COMPATIBILITY 1
 #define FALCON_API_ENTITY_MAX_HEALTH 1
+#define FALCON_API_RESOURCE_PACKS 1
+
+typedef struct FalconResourcePackDescriptor {
+    /* zip bytes (including manifest.json) and optional Bedrock encryption key */
+    const char *data;
+    uint32_t size;
+    const char *contentKey;
+} FalconResourcePackDescriptor;
 
 typedef struct FalconServerApi {
     uint32_t size;
@@ -945,6 +953,12 @@ typedef struct FalconServerApi {
     int (*playerPing)(FalconPlayer *player);
     /* sets the base maximum health, clamping current health if needed */
     int (*entitySetMaxHealth)(FalconEntity *entity, float maximum);
+
+    /* Main thread. Replaces this plugin's contribution to future logins, preserving packs already offered to a
+       client. Falcon copies the bytes during the call. Pass no packs and required=0 to remove the contribution.
+       Returns 1 on success. Invalid archives and conflicting UUIDs leave the previous stack intact. */
+    int (*resourcePacksReplace)(FalconPlugin *plugin, const FalconResourcePackDescriptor *packs, uint32_t count,
+                                int required);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
