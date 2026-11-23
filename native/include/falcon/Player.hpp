@@ -311,6 +311,11 @@ namespace falcon {
             return detail::api().playerChat(mHandle, message.c_str()) != 0;
         }
 
+        /** Sends this player the commands it may run again, as when it joined: after its permissions changed. */
+        bool sendCommands() const {
+            return detail::api().playerSendCommands(mHandle) != 0;
+        }
+
         /** Runs a command line, without the slash, as this player, with the player's permissions. */
         bool executeCommand(const std::string &commandLine) const {
             return detail::api().playerExecuteCommand(mHandle, commandLine.c_str()) != 0;
