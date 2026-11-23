@@ -60,6 +60,18 @@ namespace falcon {
             return detail::text(detail::api().itemIdentifier(mHandle));
         }
 
+        /** The id clients know the item by, 0 for air, for packets a plugin builds. */
+        int32_t networkId() const {
+            return detail::api().itemNetworkId(mHandle, nullptr);
+        }
+
+        /** The id clients know the block the item places by, 0 for an item that places none. */
+        int32_t blockNetworkId() const {
+            int32_t block = 0;
+            detail::api().itemNetworkId(mHandle, &block);
+            return block;
+        }
+
         uint32_t count() const {
             return detail::api().itemCount(mHandle);
         }

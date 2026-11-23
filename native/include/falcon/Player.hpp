@@ -146,6 +146,11 @@ namespace falcon {
             return detail::api().playerUniqueId(mHandle);
         }
 
+        /** Whether the client holds that chunk of the player's level, so an entity in it can be shown. */
+        bool hasChunk(int32_t chunkX, int32_t chunkZ) const {
+            return detail::api().playerHasChunk(mHandle, chunkX, chunkZ) != 0;
+        }
+
         /**
          * Shows a form built from its JSON definition and returns its id, which the matching
          * PlayerFormResponseEvent carries. Returns 0 when the form could not be sent.

@@ -118,6 +118,23 @@ namespace falcon {
         }
 
         /**
+         * Shows an entity of a custom type to clients through the plugin's own packets only: Falcon sends nothing
+         * about it, gives it no physics or AI and moves it only when told. False for another type.
+         */
+        bool setPluginDrawn(bool pluginDrawn) const {
+            return detail::api().entitySetPluginDrawn(mHandle, pluginDrawn ? 1 : 0) != 0;
+        }
+
+        bool isPluginDrawn() const {
+            return detail::api().entityIsPluginDrawn(mHandle) != 0;
+        }
+
+        /** The box hits and projectiles aim at, for an entity of a custom type. */
+        bool setSize(float width, float height) const {
+            return detail::api().entitySetSize(mHandle, width, height) != 0;
+        }
+
+        /**
          * Hides the entity from every viewer, its name tag included, until it is made visible again.
          */
         void setInvisible(bool invisible) const {

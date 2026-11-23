@@ -469,6 +469,12 @@ typedef struct FalconBlockHit {
     double distance;
 } FalconBlockHit;
 
+/* a box between two corners, the lower one first */
+typedef struct FalconBox {
+    FalconVec3 min;
+    FalconVec3 max;
+} FalconBox;
+
 typedef struct FalconServerApi {
     uint32_t size;
     uint32_t versionMajor;
@@ -903,6 +909,23 @@ typedef struct FalconServerApi {
        setting does not change */
     int (*eventKnockback)(FalconEvent *event, float *horizontal, float *vertical);
     void (*eventSetKnockback)(FalconEvent *event, float horizontal, float vertical);
+
+    /* an entity of a custom type its plugin shows to clients itself, with packets of its own: Falcon sends no spawn,
+       movement or data for it, gives it no physics or AI, moves it only when told and fires no teleport event for
+       that. Hits, interactions, projectiles and queries still find it. 0 for an entity of another type */
+    int (*entitySetPluginDrawn)(FalconEntity *entity, int pluginDrawn);
+    int (*entityIsPluginDrawn)(FalconEntity *entity);
+    /* the box of an entity of a custom type, in place of its type's: what hits and projectiles aim at */
+    int (*entitySetSize)(FalconEntity *entity, float width, float height);
+    /* the boxes of the blocks in the box between two corners that entities collide with; writes at most capacity of
+       them and gives how many there are */
+    uint32_t (*levelCollisionBoxes)(FalconLevel *level, FalconVec3 from, FalconVec3 to, FalconBox *boxes,
+                                    uint32_t capacity);
+    /* whether the player's client holds that chunk of the player's level, so an entity in it can be shown */
+    int (*playerHasChunk)(FalconPlayer *player, int32_t chunkX, int32_t chunkZ);
+    /* the id clients know the item by, 0 for air, and in blockNetworkId the one of the block it places, 0 for none:
+       for packets a plugin builds that carry items, such as MobEquipment */
+    int32_t (*itemNetworkId)(FalconItem *item, int32_t *blockNetworkId);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

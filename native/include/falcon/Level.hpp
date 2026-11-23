@@ -227,6 +227,9 @@ namespace falcon {
         /** Every entity and player whose box touches the box between two corners. */
         std::vector<Entity> entitiesInBox(const Vec3 &from, const Vec3 &to) const;
 
+        /** The boxes of the blocks between two corners that entities collide with. */
+        std::vector<FalconBox> collisionBoxes(const Vec3 &from, const Vec3 &to) const;
+
         /**
          * Places a structure saved by the structure manager, a pack or a structure block, by identifier, with its
          * lowest corner at position. Rotation is in quarter turns clockwise; integrity keeps that share of blocks.
@@ -308,6 +311,18 @@ namespace falcon {
         for (uint32_t index = 0; index < count && index < handles.size(); ++index)
             result.emplace_back(handles[index]);
         return result;
+    }
+
+    inline std::vector<FalconBox> Level::collisionBoxes(const Vec3 &from, const Vec3 &to) const {
+        std::vector<FalconBox> boxes(64);
+        uint32_t count = detail::api().levelCollisionBoxes(mHandle, from.raw(), to.raw(), boxes.data(),
+                                                           static_cast<uint32_t>(boxes.size()));
+        if (count > boxes.size()) {
+            boxes.resize(count);
+            count = detail::api().levelCollisionBoxes(mHandle, from.raw(), to.raw(), boxes.data(), count);
+        }
+        boxes.resize(count < boxes.size() ? count : boxes.size());
+        return boxes;
     }
 
     inline std::optional<Entity> Level::spawnEntity(const std::string &identifier, const Vec3 &position) const {
