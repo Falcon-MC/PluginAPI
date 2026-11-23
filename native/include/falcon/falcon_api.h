@@ -478,6 +478,7 @@ typedef struct FalconBox {
 } FalconBox;
 
 #define FALCON_API_PLAYER_COMPATIBILITY 1
+#define FALCON_API_ENTITY_MAX_HEALTH 1
 
 typedef struct FalconServerApi {
     uint32_t size;
@@ -942,6 +943,8 @@ typedef struct FalconServerApi {
     int (*playerPermissionOverride)(FalconPlayer *player, const char *node);
     /* average round-trip time in milliseconds; -1 until known */
     int (*playerPing)(FalconPlayer *player);
+    /* sets the base maximum health, clamping current health if needed */
+    int (*entitySetMaxHealth)(FalconEntity *entity, float maximum);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
