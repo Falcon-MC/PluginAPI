@@ -135,6 +135,14 @@ namespace falcon {
             detail::api().playerSetFlying(mHandle, flying ? 1 : 0);
         }
 
+        float scale() const {
+            return detail::api().playerScale(mHandle);
+        }
+
+        bool setScale(float scale) const {
+            return detail::api().playerSetScale(mHandle, scale) != 0;
+        }
+
         /** Changes this player's visibility for one viewer across subsequent updates. */
         void setVisibleTo(const Player &viewer, bool visible) const {
             detail::api().playerSetVisibleTo(mHandle, viewer.mHandle, visible ? 1 : 0);
