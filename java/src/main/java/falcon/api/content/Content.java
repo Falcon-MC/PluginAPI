@@ -39,7 +39,13 @@ public final class Content {
         ItemHandlers handlers = new ItemHandlers(mContext, definition.onUse(), definition.onUseOnBlock());
         MemorySegment userData = Upcalls.register(handlers);
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment descriptor = arena.allocate(FalconAbi.CustomItemDescriptor.LAYOUT);
+            String components = definition.components();
+            boolean hasComponents = components != null && !components.isEmpty();
+            MemorySegment extended = hasComponents
+                    ? arena.allocate(FalconAbi.CustomItemDescriptorV2.LAYOUT) : MemorySegment.NULL;
+            MemorySegment descriptor = hasComponents
+                    ? extended.asSlice(FalconAbi.CustomItemDescriptorV2.ITEM, FalconAbi.CustomItemDescriptor.LAYOUT)
+                    : arena.allocate(FalconAbi.CustomItemDescriptor.LAYOUT);
             descriptor.set(ValueLayout.ADDRESS, FalconAbi.CustomItemDescriptor.IDENTIFIER,
                     Interop.text(arena, definition.identifier()));
             descriptor.set(ValueLayout.ADDRESS, FalconAbi.CustomItemDescriptor.DISPLAY_NAME,
@@ -59,7 +65,17 @@ public final class Content {
             descriptor.set(ValueLayout.ADDRESS, FalconAbi.CustomItemDescriptor.ON_USE_ON_BLOCK,
                     handlers.onUseOnBlock() != null ? USE_ITEM_ON_BLOCK : MemorySegment.NULL);
             descriptor.set(ValueLayout.ADDRESS, FalconAbi.CustomItemDescriptor.USER_DATA, userData);
-            return registered(Interop.api().registerCustomItem(mContext.handle(), descriptor), userData);
+            if (!hasComponents) {
+                return registered(Interop.api().registerCustomItem(mContext.handle(), descriptor), userData);
+            }
+            MemorySegment json = Interop.text(arena, components);
+            long size = json.byteSize() - 1;
+            if (size > FalconAbi.CUSTOM_ITEM_COMPONENTS_MAX_BYTES) {
+                return registered(0, userData);
+            }
+            extended.set(ValueLayout.ADDRESS, FalconAbi.CustomItemDescriptorV2.COMPONENTS, json);
+            extended.set(ValueLayout.JAVA_INT, FalconAbi.CustomItemDescriptorV2.COMPONENTS_SIZE, (int) size);
+            return registered(Interop.api().registerCustomItemWithComponents(mContext.handle(), extended), userData);
         }
     }
 

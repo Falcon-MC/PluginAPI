@@ -620,6 +620,12 @@ interface content {
         on-use-on-block: option<u32>,
     }
 
+    record custom-item-with-components {
+        item: custom-item,
+        /// The item's behavior-pack components object as JSON.
+        components: string,
+    }
+
     record custom-block {
         identifier: string,
         display-name: string,
@@ -645,6 +651,7 @@ interface content {
     }
 
     register-custom-item: func(descriptor: custom-item) -> bool;
+    register-custom-item-with-components: func(descriptor: custom-item-with-components) -> bool;
     register-custom-block: func(descriptor: custom-block) -> bool;
     register-custom-entity: func(descriptor: custom-entity) -> bool;
 }

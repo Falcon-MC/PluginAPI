@@ -19,5 +19,6 @@ namespace falcon {
         bool handEquipped = false;
         std::function<bool(Player &, Item &)> onUse;
         std::function<bool(Player &, Item &, const BlockPos &, uint32_t)> onUseOnBlock;
+        std::string components;
     };
 }
