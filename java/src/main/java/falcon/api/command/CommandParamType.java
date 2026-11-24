@@ -12,7 +12,8 @@ public enum CommandParamType {
     BLOCK_POSITION(FalconAbi.COMMAND_PARAM_BLOCK_POSITION),
     MESSAGE(FalconAbi.COMMAND_PARAM_MESSAGE),
     JSON(FalconAbi.COMMAND_PARAM_JSON),
-    ENUM(FalconAbi.COMMAND_PARAM_ENUM);
+    ENUM(FalconAbi.COMMAND_PARAM_ENUM),
+    RAWTEXT(FalconAbi.COMMAND_PARAM_RAWTEXT);
 
     private final int mValue;
 

@@ -356,6 +356,23 @@ public final class Entity {
         return Optional.of(new Player(mContext, player));
     }
 
+    public boolean setPluginDrawn(boolean drawn) {
+        return api().entitySetPluginDrawn(mHandle, drawn ? 1 : 0) != 0;
+    }
+
+    public boolean isPluginDrawn() {
+        return api().entityIsPluginDrawn(mHandle) != 0;
+    }
+
+    /** Sets the hit box of a custom entity. */
+    public boolean setSize(float width, float height) {
+        return api().entitySetSize(mHandle, width, height) != 0;
+    }
+
+    public boolean setMaxHealth(float maximum) {
+        return api().entitySetMaxHealth(mHandle, maximum) != 0;
+    }
+
     public MemorySegment handle() {
         return mHandle;
     }

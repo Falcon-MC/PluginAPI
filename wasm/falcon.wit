@@ -117,8 +117,65 @@ interface types {
     resource item;
 }
 
+interface maps {
+    use types.{level, player, block-pos};
+
+    record image-grid {
+        ids: list<s64>,
+        columns: u32,
+        rows: u32,
+    }
+
+    /// Map ids are signed. A failed single-tile creation returns -1.
+    map-create-image: func(world-level: borrow<level>, rgba: list<u8>) -> s64;
+    map-create-image-grid: func(world-level: borrow<level>, rgba: list<u8>, width: u32, height: u32,
+                                columns: u32, rows: u32, fit: u32) -> option<image-grid>;
+    map-create-image-grid-from-png: func(world-level: borrow<level>, png: list<u8>, columns: u32,
+                                         rows: u32, fit: u32) -> option<image-grid>;
+    map-place-image-grid: func(world-level: borrow<level>, top-left: block-pos, facing: u32, grid: image-grid,
+                               glowing: bool) -> bool;
+    map-update-image: func(world-level: borrow<level>, map-id: s64, x: u32, y: u32, width: u32, height: u32,
+                           rgba: list<u8>) -> bool;
+    map-is-image: func(world-level: borrow<level>, map-id: s64) -> bool;
+    player-give-map: func(player: player, map-id: s64) -> bool;
+    map-last-error: func() -> string;
+    map-delete-image: func(world-level: borrow<level>, map-id: s64) -> bool;
+}
+
 interface server {
     use types.{player, entity, log-level};
+
+    record item-info {
+        name: string,
+        max-stack-size: u32,
+        max-durability: s32,
+        tool-type: u32,
+        tool-tier: u32,
+        attack-damage: s32,
+        armor-slot: u32,
+        armor-points: s32,
+        armor-toughness: s32,
+        nutrition: s32,
+        saturation: f32,
+    }
+
+    record block-info {
+        name: string,
+        hardness: f32,
+        blast-resistance: f32,
+        tool-type: u32,
+        tool-tier: u32,
+        light-emission: s32,
+        transparent: bool,
+        solid: bool,
+        flame-encouragement: s32,
+        flammability: s32,
+        max-stack-size: u32,
+    }
+
+    server-block-network-id: func(name: string, states-json: option<string>) -> u32;
+    server-item-info: func(identifier: string) -> option<item-info>;
+    server-block-info: func(identifier: string) -> option<block-info>;
 
     server-version: func() -> string;
     log: func(level: log-level, message: string);
@@ -178,6 +235,28 @@ interface players {
         height: u32,
         rgba: list<u8>,
     }
+
+    record window-descriptor {
+        container-type: u32,
+        position: block-pos,
+        actor-unique-id: s64,
+        size: u32,
+        /// Optional token passed to on-window-close.
+        on-close: option<u32>,
+    }
+
+    player-open-window: func(player: player, descriptor: window-descriptor) -> u32;
+    player-window-item: func(player: player, window: u32, slot: u32) -> option<item>;
+    player-set-window-item: func(player: player, window: u32, slot: u32, stack: option<borrow<item>>) -> bool;
+    player-close-window: func(player: player, window: u32);
+    player-has-chunk: func(player: player, chunk-x: s32, chunk-z: s32) -> bool;
+    player-send-commands: func(player: player) -> bool;
+    player-close-forms: func(player: player) -> bool;
+    player-set-name-tag: func(player: player, name-tag: string) -> bool;
+    /// An explicit permission decision: -1 denies, 0 is unset, and 1 grants.
+    player-permission-override: func(player: player, node: string) -> s32;
+    /// Average round-trip time in milliseconds, or -1 until known.
+    player-ping: func(player: player) -> s32;
 
     player-name: func(player: player) -> string;
     player-is-operator: func(player: player) -> bool;
@@ -243,6 +322,11 @@ interface players {
 
 interface entities {
     use types.{entity, level, item, vec3, effect-type, effect, attribute};
+
+    entity-set-plugin-drawn: func(entity: entity, drawn: bool) -> bool;
+    entity-is-plugin-drawn: func(entity: entity) -> bool;
+    entity-set-size: func(entity: entity, width: f32, height: f32) -> bool;
+    entity-set-max-health: func(entity: entity, maximum: f32) -> bool;
 
     entity-type: func(entity: entity) -> string;
     entity-runtime-id: func(entity: entity) -> u64;
@@ -357,6 +441,14 @@ interface levels {
                               include-liquids: bool, include-passable: bool) -> option<block-hit>;
     level-raycast-entity: func(level: borrow<level>, origin: vec3, direction: vec3, max-distance: f64,
                                except: option<entity>) -> option<entity-hit>;
+    record box {
+        min: vec3,
+        max: vec3,
+    }
+
+    /// Queries may cover up to 65,536 block cells. Split larger queries.
+    level-collision-boxes: func(level: borrow<level>, lower: vec3, upper: vec3) -> list<box>;
+
     level-entities-in-box: func(level: borrow<level>, low: vec3, high: vec3) -> list<entity>;
     /// `mirror`: one of the `FALCON_MIRROR_*` values; `rotation` in quarter turns clockwise.
     level-place-structure: func(level: borrow<level>, structure: string, position: block-pos, rotation: u32,
@@ -405,6 +497,13 @@ interface items {
     item-create: func(identifier: string, count: u32) -> option<item>;
     item-copy: func(item: borrow<item>) -> option<item>;
     item-is-empty: func(item: borrow<item>) -> bool;
+    record network-ids {
+        item-id: s32,
+        block-id: s32,
+    }
+
+    item-network-id: func(item: borrow<item>) -> network-ids;
+
     item-identifier: func(item: borrow<item>) -> string;
     item-count: func(item: borrow<item>) -> u32;
     item-set-count: func(item: borrow<item>, count: u32);
@@ -462,6 +561,24 @@ interface events {
 /// The event being handled by `on-event`.
 interface event {
     use types.{player, entity, level, item, event-kind, game-mode, dimension, vec3, block-pos, effect};
+
+    record knockback {
+        horizontal: f32,
+        vertical: f32,
+    }
+
+    event-drop-count: func() -> u32;
+    /// A copy of the current drop. Use event-set-drops to replace the drops.
+    event-drop-at: func(index: u32) -> option<item>;
+    event-set-drops: func(stacks: list<borrow<item>>);
+    event-experience: func() -> s32;
+    event-set-experience: func(experience: s32);
+    event-keep-inventory: func() -> bool;
+    event-set-keep-inventory: func(keep: bool);
+    event-keep-experience: func() -> bool;
+    event-set-keep-experience: func(keep: bool);
+    event-knockback: func() -> option<knockback>;
+    event-set-knockback: func(horizontal: f32, vertical: f32);
 
     event-type: func() -> event-kind;
     event-is-cancellable: func() -> bool;
@@ -605,6 +722,16 @@ interface recipes {
     remove-recipe: func(identifier: string) -> bool;
 }
 
+interface resource-packs {
+    record resource-pack {
+        data: list<u8>,
+        content-key: option<string>,
+    }
+
+    /// Replaces this plugin's contribution for future logins. The host copies the archives.
+    resource-packs-replace: func(packs: list<resource-pack>, required: bool) -> bool;
+}
+
 /// Custom content. A callback left as `none` is not registered, like a null handler in the C API; the value of
 /// a callback that is set is passed back to the matching `on-*` function.
 interface content {
@@ -672,6 +799,7 @@ interface plugin {
     on-block-interact: func(handler: u32, player: player, position: block-pos, face: u32) -> bool;
     on-block-break: func(handler: u32, player: player, position: block-pos);
     on-entity-tick: func(handler: u32, entity: entity);
+    on-window-close: func(handler: u32, player: player, window: u32);
     on-entity-interact: func(handler: u32, entity: entity, player: player) -> bool;
 }
 
@@ -689,6 +817,8 @@ world falcon-plugin {
     import scheduler;
     import permissions;
     import services;
+    import maps;
+    import resource-packs;
     import content;
     import recipes;
 
