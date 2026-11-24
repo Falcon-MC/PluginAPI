@@ -534,6 +534,7 @@ typedef struct FalconBox {
 #define FALCON_API_ENTITY_MAX_HEALTH 1
 #define FALCON_API_RESOURCE_PACKS 1
 #define FALCON_API_PLAYER_FLIGHT 1
+#define FALCON_API_PLAYER_SCALE 1
 #define FALCON_API_ENTITY_TELEPORT_DETAILS 1
 #define FALCON_API_WORLD_SPAWN_POSITION 1
 #define FALCON_API_RESOURCE_PACK_OFFER 1
@@ -1081,6 +1082,10 @@ typedef struct FalconServerApi {
 
     /* Main thread. Makes a chunk available synchronously, loading it from storage or generating terrain. */
     int (*levelLoadChunk)(FalconLevel *level, int32_t chunkX, int32_t chunkZ);
+
+    /* The player's body scale. Setting it updates dimensions and synchronizes current and future viewers. */
+    float (*playerScale)(FalconPlayer *player);
+    int (*playerSetScale)(FalconPlayer *player, float scale);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
