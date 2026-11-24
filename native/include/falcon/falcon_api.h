@@ -533,6 +533,7 @@ typedef struct FalconBox {
 #define FALCON_API_PLAYER_COMPATIBILITY 1
 #define FALCON_API_ENTITY_MAX_HEALTH 1
 #define FALCON_API_RESOURCE_PACKS 1
+#define FALCON_API_PLAYER_FLIGHT 1
 #define FALCON_API_WORLD_SPAWN_POSITION 1
 #define FALCON_API_RESOURCE_PACK_OFFER 1
 
@@ -715,6 +716,7 @@ typedef struct FalconServerApi {
     int (*registerCustomEntity)(FalconPlugin *plugin, const FalconCustomEntityDescriptor *descriptor);
 
     FalconLevel *(*eventLevel)(FalconEvent *event);
+    /* ENTITY_DAMAGE: the direct damage source when available, such as the attacker's projectile. */
     FalconEntity *(*eventTarget)(FalconEvent *event);
     FalconVec3 (*eventPosition)(FalconEvent *event);
     uint32_t (*eventBlockCount)(FalconEvent *event);
@@ -1047,6 +1049,28 @@ typedef struct FalconServerApi {
                               const char *name, const char *statesJson);
 
     int (*registerCustomItemWithComponents)(FalconPlugin *plugin, const FalconCustomItemDescriptorV2 *descriptor);
+
+    /* Spawns a dropped item with optional initial motion and a pickup delay in ticks.
+       NULL on an empty stack or a cancelled spawn. The item is copied. */
+    FalconEntity *(*levelSpawnItem)(FalconLevel *level, FalconVec3 position, FalconItem *item,
+                                    const FalconVec3 *motion, int32_t pickupDelay);
+    /* The live dropped stack as an owned copy, or NULL for another entity type. */
+    FalconItem *(*itemEntityItem)(FalconEntity *entity);
+    int32_t (*itemEntityPickupDelay)(FalconEntity *entity);
+    void (*itemEntitySetPickupDelay)(FalconEntity *entity, int32_t pickupDelay);
+
+    /* Flight mode and whether the client can toggle it are independent. A game mode change restores its default. */
+    int (*playerAllowFlight)(FalconPlayer *player);
+    void (*playerSetAllowFlight)(FalconPlayer *player, int allowed);
+    int (*playerIsFlying)(FalconPlayer *player);
+    void (*playerSetFlying)(FalconPlayer *player, int flying);
+
+    /* Main thread. Hide/show this target for one viewer, including future visibility passes. */
+    void (*playerSetVisibleTo)(FalconPlayer *target, FalconPlayer *viewer, int visible);
+    /* Spawn/despawn this target for one viewer. Normal visibility tracking resumes on the next update. */
+    void (*playerSpawnTo)(FalconPlayer *target, FalconPlayer *viewer);
+    void (*playerDespawnFrom)(FalconPlayer *target, FalconPlayer *viewer, int sendPacket);
+    int (*playerIsSpawnedTo)(FalconPlayer *target, FalconPlayer *viewer);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
