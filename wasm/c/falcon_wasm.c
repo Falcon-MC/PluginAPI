@@ -230,3 +230,11 @@ bool exports_falcon_plugin_plugin_on_entity_interact(uint32_t handler, exports_f
     (void) player;
     return false;
 }
+
+__attribute__((weak))
+void exports_falcon_plugin_plugin_on_window_close(uint32_t handler, exports_falcon_plugin_plugin_player_t player,
+                                                   uint32_t window) {
+    (void) handler;
+    (void) player;
+    (void) window;
+}

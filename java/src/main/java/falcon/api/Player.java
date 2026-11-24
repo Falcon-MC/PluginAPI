@@ -4,13 +4,18 @@ import falcon.api.internal.FalconAbi;
 import falcon.api.internal.Interop;
 import falcon.api.internal.NativeApi;
 import falcon.api.internal.PluginContext;
+import falcon.api.internal.Upcalls;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public final class Player {
+    private static final MemorySegment WINDOW_CLOSE = Upcalls.stub(MethodHandles.lookup(), "onWindowClose",
+            FalconAbi.WINDOW_CLOSE_HANDLER);
     private final PluginContext mContext;
     private final MemorySegment mHandle;
 
@@ -374,6 +379,91 @@ public final class Player {
             }
             return api().playerSendPacket(mHandle, packetId, bytes, data.length) != 0;
         }
+    }
+
+    /**
+     * Opens a plugin-owned container. Returns 0 if the player already has a window open or the size is invalid.
+     * The client needs a corresponding block or entity to display the container.
+     */
+    public int openWindow(int containerType, BlockPos position, long actorUniqueId, int size,
+                          BiConsumer<Player, Integer> onClose) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment descriptor = arena.allocate(FalconAbi.WindowDescriptor.LAYOUT);
+            descriptor.set(ValueLayout.JAVA_INT, FalconAbi.WindowDescriptor.CONTAINER_TYPE, containerType);
+            Interop.writeBlockPos(descriptor.asSlice(FalconAbi.WindowDescriptor.POSITION, FalconAbi.BlockPos.LAYOUT),
+                    position);
+            descriptor.set(ValueLayout.JAVA_LONG, FalconAbi.WindowDescriptor.ACTOR_UNIQUE_ID, actorUniqueId);
+            descriptor.set(ValueLayout.JAVA_INT, FalconAbi.WindowDescriptor.SIZE, size);
+            MemorySegment token = MemorySegment.NULL;
+            if (onClose != null) {
+                token = Upcalls.register(new WindowClose(mContext, onClose));
+                descriptor.set(ValueLayout.ADDRESS, FalconAbi.WindowDescriptor.ON_CLOSE, WINDOW_CLOSE);
+                descriptor.set(ValueLayout.ADDRESS, FalconAbi.WindowDescriptor.USER_DATA, token);
+            }
+            int window = 0;
+            try {
+                window = api().playerOpenWindow(mContext.handle(), mHandle, descriptor);
+                return window;
+            } finally {
+                if (window == 0 && onClose != null) {
+                    Upcalls.release(token, WindowClose.class);
+                }
+            }
+        }
+    }
+
+    /** A copy of the slot contents, empty if the window is closed or the slot is invalid. */
+    public Optional<Item> windowItem(int window, int slot) {
+        return Item.adopt(api().playerWindowItem(mHandle, window, slot));
+    }
+
+    public boolean setWindowItem(int window, int slot, Item item) {
+        return api().playerSetWindowItem(mHandle, window, slot, item == null ? MemorySegment.NULL : item.handle()) != 0;
+    }
+
+    public void closeWindow(int window) {
+        api().playerCloseWindow(mHandle, window);
+    }
+
+    private record WindowClose(PluginContext context, BiConsumer<Player, Integer> handler) {
+    }
+
+    private static void onWindowClose(MemorySegment player, int window, MemorySegment token) {
+        WindowClose close = Upcalls.release(token, WindowClose.class);
+        if (close != null) {
+            close.context().guard("Window close handler threw",
+                    () -> close.handler().accept(new Player(close.context(), player), window));
+        }
+    }
+
+    public boolean hasChunk(int chunkX, int chunkZ) {
+        return api().playerHasChunk(mHandle, chunkX, chunkZ) != 0;
+    }
+
+    public boolean sendCommands() {
+        return api().playerSendCommands(mHandle) != 0;
+    }
+
+    public boolean closeForms() {
+        return api().playerCloseForms(mHandle) != 0;
+    }
+
+    public boolean setNameTag(String nameTag) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerSetNameTag(mHandle, Interop.text(arena, nameTag)) != 0;
+        }
+    }
+
+    /** The explicit permission decision: -1 denies, 0 is unset, and 1 grants. */
+    public int permissionOverride(String node) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().playerPermissionOverride(mHandle, Interop.text(arena, node));
+        }
+    }
+
+    /** Average round-trip time in milliseconds, or -1 until it is known. */
+    public int ping() {
+        return api().playerPing(mHandle);
     }
 
     public MemorySegment handle() {

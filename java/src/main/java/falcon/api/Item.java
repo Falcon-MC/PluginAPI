@@ -165,6 +165,14 @@ public final class Item implements AutoCloseable {
         api().itemSetEnchantmentLevel(mHandle, enchantment, level);
     }
 
+    public ItemNetworkIds networkIds() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment blockId = arena.allocate(ValueLayout.JAVA_INT);
+            int itemId = api().itemNetworkId(handle(), blockId);
+            return new ItemNetworkIds(itemId, blockId.get(ValueLayout.JAVA_INT, 0));
+        }
+    }
+
     public MemorySegment handle() {
         return mHandle;
     }

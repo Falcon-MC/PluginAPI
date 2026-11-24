@@ -14,6 +14,7 @@ import falcon.api.internal.PluginContext;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,10 @@ public abstract class Event {
     Event(PluginContext context, MemorySegment handle) {
         mContext = context;
         mHandle = handle;
+    }
+
+    public boolean isCancellable() {
+        return api().eventIsCancellable(mHandle) != 0;
     }
 
     public boolean isCancelled() {
@@ -179,6 +184,27 @@ public abstract class Event {
 
     Optional<Entity> eventTarget() {
         return optionalEntity(api().eventTarget(mHandle));
+    }
+
+    List<Item> eventDrops() {
+        int count = api().eventDropCount(mHandle);
+        List<Item> drops = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            drops.add(Item.borrow(api().eventDropAt(mHandle, index)));
+        }
+        return drops;
+    }
+
+    void eventSetDrops(List<Item> drops) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment items = drops.isEmpty() ? MemorySegment.NULL
+                    : arena.allocate(ValueLayout.ADDRESS, drops.size());
+            for (int index = 0; index < drops.size(); index++) {
+                Item item = drops.get(index);
+                items.setAtIndex(ValueLayout.ADDRESS, index, item == null ? MemorySegment.NULL : item.handle());
+            }
+            api().eventSetDrops(mHandle, items, drops.size());
+        }
     }
 
     Effect eventEffect() {

@@ -1,11 +1,13 @@
 package falcon.api;
 
+import falcon.api.internal.FalconAbi;
 import falcon.api.internal.Interop;
 import falcon.api.internal.NativeApi;
 import falcon.api.internal.PluginContext;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +62,52 @@ public final class Server {
                 return Optional.empty();
             }
             return Optional.of(new Player(mContext, player));
+        }
+    }
+
+    public int blockNetworkId(String name, String statesJson) {
+        try (Arena arena = Arena.ofConfined()) {
+            return api().serverBlockNetworkId(Interop.text(arena, name), Interop.nullableText(arena, statesJson));
+        }
+    }
+
+    public Optional<ItemInfo> itemInfo(String identifier) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.ItemInfo.LAYOUT);
+            if (api().serverItemInfo(Interop.text(arena, identifier), out) == 0) {
+                return Optional.empty();
+            }
+            return Optional.of(new ItemInfo(Interop.string(out.get(ValueLayout.ADDRESS, FalconAbi.ItemInfo.NAME)),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.MAX_STACK_SIZE),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.MAX_DURABILITY),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.TOOL_TYPE),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.TOOL_TIER),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.ATTACK_DAMAGE),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.ARMOR_SLOT),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.ARMOR_POINTS),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.ARMOR_TOUGHNESS),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.ItemInfo.NUTRITION),
+                    out.get(ValueLayout.JAVA_FLOAT, FalconAbi.ItemInfo.SATURATION)));
+        }
+    }
+
+    public Optional<BlockInfo> blockInfo(String identifier) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(FalconAbi.BlockInfo.LAYOUT);
+            if (api().serverBlockInfo(Interop.text(arena, identifier), out) == 0) {
+                return Optional.empty();
+            }
+            return Optional.of(new BlockInfo(Interop.string(out.get(ValueLayout.ADDRESS, FalconAbi.BlockInfo.NAME)),
+                    out.get(ValueLayout.JAVA_FLOAT, FalconAbi.BlockInfo.HARDNESS),
+                    out.get(ValueLayout.JAVA_FLOAT, FalconAbi.BlockInfo.BLAST_RESISTANCE),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.TOOL_TYPE),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.TOOL_TIER),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.LIGHT_EMISSION),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.TRANSPARENT) != 0,
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.SOLID) != 0,
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.FLAME_ENCOURAGEMENT),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.FLAMMABILITY),
+                    out.get(ValueLayout.JAVA_INT, FalconAbi.BlockInfo.MAX_STACK_SIZE)));
         }
     }
 

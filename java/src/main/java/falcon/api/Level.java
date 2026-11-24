@@ -308,6 +308,28 @@ public final class Level {
         }
     }
 
+    public List<Box> collisionBoxes(Vec3 from, Vec3 to) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment low = Interop.vec3(arena, from);
+            MemorySegment high = Interop.vec3(arena, to);
+            int capacity = 64;
+            MemorySegment boxes = arena.allocate(FalconAbi.Box.LAYOUT, capacity);
+            int count = api().levelCollisionBoxes(mHandle, low, high, boxes, capacity);
+            if (count > capacity) {
+                capacity = count;
+                boxes = arena.allocate(FalconAbi.Box.LAYOUT, capacity);
+                count = api().levelCollisionBoxes(mHandle, low, high, boxes, capacity);
+            }
+            List<Box> result = new ArrayList<>(Math.min(count, capacity));
+            for (int index = 0; index < Math.min(count, capacity); index++) {
+                MemorySegment box = boxes.asSlice(index * FalconAbi.Box.LAYOUT.byteSize(), FalconAbi.Box.LAYOUT);
+                result.add(new Box(Interop.vec3(box.asSlice(FalconAbi.Box.MIN, FalconAbi.Vec3.LAYOUT)),
+                        Interop.vec3(box.asSlice(FalconAbi.Box.MAX, FalconAbi.Vec3.LAYOUT))));
+            }
+            return result;
+        }
+    }
+
     public boolean placeStructure(String structure, BlockPos position) {
         return placeStructure(structure, position, 0, Mirror.NONE, true, 1.0f);
     }
