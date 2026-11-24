@@ -57,6 +57,8 @@ namespace falcon {
 
         void teleport(const Vec3 &position, const Level &level) const;
 
+        bool teleport(const Vec3 &position, const Level &level, const Vec3 &rotation) const;
+
         Vec3 motion() const {
             return Vec3::from(detail::api().entityMotion(mHandle));
         }
@@ -364,6 +366,11 @@ namespace falcon {
 
     inline void Entity::teleport(const Vec3 &position, const Level &level) const {
         detail::api().entityTeleport(mHandle, level.handle(), position.raw());
+    }
+
+    inline bool Entity::teleport(const Vec3 &position, const Level &level, const Vec3 &rotation) const {
+        const FalconVec3 facing = rotation.raw();
+        return detail::api().entityTeleportWithRotation(mHandle, level.handle(), position.raw(), &facing) != 0;
     }
 
     inline std::optional<Player> Entity::asPlayer() const {
