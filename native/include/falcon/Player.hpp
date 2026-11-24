@@ -118,6 +118,40 @@ namespace falcon {
             detail::api().playerSetGameMode(mHandle, static_cast<FalconGameMode>(gameMode));
         }
 
+        /** Whether this player can toggle flight using the client. */
+        bool allowFlight() const {
+            return detail::api().playerAllowFlight(mHandle) != 0;
+        }
+
+        void setAllowFlight(bool allowed) const {
+            detail::api().playerSetAllowFlight(mHandle, allowed ? 1 : 0);
+        }
+
+        bool isFlying() const {
+            return detail::api().playerIsFlying(mHandle) != 0;
+        }
+
+        void setFlying(bool flying) const {
+            detail::api().playerSetFlying(mHandle, flying ? 1 : 0);
+        }
+
+        /** Changes this player's visibility for one viewer across subsequent updates. */
+        void setVisibleTo(const Player &viewer, bool visible) const {
+            detail::api().playerSetVisibleTo(mHandle, viewer.mHandle, visible ? 1 : 0);
+        }
+
+        void spawnTo(const Player &viewer) const {
+            detail::api().playerSpawnTo(mHandle, viewer.mHandle);
+        }
+
+        void despawnFrom(const Player &viewer, bool sendPacket = true) const {
+            detail::api().playerDespawnFrom(mHandle, viewer.mHandle, sendPacket ? 1 : 0);
+        }
+
+        bool isSpawnedTo(const Player &viewer) const {
+            return detail::api().playerIsSpawnedTo(mHandle, viewer.mHandle) != 0;
+        }
+
         std::string xuid() const {
             return detail::text(detail::api().playerXuid(mHandle));
         }
