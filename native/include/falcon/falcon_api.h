@@ -534,6 +534,7 @@ typedef struct FalconBox {
 #define FALCON_API_ENTITY_MAX_HEALTH 1
 #define FALCON_API_RESOURCE_PACKS 1
 #define FALCON_API_PLAYER_FLIGHT 1
+#define FALCON_API_ENTITY_TELEPORT_DETAILS 1
 #define FALCON_API_WORLD_SPAWN_POSITION 1
 #define FALCON_API_RESOURCE_PACK_OFFER 1
 
@@ -1071,6 +1072,15 @@ typedef struct FalconServerApi {
     void (*playerSpawnTo)(FalconPlayer *target, FalconPlayer *viewer);
     void (*playerDespawnFrom)(FalconPlayer *target, FalconPlayer *viewer, int sendPacket);
     int (*playerIsSpawnedTo)(FalconPlayer *target, FalconPlayer *viewer);
+
+    /* Teleport with an optional pitch, yaw and head yaw. Returns 0 when cancelled or unable to move. */
+    int (*entityTeleportWithRotation)(FalconEntity *entity, FalconLevel *level, FalconVec3 position,
+                                      const FalconVec3 *rotation);
+    /* Redirect a teleport carrying a destination level. Returns 0 for a read-only or unsupported event. */
+    int (*eventSetTeleportLevel)(FalconEvent *event, FalconLevel *level);
+
+    /* Main thread. Makes a chunk available synchronously, loading it from storage or generating terrain. */
+    int (*levelLoadChunk)(FalconLevel *level, int32_t chunkX, int32_t chunkZ);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
