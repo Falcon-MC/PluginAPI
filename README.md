@@ -246,6 +246,29 @@ level.addTickingArea("spawn", {-16, 0, -16}, {16, 0, 16});
 falcon::Server::setDifficulty(falcon::Difficulty::Hard);
 ```
 
+### Custom item components
+
+Set `CustomItem.components` to a JSON object with the same keys as the `components` object in a
+behavior-pack item. Falcon applies the components it supports for packs. Explicit component values
+override the corresponding descriptor defaults.
+
+```cpp
+falcon::CustomItem snack;
+snack.identifier = "example:snack";
+snack.displayName = "Snack";
+snack.components = R"({
+    "minecraft:food": {"nutrition": 4, "saturation_modifier": 0.5},
+    "minecraft:use_modifiers": {"use_duration": 1.6},
+    "minecraft:use_animation": "eat"
+})";
+content().item(std::move(snack));
+```
+
+Java exposes the same setting through `CustomItem.components(String)`. In C, use
+`FalconCustomItemDescriptorV2` with `registerCustomItemWithComponents` and pass the JSON byte length in
+`componentsSize`. In Wasm, use `register-custom-item-with-components` with the existing item descriptor
+and its JSON text. The JSON limit is 64 KiB.
+
 ### Entities and players
 
 Mobs expose their equipment, riding, tags and attack target; players their spawn point, language, platform, skin,

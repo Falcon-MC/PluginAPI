@@ -459,6 +459,14 @@ typedef struct FalconCustomItemDescriptor {
     void *userData;
 } FalconCustomItemDescriptor;
 
+typedef struct FalconCustomItemDescriptorV2 {
+    FalconCustomItemDescriptor item;
+    /* The item's behavior-pack components object as JSON. Copied during registration. */
+    const char *components;
+    uint32_t componentsSize;
+} FalconCustomItemDescriptorV2;
+#define FALCON_CUSTOM_ITEM_COMPONENTS_MAX_BYTES 65536u
+
 typedef struct FalconCustomBlockDescriptor {
     const char *identifier;
     const char *displayName;
@@ -1037,6 +1045,8 @@ typedef struct FalconServerApi {
                                       const char **statesJson);
     int (*levelSetBlockLayer)(FalconLevel *level, FalconBlockPos position, uint32_t layer,
                               const char *name, const char *statesJson);
+
+    int (*registerCustomItemWithComponents)(FalconPlugin *plugin, const FalconCustomItemDescriptorV2 *descriptor);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);

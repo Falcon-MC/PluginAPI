@@ -9,6 +9,7 @@
 #include "falcon/Item.hpp"
 #include "falcon/Player.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <utility>
@@ -17,6 +18,15 @@ namespace falcon {
     class Content {
     public:
         bool item(CustomItem definition) const {
+            const auto &api = detail::api();
+            const bool hasComponents = !definition.components.empty();
+            if (hasComponents
+                && (definition.components.size() > FALCON_CUSTOM_ITEM_COMPONENTS_MAX_BYTES
+                    || api.size < offsetof(FalconServerApi, registerCustomItemWithComponents)
+                                           + sizeof(api.registerCustomItemWithComponents)
+                    || api.registerCustomItemWithComponents == nullptr))
+                return false;
+
             auto *stored = detail::keep(std::make_unique<CustomItem>(std::move(definition)));
 
             FalconCustomItemDescriptor descriptor{};
@@ -30,7 +40,12 @@ namespace falcon {
             descriptor.onUse = stored->onUse ? &useItem : nullptr;
             descriptor.onUseOnBlock = stored->onUseOnBlock ? &useItemOnBlock : nullptr;
             descriptor.userData = stored;
-            return detail::api().registerCustomItem(detail::plugin(), &descriptor) != 0;
+            if (!hasComponents)
+                return api.registerCustomItem(detail::plugin(), &descriptor) != 0;
+
+            const FalconCustomItemDescriptorV2 extended{
+                    descriptor, stored->components.data(), static_cast<uint32_t>(stored->components.size())};
+            return api.registerCustomItemWithComponents(detail::plugin(), &extended) != 0;
         }
 
         bool block(CustomBlock definition) const {

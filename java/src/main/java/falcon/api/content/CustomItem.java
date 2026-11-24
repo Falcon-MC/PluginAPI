@@ -8,6 +8,7 @@ public final class CustomItem {
     private int mMaxStackSize = 64;
     private int mMaxDurability = 0;
     private boolean mHandEquipped = false;
+    private String mComponents = "";
     private ItemUseHandler mOnUse;
     private ItemUseOnBlockHandler mOnUseOnBlock;
 
@@ -70,6 +71,15 @@ public final class CustomItem {
 
     public CustomItem handEquipped(boolean handEquipped) {
         mHandEquipped = handEquipped;
+        return this;
+    }
+
+    public String components() {
+        return mComponents;
+    }
+
+    public CustomItem components(String components) {
+        mComponents = components;
         return this;
     }
 
