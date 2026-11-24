@@ -1031,6 +1031,12 @@ typedef struct FalconServerApi {
     int (*eventResourcePackAt)(FalconEvent *event, uint32_t index, FalconOfferedResourcePack *pack);
     int (*eventReplaceResourcePackOffer)(FalconEvent *event, const FalconResourcePackOfferEntry *packs,
                                          uint32_t count, int required);
+
+    /* the normal block (0) or its overlay (1) in a loaded chunk. Borrowed name and state JSON as for levelGetBlock. */
+    const char *(*levelGetBlockLayer)(FalconLevel *level, FalconBlockPos position, uint32_t layer,
+                                      const char **statesJson);
+    int (*levelSetBlockLayer)(FalconLevel *level, FalconBlockPos position, uint32_t layer,
+                              const char *name, const char *statesJson);
 } FalconServerApi;
 
 typedef int (*FalconPluginEntry)(const FalconServerApi *api, FalconPlugin *plugin, FalconPluginCallbacks *callbacks);
