@@ -557,8 +557,8 @@ mvn -B -f examples/java/HelloPlugin/pom.xml package
 ## Related repositories
 
 - [Falcon](https://github.com/Falcon-MC/Falcon) - the server
-- [Protocol](https://github.com/Falcon-MC/Protocol) - packets and network types
-- [Network](https://github.com/Falcon-MC/Network) - RakNet and NetherNet transport
+- [Falcon.Protocol](https://github.com/Falcon-MC/Falcon/tree/dev/Falcon.Protocol) - packets and network types
+- [Falcon.Network](https://github.com/Falcon-MC/Falcon/tree/dev/Falcon.Network) - RakNet and NetherNet transport
 
 ## Licensing information
 
